@@ -1,13 +1,52 @@
-// import axiosClient from '../../utils/axiosClient';
+import axiosClient from '../../utils/axiosClient';
+import type { ForgotResponse, LoginResponse, registerResponse, VerifyResponse } from './authSlice';
 
-// export const authApi = {
-//   register: (userData:string) => axiosClient.post('/auth/register', userData),
-//   login: (credentials:string) => axiosClient.post('/auth/login', credentials),
-//   verifyEmail: (token:string) => axiosClient.post('/auth/verify-otp', token),
-//   forgotPassword: (email:string) => axiosClient.post('/auth/forgot-password', email ),
-//   resetOtp: (otp:string) => axiosClient.post('/auth/verify-reset-otp',  otp ),
-//   reSentOtp: (userId:string) => axiosClient.post('/auth/resend-otp', userId  ),
-//   resetPassword: (data:string) => axiosClient.post('/auth/reset-password', data),
-//   logout: () => axiosClient.post('/auth/logout'),
-//   getMe: () => axiosClient.get('/auth/me'),
-// };
+// Define types for your data structures
+interface UserData {
+  joinAs: string;
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+interface Credentials {
+  email: string;
+  password: string;
+}
+
+interface VerifyEmailArgs {
+  otp: string;
+  userId: string | null;
+}
+
+interface Email {
+  email: string;
+}
+
+interface Otp {
+  otp: string;
+  userId: string | null;
+}
+
+interface UserId {
+  userId: string |null;
+}
+
+interface ResetPasswordData {
+   newPassword: string;
+  confirmPassword: string;
+  userId: string | null;
+}
+
+export const authApi = {
+  register:<T=registerResponse> (userData: UserData) => axiosClient.post<T>('/auth/register', userData),
+  login:  <T = LoginResponse>(credentials: Credentials) => axiosClient.post<T>('/auth/login', credentials),
+  verifyEmail:<T= VerifyResponse> (credentials: VerifyEmailArgs) => axiosClient.post<T>('/auth/verify-otp', credentials),
+  reSentOtp:<T ={ message: string }> (userId: UserId) => axiosClient.post<T>('/auth/resend-otp', userId),
+  forgotPassword:<T=ForgotResponse> (email: Email) => axiosClient.post<T>('/auth/forgot-password', email),
+  passOtp:<T={ userId: string }> (otp: Otp) => axiosClient.post<T>('/auth/verify-reset-otp', otp),
+  resetPassword:<T={ email: string }> (data: ResetPasswordData) => axiosClient.post<T>('/auth/reset-password', data),
+  roleUpdate:<T=LoginResponse> (credentials:{ role: string }) => axiosClient.post<T>('/auth/set-role',credentials),
+  fetchUser:<T=LoginResponse> () => axiosClient.get<T>('/auth/user'),
+  logout:<T> () => axiosClient.post<T>('/auth/logout'),
+};

@@ -3,10 +3,11 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import { authApi } from "./authApi";
 import axios, { AxiosError } from "axios";
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-interface AuthState {
+export interface AuthState {
   user: LoginResponse["user"] | null;
   userId: string | null;
   isAuthenticated: boolean;
@@ -23,12 +24,12 @@ const initialState: AuthState = {
   error: null,
 };
 
-interface LoginCredentials {
+export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface LoginResponse {
+export interface LoginResponse {
   accessToken: string;
   user: {
     id: string;
@@ -37,67 +38,65 @@ interface LoginResponse {
     fullName: string;
   };
 }
-interface VerifyResponse {
+export interface VerifyResponse {
   user: {
     id: string;
     email: string;
     role: string;
     fullName: string;
   };
+  accessToken: string;
 }
-interface registerResponse {
+export interface registerResponse {
   userId: string;
   message: string;
 }
 
-interface registerCredentials {
+export interface registerCredentials {
   joinAs: string;
   fullName: string;
   email: string;
   password: string;
 }
 
-interface LogoutCredentials {
+export interface LogoutCredentials {
   userId: string | undefined;
 }
-interface LogoutResponse {
+export interface LogoutResponse {
   message: string;
 }
 
-interface VerifyEmailArgs {
+export interface VerifyEmailArgs {
   otp: string;
   userId: string | null;
 }
 
-interface ResendOtpArgs {
+export interface ResendOtpArgs {
   userId: string | null;
 }
 
-interface ForgotResponse {
+export interface ForgotResponse {
   userId: string;
 }
-interface ChangePassArgs {
+export interface ChangePassArgs {
   newPassword: string;
   confirmPassword: string;
   userId: string | null;
 }
 
-// interface AuthResponse {
+// export interface AuthResponse {
 //   accessToken: string;
 //   refreshToken?: string;
 //   user?: object;
 // }
 
 export const loginUser = createAsyncThunk<
-  LoginResponse, // Returned type
-  LoginCredentials, // Argument type
-  { rejectValue: string } // Rejected value type
+  LoginResponse,
+  LoginCredentials,
+  { rejectValue: string }
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axios.post<LoginResponse>(
-      `${apiUrl}/auth/login`,
-      credentials
-    );
+    const response = await authApi.login(credentials);
 
     localStorage.setItem("access_token", response.data.accessToken);
     return response.data;
@@ -113,10 +112,7 @@ export const registerUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/register", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axios.post<registerResponse>(
-      `${apiUrl}/auth/register`,
-      credentials
-    );
+    const response = await authApi.register(credentials);
 
     return response.data;
   } catch (err) {
@@ -127,11 +123,11 @@ export const registerUser = createAsyncThunk<
 
 export const verifyEmail = createAsyncThunk<
   VerifyResponse,
-  VerifyEmailArgs, // argument type
-  { rejectValue: string } // error type
+  VerifyEmailArgs,
+  { rejectValue: string }
 >("auth/verify-otp", async (args, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/auth/verify-otp`, args);
+    const response = await authApi.verifyEmail(args);
     localStorage.setItem("access_token", response.data.accessToken);
     return response.data;
   } catch (error) {
@@ -144,12 +140,12 @@ export const verifyEmail = createAsyncThunk<
 
 // resendOtp thunk
 export const resendOtp = createAsyncThunk<
-  { message: string }, // return type
-  ResendOtpArgs, // argument type
-  { rejectValue: string } // error type
+  { message: string },
+  ResendOtpArgs,
+  { rejectValue: string }
 >("auth/resend-otp", async (args, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/auth/resend-otp`, args);
+    const response = await authApi.reSentOtp(args);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -163,7 +159,7 @@ export const forgotPass = createAsyncThunk<
   { rejectValue: string }
 >("auth/forgot-password", async (args, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/auth/forgot-password`, args);
+    const response = await authApi.forgotPassword(args);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -177,8 +173,8 @@ export const passOtp = createAsyncThunk<
   { rejectValue: string }
 >("auth/verify-reset-otp", async (args, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/auth/verify-reset-otp`, args);
-    localStorage.setItem("access_token", response.data.accessToken);
+    const response = await authApi.passOtp(args);
+    // localStorage.setItem("access_token", response.data.accessToken);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -187,13 +183,14 @@ export const passOtp = createAsyncThunk<
     );
   }
 });
+
 export const resetPassword = createAsyncThunk<
   { email: string },
   ChangePassArgs,
   { rejectValue: string }
 >("auth/reset-password", async (args, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/auth/reset-password`, args);
+    const response = await authApi.resetPassword(args);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -203,17 +200,11 @@ export const resetPassword = createAsyncThunk<
 
 export const fetchUser = createAsyncThunk<
   LoginResponse,
-  void, // No argument
+  void,
   { rejectValue: string }
 >("auth/user", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get<LoginResponse>(`${apiUrl}/auth/user`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-      withCredentials: true,
-    });
+    const response = await authApi.fetchUser();
 
     localStorage.setItem("access_token", response.data.accessToken);
     return response.data;
@@ -229,17 +220,7 @@ export const roleUpdate = createAsyncThunk<
   { rejectValue: string }
 >("auth/set-role", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axios.post<LoginResponse>(
-      `${apiUrl}/auth/set-role`,
-      credentials,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        withCredentials: true,
-      }
-    );
+    const response = await authApi.roleUpdate(credentials);
 
     localStorage.setItem("access_token", response.data.accessToken);
     return response.data;
@@ -255,8 +236,9 @@ export const logoutUser = createAsyncThunk<LogoutResponse, LogoutCredentials>(
     try {
       const response = await axios.post<LogoutResponse>(
         `${apiUrl}/auth/logout`,
-        credentials,{
-          withCredentials:true
+        credentials,
+        {
+          withCredentials: true,
         }
       );
       localStorage.removeItem("access_token");
@@ -267,6 +249,7 @@ export const logoutUser = createAsyncThunk<LogoutResponse, LogoutCredentials>(
     }
   }
 );
+
 const authSlice = createSlice({
   name: "auth",
   initialState,

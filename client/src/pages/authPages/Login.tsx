@@ -51,7 +51,7 @@ export default function LoginPage() {
                 navigate("/home");
             })
             .catch((error) => {
-                toast.error(error?.message || "Login failed");
+                toast.error(error || "Login failed");
             });
     };
     const handleGoogleLogin = (): void => {

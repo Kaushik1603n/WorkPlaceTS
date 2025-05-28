@@ -73,12 +73,12 @@ export default function OTPVerification() {
 
     setOtp(["", "", "", ""]);
     dispatch(resendOtp({ userId: userId }))
-      .unwrap()
-      .then(() => {
-        toast.success("OTP resent successfully");
+    .unwrap()
+    .then(() => {
+      toast.success("OTP resent successfully");
       })
       .catch((error) => {
-        toast.error(error.message);
+        toast.error(error);
       });
 
     setTimer(60);
@@ -100,7 +100,7 @@ export default function OTPVerification() {
         navigate("/");
       })
       .catch((error) => {
-        toast.error(error.message);
+        toast.error(error);
       });
   };
   return (
