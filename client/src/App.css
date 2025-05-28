@@ -1,1 +1,21 @@
 @import "tailwindcss";
+.bg-color-first{
+    background-color: #2ECC71;
+}
+.bg-color-first-hover{
+    background-color: #2bd773;
+}
+.bg-color-light{
+    background-color: #EFFFF6;
+}
+.bg-color-secondary{
+    background-color: #ebfff4;
+}
+
+.border-color{
+    border-color: #27AE60;
+}
+
+.test-color-first{
+    color: #2ECC71;
+}
