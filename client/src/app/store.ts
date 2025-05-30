@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
+import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice"
 import {
   persistStore,
   persistReducer,
@@ -15,6 +16,7 @@ import { combineReducers } from "redux";
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  clientProfile: clientProfileReducer,
 });
 // export const store = configureStore({
 //   reducer: {

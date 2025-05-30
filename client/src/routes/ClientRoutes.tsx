@@ -2,6 +2,8 @@
 import { Routes, Route,  } from "react-router-dom";
 import ProtectedClientRoute from "../utils/ProtectedRoutes/ProtectedClientRoute";
 import ClientLayout from "../pages/clientPages/ClientLayout";
+import ClientProfile from "../pages/clientPages/profile/ClientProfile";
+import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 
 
 function ClientRoutes() {
@@ -21,8 +23,8 @@ function ClientRoutes() {
             element={<>proposalId</>}
           />
           <Route path="payments" element={<div>Payment Page</div>} />
-          <Route path="profile" element={<>profile</>} />
-          <Route path="profile/edit" element={<>profile edit</>} />
+          <Route path="profile" element={<ClientProfile/>} />
+          <Route path="profile/edit" element={<EditClientProfile/>} />
           <Route path="message" element={<div>Message Page</div>} />
           <Route path="notification" element={<div>Notification Page</div>} />
           <Route path="posting" element={<>posting</>} />

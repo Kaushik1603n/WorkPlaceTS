@@ -13,6 +13,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  createdAt?: string | null;
 }
 
 // Initial state
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  createdAt: null,
 };
 
 export interface LoginCredentials {
@@ -36,6 +38,7 @@ export interface LoginResponse {
     email: string;
     role: string;
     fullName: string;
+    createdAt?: string;
   };
 }
 export interface VerifyResponse {
@@ -44,6 +47,7 @@ export interface VerifyResponse {
     email: string;
     role: string;
     fullName: string;
+    createdAt?: string;
   };
   accessToken: string;
 }
