@@ -223,6 +223,16 @@ export class AuthUseCase {
   async logout(userId: string) {
     await this.user.clearRefreshToken(userId);
   }
+  async getUserDetails(userId: string | unknown) {
+    if (typeof userId !== "string") {
+      throw new Error("Invalid user ID");
+    }
+    const user = await this.user.findById(userId);
+    if (!user) {
+      throw new Error("Already Does Not Exists");
+    }
+    return user;
+  }
 
   // async updateNameAndEmail(fullName:string,email:string){
   //   const user = await this.user.findByEmail(email);

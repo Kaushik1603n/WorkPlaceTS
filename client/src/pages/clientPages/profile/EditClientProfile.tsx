@@ -12,6 +12,7 @@ import FormField from "../../../components/client/profile/profileForm/FormField"
 import CoverModal from "../../../components/coverImageCropper/CoverModal";
 import { getClientProfile, updateClientProfile, type ClientProfile } from "../../../features/clientFeatures/profile/clientProfileSlice";
 import { useDispatch } from "react-redux";
+import { getUserDetails } from "../../../features/auth/authSlice";
 
 interface ProfileData {
   fullName: string;
@@ -59,7 +60,7 @@ export default function ClientProfileEdit() {
         website: client?.website || "",
         description: client?.description || "",
       });
-      setCoverPhoto(client?.CoverPic || null);
+      setCoverPhoto(client?.coverPic || null);
       setProfilePhoto(client?.profilePic || null);
     }
   }, [user, client]);
@@ -138,7 +139,7 @@ export default function ClientProfileEdit() {
       website !== website ||
       description !== description ||
       client?.profilePic !== profilePhoto ||
-      client?.CoverPic !== coverPhoto;
+      client?.coverPic !== coverPhoto;
 
     if (!isChanged) {
       toast.info("No changes detected");
@@ -158,15 +159,16 @@ export default function ClientProfileEdit() {
       fullName: profileData.fullName,
       location: profileData.location,
       website: profileData.website,
-      CoverPic: coverPhoto, // string | null
+      coverPic: coverPhoto, // string | null
       profilePic: profilePhotoBase64 || profilePhoto, // string | null
     };
-    console.log(formData);
+    console.log(formData.coverPic);
 
 
     dispatch(updateClientProfile(formData as ClientProfile))
       .unwrap()
       .then(() => {
+        dispatch(getUserDetails()).unwrap()
         toast.success("Profile Update successfully");
       })
       .catch((error: { error?: string }) => {

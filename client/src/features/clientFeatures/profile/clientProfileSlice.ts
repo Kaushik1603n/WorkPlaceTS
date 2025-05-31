@@ -9,7 +9,7 @@ import type { AxiosError } from "axios";
 export interface ClientProfile {
   email?: string;
   fullName?: string;
-  CoverPic?: string|null;
+  coverPic?: string|null;
   profilePic?: string|null;
   companyName?: string;
   location?: string;

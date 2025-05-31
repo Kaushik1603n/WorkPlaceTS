@@ -8,7 +8,7 @@ export class ClientProfileUserCase {
     this.user = user;
   }
 
-  async profileDetails(
+  async clientProfileEdit(
     userId: string | unknown,
     companyName: string,
     description: string,
@@ -20,12 +20,16 @@ export class ClientProfileUserCase {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
+    // console.log(coverPic);
+    
     let coverPromise, profilePromise;
 
     if (coverPic && !coverPic.includes("res.cloudinary.com")) {
       coverPromise = cloudinary.uploader.upload(coverPic, {
         folder: "cover_uploads",
       });
+      console.log((await coverPromise).url);
+      
     } else {
       coverPromise = Promise.resolve({ secure_url: coverPic });
     }
@@ -90,5 +94,13 @@ export class ClientProfileUserCase {
     }
 
     return userData;
+  }
+
+  async profileDetails(userId:string|unknown){
+     if (typeof userId !== "string") {
+      throw new Error("Invalid user ID");
+    }
+    const result = await this.client.findOne(userId);
+    return result
   }
 }

@@ -34,7 +34,7 @@ export default function ClientProfile() {
                 <div className="relative">
                     <div className="w-full aspect-[5.5/1] overflow-hidden bg-amber-50">
                         <img
-                            src={client?.CoverPic ? client.CoverPic : cover}
+                            src={client?.coverPic ? client.coverPic : cover}
                             alt="Profile Banner"
                             className="w-full object-cover"
                         />

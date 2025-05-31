@@ -8,7 +8,6 @@ const user = new UserRepo();
 const useCase = new AuthUseCase(user);
 
 export class AuthControllers {
-  
   login: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
@@ -255,6 +254,29 @@ export class AuthControllers {
     }
   };
 
+  getUserDetails: RequestHandler = async (req, res) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+      const userId = "userId" in req.user ? req.user.userId : req.user;
+      if (!userId) {
+        res.status(400).json({ message: "User ID not found" });
+        return;
+      }
+
+      try {
+        const result = await useCase.getUserDetails(userId);
+        res.status(200).json({ success: true, user:result });
+      } catch (error) {}
+    } catch (error) {
+      console.error("error during get user", error);
+      res
+        .status(500)
+        .json({ message: "internal server error during get user" });
+    }
+  };
   userRole: RequestHandler = async (req, res) => {
     try {
       const { role } = req.body;

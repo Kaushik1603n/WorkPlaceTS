@@ -29,7 +29,7 @@ export class UserRepo implements userRepoI {
       otpExpiry: undefined,
     });
   }
-  
+
   async updateRole(userId: string, role: string) {
     return await UserModel.findByIdAndUpdate(userId, { role }, { new: true });
   }
@@ -38,12 +38,20 @@ export class UserRepo implements userRepoI {
   //   const user = this.findByEmail(email);
   //   console.log(user, fullName);
   // }
-  async updateEmail(userId:string|unknown,email: string): Promise<any> {
-    const result = await UserModel.findByIdAndUpdate(userId,{ email });
+  async updateEmail(userId: string | unknown, email: string): Promise<any> {
+    const result = await UserModel.findByIdAndUpdate(
+      userId,
+      { email },
+      { new: true }
+    );
     return result;
   }
-  async updateName(userId:string|unknown,fullName: string): Promise<any> {
-    const result = await UserModel.findByIdAndUpdate(userId,{ fullName });    
+  async updateName(userId: string | unknown, fullName: string): Promise<any> {
+    const result = await UserModel.findByIdAndUpdate(
+      userId,
+      { fullName },
+      { new: true }
+    );
     return result;
   }
 }

@@ -217,6 +217,21 @@ export const fetchUser = createAsyncThunk<
     return rejectWithValue(error.response?.data.message || "Login failed");
   }
 });
+export const getUserDetails = createAsyncThunk<
+  LoginResponse,
+  void,
+  { rejectValue: string }
+>("auth/get-user-details", async (_, { rejectWithValue }) => {
+  try {
+    const response = await authApi.getUserDetails();
+    console.log(response.data);
+    
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue(error.response?.data.message || "Login failed");
+  }
+});
 
 export const roleUpdate = createAsyncThunk<
   LoginResponse,
@@ -378,6 +393,23 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Something went wrong";
       })
+
+      .addCase(getUserDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        getUserDetails.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+        }
+      )
+      .addCase(getUserDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+
       .addCase(roleUpdate.pending, (state) => {
         state.loading = true;
         state.error = null;

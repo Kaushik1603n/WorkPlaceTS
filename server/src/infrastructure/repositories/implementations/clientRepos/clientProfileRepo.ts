@@ -30,5 +30,10 @@ export class ClientRepo implements clientRepoI {
     return result;
   }
 
+  async findOne(userId:string|unknown){
+    const result = await clientModal.findOne({userId})
+    return result;
+  }
+
   
 }

@@ -48,5 +48,6 @@ export const authApi = {
   resetPassword:<T={ email: string }> (data: ResetPasswordData) => axiosClient.post<T>('/auth/reset-password', data),
   roleUpdate:<T=LoginResponse> (credentials:{ role: string }) => axiosClient.post<T>('/auth/set-role',credentials),
   fetchUser:<T=LoginResponse> () => axiosClient.get<T>('/auth/user'),
+  getUserDetails:<T=LoginResponse> () => axiosClient.get<T>('/auth/get-user-details'),
   logout:<T> () => axiosClient.post<T>('/auth/logout'),
 };

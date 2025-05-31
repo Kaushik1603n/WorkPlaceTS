@@ -35,6 +35,7 @@ authouter.get(
   auth.googleCallback
 );
 authouter.get("/user", passport.authenticate("jwt", { session: false }), auth.getUser);
+authouter.get("/get-user-details",authenticate,  auth.getUserDetails);
 authouter.post("/set-role",authenticate,  auth.userRole);
 
 export default authouter;

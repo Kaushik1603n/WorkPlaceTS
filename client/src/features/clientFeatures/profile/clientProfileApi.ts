@@ -3,7 +3,7 @@ import axiosClient from "../../../utils/axiosClient";
 interface ClientProfile {
   fullName?: string;
   email?: string;
-  CoverPic?:string |null;
+  coverPic?:string |null;
   profilePic?:string| null;
   companyName?:string;
   location?:string;

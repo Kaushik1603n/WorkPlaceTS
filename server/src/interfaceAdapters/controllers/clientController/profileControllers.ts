@@ -40,7 +40,7 @@ export class profileCondroller {
           success: false,
           error: { message: "Full name and email are required" },
         });
-        return
+        return;
       }
 
       // Update user name and email
@@ -49,10 +49,9 @@ export class profileCondroller {
         fullName,
         email
       );
-      console.log("update", updatedUser);
 
       // Update client profile
-      const updatedClient = await clientUseCase.profileDetails(
+      const updatedClient = await clientUseCase.clientProfileEdit(
         userId,
         companyName,
         description,
@@ -61,8 +60,6 @@ export class profileCondroller {
         CoverPic,
         profilePic
       );
-
-      console.log(updatedClient);
 
       res.status(200).json({
         message: "Profile updated successfully",
@@ -76,7 +73,28 @@ export class profileCondroller {
   };
 
   profileDetails: RequestHandler = async (req, res): Promise<void> => {
-    console.log(req.body);
-    console.log(res);
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      // Get userId from authenticated user
+      const userId = "userId" in req.user ? req.user.userId : req.user;
+      if (!userId) {
+        res.status(400).json({ message: "User ID not found" });
+        return;
+      }
+
+      const client = await clientUseCase.profileDetails(userId);
+
+      res.status(200).json({
+        success: true,
+        client: client,
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get client details" });
+    }
   };
 }

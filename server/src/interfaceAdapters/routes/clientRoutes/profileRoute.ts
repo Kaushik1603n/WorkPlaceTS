@@ -6,7 +6,7 @@ const profile =new profileCondroller()
 const profileRoute = express.Router();
 
 profileRoute.post("/edit-profile",authenticate, profile.profileEdit);
-// profileRoute.get("/get-profile",authenticate, profile.profileDetails);
+profileRoute.get("/get-profile",authenticate, profile.profileDetails);
 
 
 export default profileRoute;
