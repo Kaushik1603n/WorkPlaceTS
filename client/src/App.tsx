@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import AuthRoutes from "./routes/AuthRoutes";
 import ClientRoutes from "./routes/ClientRoutes";
+import FreelancerRoutes from "./routes/FreelancerRoutes";
 // import type { RootState } from "./app/store";
 // import { useSelector } from "react-redux";
 
@@ -31,6 +32,7 @@ function App() {
         </Routes>
         <AuthRoutes />
         <ClientRoutes />
+        <FreelancerRoutes/>
 
       </Router>
     </>
