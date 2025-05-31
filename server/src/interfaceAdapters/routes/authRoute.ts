@@ -3,23 +3,23 @@ import { AuthControllers } from "../controllers/authControllers";
 import passport from "passport";
 import authenticate from "../../middleware/authMiddleware";
 
-const router = express.Router();
+const authouter = express.Router();
 const auth = new AuthControllers();
 
-router.post("/register", auth.register);
-router.post("/verify-otp", auth.verifyOtp);
-router.post("/resend-otp", auth.resendOtp);
-router.post("/login", auth.login);
-router.post("/refresh", auth.refresh);
+authouter.post("/register", auth.register);
+authouter.post("/verify-otp", auth.verifyOtp);
+authouter.post("/resend-otp", auth.resendOtp);
+authouter.post("/login", auth.login);
+authouter.post("/refresh", auth.refresh);
 
-router.post("/forgot-password", auth.forgotPass);
-router.post("/verify-reset-otp", auth.resetPassVerifyOtp);
-// router.get("/resend-otp", auth.resendOtp);
-router.post("/reset-password", auth.changePassword);
+authouter.post("/forgot-password", auth.forgotPass);
+authouter.post("/verify-reset-otp", auth.resetPassVerifyOtp);
+// authouter.get("/resend-otp", auth.resendOtp);
+authouter.post("/reset-password", auth.changePassword);
 
-router.post("/logout", auth.logout);
+authouter.post("/logout", auth.logout);
 
-router.get(
+authouter.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
@@ -27,14 +27,14 @@ router.get(
   })
 );
 
-router.get(
+authouter.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
   }),
   auth.googleCallback
 );
-router.get("/user", passport.authenticate("jwt", { session: false }), auth.getUser);
-router.post("/set-role",authenticate,  auth.userRole);
+authouter.get("/user", passport.authenticate("jwt", { session: false }), auth.getUser);
+authouter.post("/set-role",authenticate,  auth.userRole);
 
-export default router;
+export default authouter;

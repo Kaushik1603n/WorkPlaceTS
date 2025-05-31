@@ -1,11 +1,13 @@
 import express, { Application } from "express";
 import connectDB from "./infrastructure/database/db";
 import cookieParser from "cookie-parser";
-import router from "./interfaceAdapters/routes/authRoute";
 import cors from "cors";
-import morgan from 'morgan';
+import morgan from "morgan";
 import "./infrastructure/passport/passport";
 import passport from "passport";
+import authouter from "./interfaceAdapters/routes/authRoute";
+import profileRoute from "./interfaceAdapters/routes/clientRoutes/profileRoute";
+// import bodyParser from "body-parser";
 
 export class App {
   private app: Application;
@@ -15,17 +17,21 @@ export class App {
     this.setupRoutes();
   }
   private setupRoutes() {
-    this.app.use("/api/auth", router);
+    this.app.use("/api/auth", authouter);
+    this.app.use("/api/client", profileRoute);
   }
 
   private setupMiddlewares() {
-    this.app.use(express.json());
+    this.app.use(express.json({ limit: "300mb" }));
+ this.app.use(express.urlencoded({ extended: true }));
+    // this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    this.app.use(morgan('dev'));
+    this.app.use(morgan("dev"));
+
     this.app.use(
       cors({
-        origin: "http://localhost:5173", 
+        origin: "http://localhost:5173",
         credentials: true,
       })
     );

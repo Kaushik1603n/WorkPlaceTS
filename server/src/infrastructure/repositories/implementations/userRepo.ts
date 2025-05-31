@@ -29,8 +29,21 @@ export class UserRepo implements userRepoI {
       otpExpiry: undefined,
     });
   }
-
+  
   async updateRole(userId: string, role: string) {
-   return await UserModel.findByIdAndUpdate(userId, { role }, { new: true });
+    return await UserModel.findByIdAndUpdate(userId, { role }, { new: true });
+  }
+
+  // async updateNameAndEmail(fullName: string, email: string) {
+  //   const user = this.findByEmail(email);
+  //   console.log(user, fullName);
+  // }
+  async updateEmail(userId:string|unknown,email: string): Promise<any> {
+    const result = await UserModel.findByIdAndUpdate(userId,{ email });
+    return result;
+  }
+  async updateName(userId:string|unknown,fullName: string): Promise<any> {
+    const result = await UserModel.findByIdAndUpdate(userId,{ fullName });    
+    return result;
   }
 }

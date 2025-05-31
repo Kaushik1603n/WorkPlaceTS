@@ -223,4 +223,22 @@ export class AuthUseCase {
   async logout(userId: string) {
     await this.user.clearRefreshToken(userId);
   }
+
+  // async updateNameAndEmail(fullName:string,email:string){
+  //   const user = await this.user.findByEmail(email);
+  //   // if (!user) throw new Error("Invalid credentials");
+
+  //    if (user.email !== email) {
+  //     const emailUsed = await this.user.findByEmail(email);
+  //     if (!emailUsed) {
+  //       await this.
+  //     } else {
+  //       return
+  //     }
+  //   }
+
+  //   const result= await this.user.updateNameAndEmail(fullName,email)
+  //   return result;
+
+  // }
 }
