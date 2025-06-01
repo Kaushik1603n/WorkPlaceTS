@@ -1,5 +1,5 @@
 // import React from 'react'
-import { Routes, Route,  } from "react-router-dom";
+import {  Route,  } from "react-router-dom";
 import ProtectedClientRoute from "../utils/ProtectedRoutes/ProtectedClientRoute";
 import ClientLayout from "../pages/clientPages/ClientLayout";
 import ClientProfile from "../pages/clientPages/profile/ClientProfile";
@@ -9,7 +9,7 @@ import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 function ClientRoutes() {
   return (
   
-    <Routes>
+    <>
       <Route element={<ProtectedClientRoute />}>
         <Route path="/client-dashboard" element={<ClientLayout />}>
           <Route index element={<>gvgv</>} />
@@ -39,7 +39,7 @@ function ClientRoutes() {
           />
         </Route>
       </Route>
-    </Routes>
+    </>
   )
 }
 

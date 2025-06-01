@@ -11,7 +11,6 @@ export default function FreelancerProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const { user } = useSelector((state: RootState) => state.auth);
-console.log(freelancer);
 
     useEffect(() => {
         dispatch(getFreelancerProfile())

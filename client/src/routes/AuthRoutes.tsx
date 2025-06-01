@@ -1,5 +1,5 @@
 // src/routes/AuthRoutes.js
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {  Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/authPages/Login";
 import Registration from "../pages/authPages/Register";
 import OTPVerification from "../pages/authPages/OTPVerification";
@@ -9,37 +9,24 @@ import ChangePass from "../pages/authPages/ChangePass";
 import LoginSuccess from "../pages/authPages/LoginSuccess";
 import type { RootState } from "../app/store";
 import { useSelector } from "react-redux";
+import ProtectedAuthRoutes from "../utils/ProtectedRoutes/ProtectedAuthRoutes";
+import HomePage from "../pages/HomePage";
 
 const AuthRoutes = () => {
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-    const location = useLocation();
-
-    const authPaths = [
-        "/login",
-        "/register",
-        "/verify-otp",
-        "/forgot-pass",
-        "/otp",
-        "/change-pass",
-        "/success-login"
-    ];
-
-    if (isAuthenticated && authPaths.includes(location.pathname)) {
-         <Route >
-          <Route path="/login" element={<Navigate to="/" />} />
-          <Route path="/register" element={<Navigate to="/" />} />
-          <Route path="/verify-otp" element={<Navigate to="/" />} />
-          <Route path="/forgot-pass" element={<Navigate to="/" />} />
-          <Route path="/otp" element={<Navigate to="/" />} />
-          <Route path="/change-pass" element={<Navigate to="/" />} />
-        </Route>
-    }
-
-
-
+  
     return (
-        <Routes>
+        <>
+            <Route element={<ProtectedAuthRoutes />}>
+                <Route path="/login" element={<Navigate to="/" />} />
+                <Route path="/register" element={<Navigate to="/" />} />
+                <Route path="/verify-otp" element={<Navigate to="/" />} />
+                <Route path="/forgot-pass" element={<Navigate to="/" />} />
+                <Route path="/otp" element={<Navigate to="/" />} />
+                <Route path="/change-pass" element={<Navigate to="/" />} />
+                <Route path="/home" element={<HomePage />} />
+            </Route>
             {!isAuthenticated && (
                 <>
                     <Route path="/login" element={<LoginPage />} />
@@ -49,8 +36,8 @@ const AuthRoutes = () => {
                     <Route path="/otp" element={<ChangePassOtp />} />
                     <Route path="/change-pass" element={<ChangePass />} />
                 </>)}
-                    <Route path="/success-login" element={<LoginSuccess />} />
-        </Routes>
+            <Route path="/success-login" element={<LoginSuccess />} />
+        </>
     );
 };
 

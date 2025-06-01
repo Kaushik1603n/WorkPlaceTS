@@ -29,11 +29,10 @@ function App() {
           <Route path="/about" element={<>About</>} />
 
 
+          {AuthRoutes()}
+          {ClientRoutes()}
+          {FreelancerRoutes()}
         </Routes>
-        <AuthRoutes />
-        <ClientRoutes />
-        <FreelancerRoutes/>
-
       </Router>
     </>
   )

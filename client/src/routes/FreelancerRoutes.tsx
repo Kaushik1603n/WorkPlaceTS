@@ -1,4 +1,4 @@
-import { Routes, Route, } from "react-router-dom";
+import {  Route, } from "react-router-dom";
 import ProtectedFreelancer from "../utils/ProtectedRoutes/ProtectedFreelancer";
 import FreelancerLayout from "../pages/freelancerPages/FreelancerLayout";
 import FreelancerProfile from "../pages/freelancerPages/profile/FreelancerProfile";
@@ -6,7 +6,7 @@ import EditFreelancerProfile from "../pages/freelancerPages/profile/EditFreelanc
 
 function FreelancerRoutes() {
     return (
-        <Routes>
+        <>
             <Route element={<ProtectedFreelancer />}>
                 <Route path="/freelancer-dashboard" element={<FreelancerLayout />}>
                     <Route index element={<>dashboard</>} />
@@ -28,7 +28,7 @@ function FreelancerRoutes() {
                     />
                 </Route>
             </Route>
-        </Routes>
+        </>
     )
 }
 
