@@ -3,17 +3,18 @@ import cover from "../../../assets/cover.png";
 import avatar from "../../../assets/p1.jpg";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getClientProfile } from "../../../features/clientFeatures/profile/clientProfileSlice";
 import type { AppDispatch, RootState } from "../../../app/store";
 import RecentProject from "../../../components/client/profile/RecentProject";
+import { getFreelancerProfile } from "../../../features/freelancerFeatures/profile/freelancerProfileSlice";
 
 export default function FreelancerProfile() {
     const dispatch = useDispatch<AppDispatch>();
-    const { client } = useSelector((state: RootState) => state.clientProfile);
+    const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const { user } = useSelector((state: RootState) => state.auth);
+console.log(freelancer);
 
     useEffect(() => {
-        dispatch(getClientProfile())
+        dispatch(getFreelancerProfile())
             .unwrap()
             .then(() => { })
             .catch((error) => {
@@ -34,7 +35,7 @@ export default function FreelancerProfile() {
                 <div className="relative">
                     <div className="w-full aspect-[5.5/1] overflow-hidden bg-amber-50">
                         <img
-                            src={client?.coverPic ? client.coverPic : cover}
+                            src={freelancer?.coverPic ? freelancer.coverPic : cover}
                             alt="Profile Banner"
                             className="w-full object-cover"
                         />
@@ -43,7 +44,7 @@ export default function FreelancerProfile() {
                     <div className="absolute left-4 bottom-0 transform translate-y-1/2">
                         <div className="h-30 w-30 rounded-full bg-white p-1 shadow-md">
                             <img
-                                src={client?.profilePic ? client.profilePic : avatar}
+                                src={freelancer?.profilePic ? freelancer.profilePic : avatar}
                                 alt="Profile"
                                 className="h-full w-full rounded-full object-cover"
                             />
@@ -57,7 +58,7 @@ export default function FreelancerProfile() {
                             <h2 className="text-xl font-semibold text-gray-800">
                                 {user?.fullName}
                             </h2>
-                            <p className="text-gray-600 mt-1">{client?.companyName}</p>
+                            {/* <p className="text-gray-600 mt-1">{freelancer?.role?freelancer?.role:"freelancer"}</p> */}
 
                             <div className="mt-4 space-y-2">
                                 <div className="flex items-center text-gray-600">
@@ -80,7 +81,7 @@ export default function FreelancerProfile() {
                                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                                         />
                                     </svg>
-                                    <span>{client?.location? client?.location:"Location"}</span>
+                                    <span>{freelancer?.location ? freelancer?.location : "Location"}</span>
                                 </div>
 
                                 <div className="flex items-center text-gray-600">
@@ -155,9 +156,6 @@ export default function FreelancerProfile() {
               </div> */}
 
                             <div className="mt-6">
-                                <button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-2 px-4 rounded-md font-medium">
-                                    Create new Job
-                                </button>
 
                                 <Link
                                     to="edit"
@@ -165,6 +163,21 @@ export default function FreelancerProfile() {
                                 >
                                     Edit Profile
                                 </Link>
+                            </div>
+                            <div className="mt-6 border border-color rounded-md p-4 w-full">
+                                <h3 className="text-lg font-semibold mb-3">Skills</h3>
+                                <div className="flex flex-wrap gap-2 max-h-35 overflow-y-auto p-1">
+                                    {freelancer?.skills ? freelancer?.skills.map((skill, index) => (
+                                        <div
+                                            key={index}
+                                            className="px-3 py-2 border border-color rounded-md bg-emerald-50 text-emerald-800 inline-block"
+                                        >
+                                            {skill}
+                                        </div>
+                                    )) :
+                                        <p>
+                                            No skills</p>}
+                                </div>
                             </div>
                         </div>
 
@@ -191,7 +204,7 @@ export default function FreelancerProfile() {
                             <div className="mt-6">
                                 <h3 className="text-lg font-medium mb-4">Recent Projects</h3>
 
-                               <RecentProject/>
+                                <RecentProject />
                             </div>
                         </div>
                     </div>

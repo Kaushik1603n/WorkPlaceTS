@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
 import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice"
+import freelancerProfileSlice from "../features/freelancerFeatures/profile/freelancerProfileSlice"
 import {
   persistStore,
   persistReducer,
@@ -17,6 +18,7 @@ import { combineReducers } from "redux";
 const rootReducer = combineReducers({
   auth: authReducer,
   clientProfile: clientProfileReducer,
+  freelancerProfile: freelancerProfileSlice,
 });
 // export const store = configureStore({
 //   reducer: {
@@ -28,7 +30,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // reducers you want to persist
+  whitelist: ["auth","clientProfile","freelancerProfile"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

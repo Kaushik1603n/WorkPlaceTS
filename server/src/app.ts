@@ -7,6 +7,7 @@ import "./infrastructure/passport/passport";
 import passport from "passport";
 import authouter from "./interfaceAdapters/routes/authRoute";
 import profileRoute from "./interfaceAdapters/routes/clientRoutes/profileRoute";
+import freelancerProfileRoute from "./interfaceAdapters/routes/freelancerRoutes/freelancerProfile";
 // import bodyParser from "body-parser";
 
 export class App {
@@ -19,6 +20,7 @@ export class App {
   private setupRoutes() {
     this.app.use("/api/auth", authouter);
     this.app.use("/api/client", profileRoute);
+    this.app.use("/api/freelancer", freelancerProfileRoute);
   }
 
   private setupMiddlewares() {
