@@ -49,7 +49,6 @@ export class freelancerProfileControllers {
         fullName,
         email
       );
-      
 
       const freelancer = await freelancerUseCase.freelancerProfileEdit(
         userId,
@@ -72,7 +71,11 @@ export class freelancerProfileControllers {
       });
     } catch (error) {
       console.error("Error in profileEdit:", error);
-      res.status(500).json({ message: "Internal server error" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
     }
   };
 
@@ -98,7 +101,11 @@ export class freelancerProfileControllers {
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
     }
   };
 }

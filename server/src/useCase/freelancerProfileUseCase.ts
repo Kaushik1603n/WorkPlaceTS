@@ -47,9 +47,8 @@ export class FreelancerProfileUseCase {
       coverPromise,
       profilePromise,
     ]);
-    
 
-    const freelancerProfileData =await this.freelancer.findOneAndUpdate(
+    const freelancerProfileData = await this.freelancer.findOneAndUpdate(
       userId,
       availability,
       experience,
@@ -71,16 +70,13 @@ export class FreelancerProfileUseCase {
   }
 
   async updateNameAndEmail(userId: string, fullName: string, email: string) {
-
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
     }
 
-    const user = await this.user.findByEmail(email);
-    
-    // if (!user) throw new Error("Invalid credentials");
+    const user = await this.user.findById(userId);
 
-    if (user.email !== email) {
+    if (user?.email !== email) {
       const emailUsed = await this.user.findByEmail(email);
       if (!emailUsed) {
         return this.user.updateEmail(userId, email);
@@ -92,15 +88,14 @@ export class FreelancerProfileUseCase {
     if (user.fullName !== fullName) {
       userData = await this.user.updateName(userId, fullName);
     }
-    
 
-    return userData?? user;
+    return userData ?? user;
   }
-    async profileDetails(userId:string|unknown){
-     if (typeof userId !== "string") {
+  async profileDetails(userId: string | unknown) {
+    if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
     const result = await this.freelancer.findOne(userId);
-    return result
+    return result;
   }
 }
