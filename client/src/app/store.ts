@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
 import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice"
 import freelancerProfileSlice from "../features/freelancerFeatures/profile/freelancerProfileSlice"
+import usersProfileDataSlice from "../features/admin/users/usersSlice"
 import {
   persistStore,
   persistReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   clientProfile: clientProfileReducer,
   freelancerProfile: freelancerProfileSlice,
+  userData: usersProfileDataSlice,
 });
 // export const store = configureStore({
 //   reducer: {

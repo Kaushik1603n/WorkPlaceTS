@@ -1,6 +1,9 @@
 import { Search, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Pagination from '../../components/Pagination';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../../app/store';
+import { getFreelancerData } from '../../features/admin/users/usersSlice';
 
 const customers = [
     {
@@ -23,10 +26,20 @@ const customers = [
     }
 ];
 
+
 function Freelancer() {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number | null>(1);
     const [customerData, setCustomerData] = useState(customers);
+
+    const dispatch = useDispatch<AppDispatch>()
+    useEffect(() => {
+        dispatch(getFreelancerData()).unwrap().then((data) => {
+            console.log(data);
+
+        })
+
+    }, [dispatch])
 
     const handleActionChange = (customerId: string, action: string) => {
         setCustomerData(prev => prev.map(customer => {

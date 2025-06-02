@@ -1,5 +1,8 @@
 import { Search, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../../app/store';
+import { getUserData } from '../../features/admin/users/usersSlice';
 
 const customers = [
     {
@@ -25,6 +28,15 @@ const customers = [
 function AllUsers() {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [customerData, setCustomerData] = useState(customers);
+
+    const dispatch = useDispatch<AppDispatch>()
+    useEffect(() => {
+        dispatch(getUserData()).unwrap().then((data) => {
+            console.log(data);
+
+        })
+
+    }, [dispatch])
 
     const handleActionChange = (customerId: string, action: string) => {
         setCustomerData(prev => prev.map(customer => {
@@ -84,11 +96,10 @@ function AllUsers() {
                                 <td className="py-4 px-6 text-gray-600">{customer.email}</td>
                                 <td className="py-4 px-6">
                                     <span
-                                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                            customer.status === 'Active'
+                                        className={`px-3 py-1 rounded-full text-sm font-medium ${customer.status === 'Active'
                                                 ? 'bg-green-100 text-green-800'
                                                 : 'bg-red-100 text-red-800'
-                                        }`}
+                                            }`}
                                     >
                                         {customer.status}
                                     </span>
@@ -98,11 +109,10 @@ function AllUsers() {
                                     <div className="relative">
                                         <button
                                             onClick={() => toggleDropdown(customer.id)}
-                                            className={`flex items-center space-x-2 px-3 py-1 rounded text-sm font-medium ${
-                                                customer.action === 'Active'
+                                            className={`flex items-center space-x-2 px-3 py-1 rounded text-sm font-medium ${customer.action === 'Active'
                                                     ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
                                                     : 'bg-red-100 text-red-700 hover:bg-red-200'
-                                            }`}
+                                                }`}
                                         >
                                             <span>{customer.action}</span>
                                             <ChevronDown className="w-4 h-4" />

@@ -1,5 +1,8 @@
 import { Search, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../../app/store';
+import { getClientData } from '../../features/admin/users/usersSlice';
 
 const customers = [
     {
@@ -25,6 +28,15 @@ const customers = [
 function Client() {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [customerData, setCustomerData] = useState(customers);
+
+      const dispatch = useDispatch<AppDispatch>()
+    useEffect(() => {
+        dispatch(getClientData()).unwrap().then((data) => {
+            console.log(data);
+
+        })
+
+    }, [dispatch])
 
     const handleActionChange = (customerId: string, action: string) => {
         setCustomerData(prev => prev.map(customer => {
