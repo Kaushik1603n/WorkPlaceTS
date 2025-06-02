@@ -12,7 +12,7 @@ const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
-  maxVisiblePages = 5,
+  maxVisiblePages = 4,
 }) => {
   const getPageNumbers = () => {
     const half = Math.floor(maxVisiblePages / 2);

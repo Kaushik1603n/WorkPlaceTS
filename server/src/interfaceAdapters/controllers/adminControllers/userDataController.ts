@@ -23,9 +23,14 @@ export class UserDataController {
   };
 
   getUsersData: RequestHandler = async (req, res): Promise<any> => {
-    console.log(req.user);
-    const users = await userData.getUsersData();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const search = req.query.search as string || "";
 
-    res.status(200).json({ data: "success", users });
+
+    const data = await userData.getUsersData(page,limit,search);
+    console.log(data);
+
+    res.status(200).json({success:true ,message: "success", data });
   };
 }

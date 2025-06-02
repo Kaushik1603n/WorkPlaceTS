@@ -34,7 +34,7 @@ function Freelancer() {
 
     const dispatch = useDispatch<AppDispatch>()
     useEffect(() => {
-        dispatch(getFreelancerData()).unwrap().then((data) => {
+        dispatch(getFreelancerData({})).unwrap().then((data) => {
             console.log(data);
 
         })

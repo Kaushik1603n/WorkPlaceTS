@@ -12,11 +12,12 @@ export class UserUseCase {
 
   async getClientData() {
    const client =this.user.findClient();
-    return client;
-  }
+   
+   return client;
+}
 
-  async getUsersData() {
-    const users =this.user.find();
+async getUsersData(page:number,limit:number,search:string) {
+    const users =this.user.find(page,limit,search);
     return users;
   }
 }
