@@ -1,5 +1,8 @@
 import { Route, } from "react-router-dom";
 import AdminLayout from "../pages/admin/AdminLayout";
+import Freelancer from "../pages/admin/Freelancer";
+import Client from "../pages/admin/Client";
+import AllUsers from "../pages/admin/AllUsers";
 
 function AdminRoutes() {
     return (
@@ -12,9 +15,9 @@ function AdminRoutes() {
                 <Route path="Report-Resolution" element={<>Report-Resolution</>} />
                 <Route path="analytics-dashboard" element={<>analytics-dashboard</>} />
                 <Route path="notification" element={<div>Notification Page</div>} />
-                <Route path="freelancer" element={<div>Freelancer Page</div>} />
-                <Route path="client" element={<div>client Page</div>} />
-                <Route path="users" element={<div>users Page</div>} />
+                <Route path="freelancer" element={<Freelancer/>} />
+                <Route path="client" element={<Client />} />
+                <Route path="users" element={<AllUsers/>} />
                 
             </Route>
             {/* </Route> */}
