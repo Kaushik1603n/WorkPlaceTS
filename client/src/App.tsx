@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import AuthRoutes from "./routes/AuthRoutes";
 import ClientRoutes from "./routes/ClientRoutes";
 import FreelancerRoutes from "./routes/FreelancerRoutes";
+import AdminRoutes from "./routes/AdminRoutes";
 // import type { RootState } from "./app/store";
 // import { useSelector } from "react-redux";
 
@@ -27,11 +28,13 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/about" element={<>About</>} />
+          {/* <Route path="/admin-dashboard" element={<AdminLayout/>} /> */}
 
 
           {AuthRoutes()}
           {ClientRoutes()}
           {FreelancerRoutes()}
+          {AdminRoutes()}
         </Routes>
       </Router>
     </>
