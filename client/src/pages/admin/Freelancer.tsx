@@ -1,63 +1,56 @@
-import { Search, ChevronDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../components/Pagination';
 import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../app/store';
-import { getFreelancerData } from '../../features/admin/users/usersSlice';
+import type { AppDispatch, RootState } from '../../app/store';
+import { actionChange, getFreelancerData } from '../../features/admin/users/usersSlice';
+import Pagination from '../../components/Pagination';
+import { useSelector } from "react-redux";
+import { useDebounce } from 'use-debounce';
+import { toast } from 'react-toastify';
+import UserVerifyTable from '../../components/admin/tables/UserVerifyTable';
+import { useNavigate } from 'react-router-dom';
 
-const customers = [
-    {
-        id: "1",
-        name: 'Jane Cooper',
-        dob: '12-2-1999',
-        username: 'Mr-kid',
-        email: 'jane@microsoft.com',
-        status: 'Active',
-        action: 'Active'
-    },
-    {
-        id: "2",
-        name: 'Floyd Miles',
-        dob: '31-1-2003',
-        username: 'iam_john',
-        email: 'floyd@yahoo.com',
-        status: 'Inactive',
-        action: 'Block'
-    }
-];
 
 
 function Freelancer() {
-    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState<number | null>(1);
-    const [customerData, setCustomerData] = useState(customers);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+    const navigate = useNavigate();
+
 
     const dispatch = useDispatch<AppDispatch>()
+    const { freelancer, pagination } = useSelector((state: RootState) => state.userData) || { users: [], pagination: null };
+
+
     useEffect(() => {
-        dispatch(getFreelancerData({})).unwrap().then((data) => {
-            console.log(data);
+        dispatch(getFreelancerData({ page: currentPage, limit: 5, search: debouncedSearchTerm }));
+    }, [dispatch, currentPage, debouncedSearchTerm]);
 
-        })
-
-    }, [dispatch])
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+    };
 
     const handleActionChange = (customerId: string, action: string) => {
-        setCustomerData(prev => prev.map(customer => {
-            if (customer.id === customerId) {
-                return {
-                    ...customer,
-                    action: action,
-                    status: action === 'Active' ? 'Active' : 'Inactive'
-                };
-            }
-            return customer;
-        }));
-        setOpenDropdownId(null);
+
+        dispatch(actionChange({ userId: customerId, status: action }))
+            .unwrap()
+            .then(() => {
+                toast.success("Updated user status")
+                dispatch(getFreelancerData({ page: currentPage, limit: 5, search: debouncedSearchTerm }));
+            })
+            .catch((error) => {
+                // Handle error
+                toast.error(error)
+                console.error(error);
+            });
     };
 
-    const toggleDropdown = (customerId: string) => {
-        setOpenDropdownId(prev => prev === customerId ? null : customerId);
-    };
+    const viewProfileDetails = (userId: string) => {
+        navigate(`/admin-dashboard/freelancer/${userId}`);
+    }
+
 
     return (
         <div className="flex-1 p-6">
@@ -68,6 +61,8 @@ function Freelancer() {
                     <input
                         type="text"
                         placeholder="Search"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
                         className="w-full pl-12 pr-12 py-4 border-2 border-green-200 rounded-full focus:outline-none focus:border-green-500 text-gray-600"
                     />
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -76,94 +71,18 @@ function Freelancer() {
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow-sm ">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-gray-200">
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">Customer Name</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">DOB</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">Username</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">Email</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
-                            <th className="text-left py-4 px-6 font-semibold text-gray-700">View</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {customerData.map((customer) => (
-                            <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                <td className="py-4 px-6 font-medium text-gray-900">{customer.name}</td>
-                                <td className="py-4 px-6 text-gray-600">{customer.dob}</td>
-                                <td className="py-4 px-6 text-gray-600">{customer.username}</td>
-                                <td className="py-4 px-6 text-gray-600">{customer.email}</td>
-                                <td className="py-4 px-6">
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-sm font-medium ${customer.status === 'Active'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
-                                            }`}
-                                    >
-                                        {customer.status}
-                                    </span>
-                                </td>
-                                <td className="py-4 px-6">
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => toggleDropdown(customer.id)}
-                                            className={`flex items-center space-x-2 px-3 py-1 rounded text-sm font-medium ${customer.action === 'Active'
-                                                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                                                : 'bg-red-100 text-red-700 hover:bg-red-200'
-                                                }`}
-                                        >
-                                            <span>{customer.action}</span>
-                                            <ChevronDown className="w-4 h-4" />
-                                        </button>
+            <UserVerifyTable users={freelancer || []}
+                onActionChange={handleActionChange} onVerify={viewProfileDetails} />
 
-                                        {/* Dropdown Menu */}
-                                        {openDropdownId === customer.id && (
-                                            <div className="absolute top-8 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[100px] mt-1">
-                                                <button
-                                                    onClick={() => handleActionChange(customer.id, 'Active')}
-                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-purple-50 hover:text-purple-700 rounded-t-lg"
-                                                >
-                                                    Active
-                                                </button>
-                                                <button
-                                                    onClick={() => handleActionChange(customer.id, 'Block')}
-                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 hover:text-red-700 rounded-b-lg"
-                                                >
-                                                    Block
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
-                                <td className="py-4 px-6">
-                                    <button className="
-                                        flex items-center space-x-2 px-3 py-1 
-                                        rounded text-sm font-medium
-                                        bg-blue-100 text-blue-700 
-                                        hover:bg-blue-200
-                                        ">
-                                        Profile
-                                    </button>
-                                </td>
-                            </tr>
-
-                        ))}
-                    </tbody>
-                </table>
-            </div>
             <Pagination
-                currentPage={currentPage || 1}  // ✅ Use your state variable
-                totalPages={3}
+                currentPage={pagination.currentPage || 1}
+                totalPages={pagination.totalPages}
                 onPageChange={(page) => {
                     setCurrentPage(page);
                 }}
             />
         </div>
+
     );
 }
-
 export default Freelancer;

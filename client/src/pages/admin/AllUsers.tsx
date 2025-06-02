@@ -1,12 +1,13 @@
 import { Search } from 'lucide-react';
-import { useEffect,  useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch, RootState } from '../../app/store';
-import { getUserData } from '../../features/admin/users/usersSlice';
+import { actionChange, getUserData } from '../../features/admin/users/usersSlice';
 import Pagination from '../../components/Pagination';
 import { useSelector } from "react-redux";
 import { useDebounce } from 'use-debounce';
 import UsersTable from '../../components/admin/tables/UsersTable';
+import { toast } from 'react-toastify';
 
 function AllUsers() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +19,7 @@ function AllUsers() {
 
 
     useEffect(() => {
-        dispatch(getUserData({ page: currentPage, limit: 4, search: debouncedSearchTerm }));
+        dispatch(getUserData({ page: currentPage, limit: 5, search: debouncedSearchTerm }));
     }, [dispatch, currentPage, debouncedSearchTerm]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,12 +28,21 @@ function AllUsers() {
     };
 
     const handleActionChange = (customerId: string, action: string) => {
-        console.log(customerId);
-        console.log(action);
 
+        dispatch(actionChange({ userId: customerId, status: action }))
+            .unwrap()
+            .then(() => {
+                dispatch(getUserData({ page: currentPage, limit: 5, search: debouncedSearchTerm }));
+                toast.success("Updated user status")
+            })
+            .catch((error) => {
+                // Handle error
+                toast.error(error.error)
+                console.error(error.error);
+            });
     };
 
-   
+
     return (
         <div className="flex-1 p-6">
             {/* Header */}

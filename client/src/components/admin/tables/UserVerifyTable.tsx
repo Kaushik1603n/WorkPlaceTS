@@ -12,12 +12,13 @@ interface User {
     createdAt?: string;
 }
 
-interface UsersTableProps {
+interface UserVerifyTableProps {
     users: User[];
     onActionChange: (userId: string, action: string) => void;
+    onVerify: (userId: string) => void;
 }
 
-function UsersTable({ users, onActionChange }: UsersTableProps) {
+function UserVerifyTable({ users, onActionChange, onVerify }: UserVerifyTableProps) {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
     // const ref = useRef<HTMLDivElement>(null);
@@ -37,6 +38,7 @@ function UsersTable({ users, onActionChange }: UsersTableProps) {
                         <th className="text-left py-4 px-6 font-semibold text-gray-700">Email</th>
                         <th className="text-left py-4 px-6 font-semibold text-gray-700">Role</th>
                         <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-700">View</th>
                     </tr>
                 </thead>
                 <tbody >
@@ -57,8 +59,8 @@ function UsersTable({ users, onActionChange }: UsersTableProps) {
                                     <button
                                         onClick={() => toggleDropdown(user._id as string)}
                                         className={`flex items-center space-x-2 px-3 py-1 rounded text-sm font-medium ${user.status === 'active'
-                                                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                                                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                            ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                            : 'bg-red-100 text-red-700 hover:bg-red-200'
                                             }`}
                                     >
                                         <span>{user.status}</span>
@@ -82,6 +84,22 @@ function UsersTable({ users, onActionChange }: UsersTableProps) {
                                     )}
                                 </div>
                             </td>
+                            <td>
+                                <button
+                                    onClick={() => onVerify(user._id as string)}
+                                    className="
+                                         px-4 py-2 text-center text-sm 
+                                        bg-white text-[#000] 
+                                        border border-[#2ECC71] rounded-lg
+                                        hover:bg-[#EFFFF6] hover:text-green-700 hover:border-[#2ECC71]
+                                        transition-colors duration-200
+                                        focus:outline-none focus:ring-2 focus:ring-[#EFFFF6] focus:ring-opacity-50
+                                        active:bg-[#EFFFF6]
+                                        shadow-sm
+                                    "                                >
+                                    Verify Profile
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -89,4 +107,4 @@ function UsersTable({ users, onActionChange }: UsersTableProps) {
         </div>
     );
 }
-export default React.memo(UsersTable);
+export default React.memo(UserVerifyTable);

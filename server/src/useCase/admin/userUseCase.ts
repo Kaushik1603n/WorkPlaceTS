@@ -5,19 +5,22 @@ export class UserUseCase {
     this.user = user;
   }
 
-  async getFreelancerData() {
-    const freelancer =this.user.findFreelancer();
+  async getFreelancerData(page: number, limit: number, search: string) {
+    const freelancer = this.user.findFreelancer(page, limit, search);
     return freelancer;
   }
 
-  async getClientData() {
-   const client =this.user.findClient();
-   
-   return client;
-}
+  async getClientData(page: number, limit: number, search: string) {
+    const client = this.user.findClient(page, limit, search);
+    return client;
+  }
 
-async getUsersData(page:number,limit:number,search:string) {
-    const users =this.user.find(page,limit,search);
+  async getUsersData(page: number, limit: number, search: string) {
+    const users = this.user.find(page, limit, search);
+    return users;
+  }
+  async userAction(userId: string, status: string) {
+    const users = this.user.findOneByIdAndUpdate(userId, status);
     return users;
   }
 }

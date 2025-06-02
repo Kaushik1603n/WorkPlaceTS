@@ -8,6 +8,7 @@ const userRoutes = express.Router();
 userRoutes.get("/get-freelancer-profile",authenticate, userData.getFreelancerData);
 userRoutes.get("/get-client-profile",authenticate, userData.getClientData);
 userRoutes.get("/get-user-profile",authenticate, userData.getUsersData);
+userRoutes.put("/user-action",authenticate, userData.userAction);
 
 
 export default userRoutes;

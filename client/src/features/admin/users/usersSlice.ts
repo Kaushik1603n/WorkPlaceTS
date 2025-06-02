@@ -3,22 +3,21 @@ import {
   createSlice,
   //   type PayloadAction,
 } from "@reduxjs/toolkit";
-import { userProfileApi } from "./usersApi";
 import type { AxiosError } from "axios";
 import axiosClient from "../../../utils/axiosClient";
 
 interface userData {
-  _id?:string,
+  _id?: string;
   fullName?: string;
   email?: string;
   createdAt?: string;
   status?: string;
-  role?:string
+  role?: string;
 }
 
 interface UserProfileState {
-  client: userData | null;
-  freelancer: userData | null;
+  client: userData[] | [];
+  freelancer: userData[] | [];
   users: userData[] | [];
   loading: boolean;
   error: string | null;
@@ -32,8 +31,8 @@ interface UserProfileState {
 }
 
 const initialState: UserProfileState = {
-  client: null,
-  freelancer: null,
+  client: [],
+  freelancer: [],
   users: [],
   loading: false,
   error: null,
@@ -48,7 +47,7 @@ const initialState: UserProfileState = {
 
 export const getFreelancerData = createAsyncThunk<
   {
-    freelancer: userData;
+    freelancer: userData[];
     pagination: {
       currentPage: number;
       totalPages: number;
@@ -65,20 +64,11 @@ export const getFreelancerData = createAsyncThunk<
   "admin/get-freelancer-profile",
   async ({ page, limit, search }, { rejectWithValue }) => {
     try {
-      const params = {
-        page,
-        limit,
-        search,
-      };
-      const response = await userProfileApi.getFreelancerProfile(params);
-      return {
-        freelancer: response.data.data.freelancer,
-        pagination: {
-          currentPage: response.data.page,
-          totalPages: Math.ceil(response.data.total / response.data.limit),
-          totalItems: response.data.total,
-        },
-      };
+      const response = await axiosClient.get(
+        `/admin/get-freelancer-profile?page=${page}&limit=${limit}&search=${search}`
+      );
+
+      return response.data.data;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       return rejectWithValue({
@@ -91,7 +81,7 @@ export const getFreelancerData = createAsyncThunk<
 
 export const getClientData = createAsyncThunk<
   {
-    client: userData;
+    client: userData[];
     pagination: {
       currentPage: number;
       totalPages: number;
@@ -108,20 +98,11 @@ export const getClientData = createAsyncThunk<
   "admin/get-client-profile",
   async ({ page, limit, search }, { rejectWithValue }) => {
     try {
-      const params = {
-        page,
-        limit,
-        search,
-      };
-      const response = await userProfileApi.getClientProfile(params);
-      return {
-        client: response.data.data.client,
-        pagination: {
-          currentPage: response.data.page,
-          totalPages: Math.ceil(response.data.total / response.data.limit),
-          totalItems: response.data.total,
-        },
-      };
+      const response = await axiosClient.get(
+        `/admin/get-client-profile?page=${page}&limit=${limit}&search=${search}`
+      );
+
+      return response.data.data;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       return rejectWithValue({
@@ -133,7 +114,7 @@ export const getClientData = createAsyncThunk<
 
 export const getUserData = createAsyncThunk<
   {
-    users: [userData];
+    users: userData[];
     pagination: {
       currentPage: number;
       totalPages: number;
@@ -150,22 +131,37 @@ export const getUserData = createAsyncThunk<
   "admin/get-user-profile",
   async ({ page, limit, search }, { rejectWithValue }) => {
     try {
-      // const params = {
-      //   page,
-      //   limit,
-      //   search,
-      // };
       const response = await axiosClient.get(
         `/admin/get-user-profile?page=${page}&limit=${limit}&search=${search}`
       );
 
-      // const response = await userProfileApi.getUserProfile(params);
-
-      return response.data.data
+      return response.data.data;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       return rejectWithValue({
         error: error.response?.data.message || "Failed to fetch user profile",
+      });
+    }
+  }
+);
+
+export const actionChange = createAsyncThunk<
+  { success: boolean; message: string },
+  { userId: string; status: string },
+  { rejectValue: { error: string } }
+>(
+  "admin/user-action",
+  async ({ userId, status }, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.put("/admin/user-action", {
+        userId,
+        status,
+      });
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+      return rejectWithValue({
+        error: error.response?.data.message || "Failed to fetch client profile",
       });
     }
   }
@@ -188,6 +184,12 @@ const usersProfileDataSlice = createSlice({
     builder.addCase(getFreelancerData.fulfilled, (state, action) => {
       state.loading = false;
       state.freelancer = action.payload.freelancer;
+      state.pagination = {
+        ...state.pagination,
+        currentPage: action.payload.pagination.currentPage,
+        totalPages: action.payload.pagination.totalPages,
+        totalItems: action.payload.pagination.totalItems,
+      };
     });
     builder.addCase(getFreelancerData.rejected, (state, action) => {
       state.loading = false;
@@ -202,6 +204,13 @@ const usersProfileDataSlice = createSlice({
     builder.addCase(getClientData.fulfilled, (state, action) => {
       state.loading = false;
       state.client = action.payload.client;
+ console.log("API Response:", action.payload);
+      state.pagination = {
+        ...state.pagination,
+        currentPage: action.payload.pagination.currentPage,
+        totalPages: action.payload.pagination.totalPages,
+        totalItems: action.payload.pagination.totalItems,
+      };
     });
     builder.addCase(getClientData.rejected, (state, action) => {
       state.loading = false;
