@@ -1,0 +1,66 @@
+import { RequestHandler } from "express";
+import { ClientProjectUserCase } from "../../../useCase/clientProjectUseCase";
+import { ProjectRepo } from "../../../infrastructure/repositories/implementations/clientRepos/clientProjectRepo";
+
+const project = new ProjectRepo();
+const projectUserCase = new ClientProjectUserCase(project);
+
+export class ProjectController {
+  newProject: RequestHandler = async (req, res): Promise<void> => {
+    const {
+      jobTitle,
+      description,
+      requiredFeatures,
+      stack,
+      skills,
+      time,
+      budgetType,
+      budget,
+      experienceLevel,
+      reference,
+    } = req.body;
+    const { userId } = req.user as { userId: string; email: string };
+    try {
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      if (
+        !jobTitle ||
+        !description ||
+        !requiredFeatures ||
+        !stack ||
+        !skills ||
+        !time ||
+        !budgetType ||
+        !budget ||
+        !experienceLevel ||
+        !reference
+      ) {
+        throw new Error("All Feild are require");
+      }
+      await projectUserCase.newProject(
+        userId,
+        jobTitle,
+        description,
+        requiredFeatures,
+        stack,
+        skills,
+        time,
+        budgetType,
+        budget,
+        experienceLevel,
+        reference
+      );
+      res
+        .status(200)
+        .json({ success: true, message: "Project created successfully" });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "User Verification faild" });
+      }
+    }
+  };
+}
