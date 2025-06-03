@@ -10,6 +10,7 @@ const clientUseCase = new ClientProfileUserCase(client, user);
 // const useCase = new AuthUseCase(user);
 
 export class profileCondroller {
+  
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {

@@ -16,7 +16,6 @@ export class UserDataRepo implements userDataRepoI {
           $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
-            { username: { $regex: search, $options: "i" } },
           ],
         },
       ],
@@ -44,7 +43,6 @@ export class UserDataRepo implements userDataRepoI {
           $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
-            { username: { $regex: search, $options: "i" } },
           ],
         },
       ],
@@ -69,7 +67,6 @@ export class UserDataRepo implements userDataRepoI {
       $or: [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
-        { username: { $regex: search, $options: "i" } },
       ],
     };
 
@@ -98,6 +95,7 @@ export class UserDataRepo implements userDataRepoI {
       email: 1,
       role: 1,
       status: 1,
+      isVerification: 1,
       createdAt: 1,
       updatedAt: 1,
     });
@@ -106,6 +104,7 @@ export class UserDataRepo implements userDataRepoI {
       id: client?._id,
       name: client?.fullName,
       email: client?.email,
+      isVerification: client?.isVerification,
       profile: profile?.profilePic,
       cover: profile?.coverPic,
       companyName: profile?.companyName,
@@ -126,16 +125,18 @@ export class UserDataRepo implements userDataRepoI {
       email: 1,
       role: 1,
       status: 1,
+      isVerification: 1,
       createdAt: 1,
       updatedAt: 1,
     });
-    const profile = await FreelancerProfile.findOne({ userId });    
+    const profile = await FreelancerProfile.findOne({ userId });
     const result = {
       id: freelancer?._id,
       name: freelancer?.fullName,
       email: freelancer?.email,
       role: freelancer?.role,
       status: freelancer?.status,
+      isVerification: freelancer?.isVerification,
       createdAt: freelancer?.createdAt,
       profile: profile?.profilePic,
       cover: profile?.coverPic,
@@ -151,5 +152,9 @@ export class UserDataRepo implements userDataRepoI {
     };
 
     return result;
+  }
+
+  async findByIdAndUserVerification(userId: string, status: string) {
+    await UserModel.findByIdAndUpdate(userId, { isVerification: status });
   }
 }

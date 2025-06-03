@@ -51,33 +51,35 @@ interface ClientDetailsI {
   email?: string | undefined;
   profile?: string | undefined;
   cover?: string | undefined;
+  isVerification?: string | undefined;
   companyName?: string | undefined;
   location?: string | undefined;
   website?: string | undefined;
   description?: string | undefined;
   role?: string | undefined;
-  status: string | undefined,
-  createdAt: string | undefined,
-  updatedAt: string | undefined,
+  status?: string | undefined;
+  createdAt?: string | undefined;
+  updatedAt?: string | undefined;
 }
 interface FreelancerDetailsI {
   id?: string | undefined;
   name?: string | undefined;
   email?: string | undefined;
   profile?: string | undefined;
-  status: string | undefined,
-  role: string | undefined,
-  createdAt: string | undefined,
+  status?: string | undefined;
+  role?: string | undefined;
+  isVerification?: string | undefined;
+  createdAt?: string | undefined;
   cover?: string | undefined;
   availability?: string | undefined;
   experienceLevel?: string | undefined;
   education?: string | undefined;
   hourlyRate?: string | undefined;
   skills?: string[] | [];
-  location: string | undefined,
-  reference: string | undefined,
-  description: string | undefined,
-  updatedAt: string | undefined,
+  location?: string | undefined;
+  reference?: string | undefined;
+  description?: string | undefined;
+  updatedAt?: string | undefined;
 }
 
 export const getFreelancerData = createAsyncThunk<
@@ -184,64 +186,82 @@ export const actionChange = createAsyncThunk<
   { success: boolean; message: string },
   { userId: string; status: string },
   { rejectValue: { error: string } }
->(
-  "admin/user-action",
-  async ({ userId, status }, { rejectWithValue }) => {
-    try {
-      const response = await axiosClient.put("/admin/user-action", {
-        userId,
-        status,
-      });
-      return response.data;
-    } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-      return rejectWithValue({
-        error: error.response?.data.message || "Failed to fetch client profile",
-      });
-    }
+>("admin/user-action", async ({ userId, status }, { rejectWithValue }) => {
+  try {
+    const response = await axiosClient.put("/admin/user-action", {
+      userId,
+      status,
+    });
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue({
+      error: error.response?.data.message || "Failed to fetch client profile",
+    });
   }
-);
+});
 
 export const clientDetails = createAsyncThunk<
   ClientDetailsI,
   {
-    userId?: string ;
-    
+    userId?: string;
   },
   { rejectValue: { error: string } }
->(
-  "admin/get-client-details",
-  async ({ userId}, { rejectWithValue }) => {
-    try {
-      const response = await axiosClient.get(
-        `/admin/get-client-details/${userId}`
-      );
+>("admin/get-client-details", async ({ userId }, { rejectWithValue }) => {
+  try {
+    const response = await axiosClient.get(
+      `/admin/get-client-details/${userId}`
+    );
 
-      return response.data.data;
-    } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-      return rejectWithValue({
-        error: error.response?.data.message || "Failed to fetch Clent Details",
-      });
-    }
+    return response.data.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue({
+      error: error.response?.data.message || "Failed to fetch Clent Details",
+    });
   }
-);
+});
+
 export const freelancerDetails = createAsyncThunk<
   FreelancerDetailsI,
   {
-    userId?: string ;
-    
+    userId?: string;
+  },
+  { rejectValue: { error: string } }
+>("admin/get-freelancer-details", async ({ userId }, { rejectWithValue }) => {
+  try {
+    const response = await axiosClient.get(
+      `/admin/get-freelancer-details/${userId}`
+    );
+
+    return response.data.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue({
+      error: error.response?.data.message || "Failed to fetch Clent Details",
+    });
+  }
+});
+export const userVerification = createAsyncThunk<
+  { success: boolean; message: string,status:string },
+  {
+    userId?: string;
+    status?: string;
   },
   { rejectValue: { error: string } }
 >(
-  "admin/get-freelancer-details",
-  async ({ userId}, { rejectWithValue }) => {
+  "admin/user-verification",
+  async ({ userId, status }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get(
-        `/admin/get-freelancer-details/${userId}`
+      const response = await axiosClient.put(
+        `/admin/user-verification/${userId}`,
+        {
+          status,
+        }
       );
+      console.log(response);
 
-      return response.data.data;
+      return response.data;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       return rejectWithValue({
@@ -288,7 +308,7 @@ const usersProfileDataSlice = createSlice({
     builder.addCase(getClientData.fulfilled, (state, action) => {
       state.loading = false;
       state.client = action.payload.client;
- console.log("API Response:", action.payload);
+      console.log("API Response:", action.payload);
       state.pagination = {
         ...state.pagination,
         currentPage: action.payload.pagination.currentPage,

@@ -47,9 +47,15 @@ export class UserRepo implements userRepoI {
     return result;
   }
   async updateName(userId: string | unknown, fullName: string): Promise<any> {
+    const user = await UserModel.findById(userId, {
+      isVerification: 1,
+      fullName: 1,
+      email: 1,
+    });
+    const status = user?.isVerification === "verified" ? "verified" : "pending";
     const result = await UserModel.findByIdAndUpdate(
       userId,
-      { fullName },
+      { fullName, isVerification: status },
       { new: true }
     );
     return result;

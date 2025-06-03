@@ -11,6 +11,7 @@ userRoutes.get("/get-user-profile",authenticate, userData.getUsersData);
 userRoutes.put("/user-action",authenticate, userData.userAction);
 userRoutes.get("/get-client-details/:userId",authenticate, userData.clientDetails);
 userRoutes.get("/get-freelancer-details/:userId",authenticate, userData.freelancerDetails);
+userRoutes.put("/user-verification/:userId",authenticate, userData.userVerification);
 
 
 export default userRoutes;

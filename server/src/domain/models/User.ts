@@ -18,6 +18,12 @@ export enum SocialProvider {
   FACEBOOK = "facebook",
   GITHUB = "github",
 }
+export enum verification {
+  FALSE = "false",
+  PENDING = "pending",
+  VERIFIED = "verified",
+  REJECTED = "rejected",
+}
 
 // Interfaces
 export interface SocialLogin {
@@ -31,6 +37,7 @@ export interface User extends Document {
   password?: string;
   role: UserRole;
   isVerified: boolean;
+  isVerification: verification;
   otp?: number;
   otpExpiry?: Date;
   refreshToken?: string | null;
@@ -56,6 +63,11 @@ const UserSchema = new Schema<User>(
       enum: Object.values(UserRole),
     },
     isVerified: { type: Boolean, default: false },
+    isVerification: {
+      type: String,
+      enum: Object.values(verification),
+      default: verification.FALSE,
+    },
     otp: { type: Number },
     otpExpiry: { type: Date },
     refreshToken: { type: String, default: null },

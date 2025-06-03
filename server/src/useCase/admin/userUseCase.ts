@@ -24,12 +24,15 @@ export class UserUseCase {
     return users;
   }
 
-  async clientDetails(userId:string){
-    const client = this.user.findClientDetails(userId)
+  async clientDetails(userId: string) {
+    const client = this.user.findClientDetails(userId);
     return client;
   }
-  async freelancerDetails(userId:string){
-    const freelancer = this.user.findfreelancerDetails(userId)
+  async freelancerDetails(userId: string) {
+    const freelancer = this.user.findfreelancerDetails(userId);
     return freelancer;
+  }
+  async userVerification(userId: string,status:string) {
+    this.user.findByIdAndUserVerification(userId,status);
   }
 }

@@ -5,8 +5,9 @@ import avatar from "../../../assets/p1.jpg";
 import { User, MapPin, Calendar, Mail, Briefcase, Globe, Shield, Clock, User2, TimerIcon, Workflow, DollarSign, Code, UserCheck2Icon } from 'lucide-react';
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../app/store";
-import { freelancerDetails } from "../../../features/admin/users/usersSlice";
+import { freelancerDetails, userVerification } from "../../../features/admin/users/usersSlice";
 import type { ComponentType, SVGProps } from 'react';
+import { toast } from "react-toastify";
 
 
 interface ClientDetailsI {
@@ -14,19 +15,20 @@ interface ClientDetailsI {
     name?: string | undefined;
     email?: string | undefined;
     profile?: string | undefined;
-    status: string | undefined,
-    role: string | undefined,
-    createdAt: string | undefined,
+    status?: string | undefined,
+    role?: string | undefined,
+    isVerification?: string | undefined,
+    createdAt?: string | undefined,
     cover?: string | undefined;
     availability?: string | undefined;
     experienceLevel?: string | undefined;
     education?: string | undefined;
     hourlyRate?: string | undefined;
     skills?: string[] | [];
-    location: string | undefined,
-    reference: string | undefined,
-    description: string | undefined,
-    updatedAt: string | undefined,
+    location?: string | undefined,
+    reference?: string | undefined,
+    description?: string | undefined,
+    updatedAt?: string | undefined,
 }
 
 interface InfoItemProps {
@@ -44,6 +46,7 @@ function FreelancerVerifyProfile() {
         email: "N/A",
         role: "N/A",
         status: "N/A",
+        isVerification: "false",
         createdAt: "N/A",
         profile: undefined,
         cover: undefined,
@@ -62,13 +65,22 @@ function FreelancerVerifyProfile() {
     useEffect(() => {
         dispatch(freelancerDetails({ userId })).unwrap().then((data) => {
             setFreelancerProfile(data)
-            console.log(data);
-
         }).catch((error) => {
-            console.log(error);
-
+            console.error(error);
         })
     }, [dispatch, userId]);
+
+    const VerifyAcoount = (userId: string | undefined, status: string) => {
+        dispatch(userVerification({ userId, status })).unwrap().then((data) => {
+            toast.success(data.message)
+            setFreelancerProfile((prev) => ({
+                ...prev,
+                isVerification: data.status
+            }))
+        }).catch((error) => {
+            console.error(error);
+        })
+    }
     return (
         <div className="container mx-auto px-4 pb-8 ">
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8 border border-[#27AE60]">
@@ -235,6 +247,24 @@ function FreelancerVerifyProfile() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="py-4 px-4 ">
+                    {freelancerProfile.isVerification !== "falses" &&
+                        <div className="py-4 px-4 flex justify-end">
+                            <button
+                                onClick={() => VerifyAcoount(freelancerProfile.id, "rejected")}
+                                className={`px-6 py-2 mx-4 flex  bg-[#ae2727] text-white font-medium rounded-lg hover:bg-[#992222] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#27AE60] focus:ring-opacity-50 
+                                ${freelancerProfile.isVerification === "rejected" ? "opacity-50 cursor-not-allowed" : ""}`}>
+                                Cancel Verification
+                            </button>
+                            <button
+                                onClick={() => VerifyAcoount(freelancerProfile.id, "verified")}
+                                className={`px-6 py-2  flex  bg-[#27AE60] text-white font-medium rounded-lg hover:bg-[#229954] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#27AE60] focus:ring-opacity-50
+                                 ${freelancerProfile.isVerification === "verified" ? "opacity-50 cursor-not-allowed" : ""}`}>
+                                Verify Account
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

@@ -84,10 +84,9 @@ export class FreelancerProfileUseCase {
         throw new Error("Email already in use");
       }
     }
-    let userData: any;
-    if (user.fullName !== fullName) {
-      userData = await this.user.updateName(userId, fullName);
-    }
+    
+     const userData = await this.user.updateName(userId, fullName);
+    
 
     return userData ?? user;
   }

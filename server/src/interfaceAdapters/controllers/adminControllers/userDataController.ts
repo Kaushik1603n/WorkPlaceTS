@@ -107,4 +107,30 @@ export class UserDataController {
       }
     }
   };
+  userVerification: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const userId = req.params.userId;
+      const {status} = req.body;
+      
+      if (!userId) {
+        throw new Error("UserId not Found");
+      }
+      if (!status) {
+        throw new Error("Status not Found");
+      }
+
+      await userData.userVerification(userId,status);
+
+      res
+        .status(200)
+        .json({ success: true, message: "Update Verification Status",status });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "User Verification faild" });
+      }
+    }
+  };
 }
