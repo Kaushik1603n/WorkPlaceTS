@@ -249,7 +249,7 @@ function FreelancerVerifyProfile() {
                     </div>
                 </div>
                 <div className="py-4 px-4 ">
-                    {freelancerProfile.isVerification !== "falses" &&
+                    {freelancerProfile.isVerification !== "false" &&
                         <div className="py-4 px-4 flex justify-end">
                             <button
                                 onClick={() => VerifyAcoount(freelancerProfile.id, "rejected")}
