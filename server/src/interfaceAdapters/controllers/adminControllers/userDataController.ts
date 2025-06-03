@@ -67,4 +67,44 @@ export class UserDataController {
 
     res.status(200).json({ success: true, message: "success" });
   };
+
+  clientDetails: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const userId = req.params.userId;
+      if (!userId) {
+        throw new Error("UserId not Found");
+      }
+
+      const clientDetails = await userData.clientDetails(userId);
+
+      res.status(200).json({ data: clientDetails });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
+
+  freelancerDetails: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const userId = req.params.userId;
+      if (!userId) {
+        throw new Error("UserId not Found");
+      }
+
+      const freelancerDetails = await userData.freelancerDetails(userId);
+
+      res.status(200).json({ data: freelancerDetails });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
 }

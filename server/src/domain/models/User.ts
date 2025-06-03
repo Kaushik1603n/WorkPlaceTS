@@ -33,7 +33,7 @@ export interface User extends Document {
   isVerified: boolean;
   otp?: number;
   otpExpiry?: Date;
-  refreshToken?: string|null;
+  refreshToken?: string | null;
   googleId?: string;
   pic?: string;
   socialLogins?: SocialLogin[];
@@ -41,6 +41,8 @@ export interface User extends Document {
   lastLogin?: Date;
   jobs?: any[];
   profile?: any;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Schema
@@ -56,9 +58,7 @@ const UserSchema = new Schema<User>(
     isVerified: { type: Boolean, default: false },
     otp: { type: Number },
     otpExpiry: { type: Date },
-    refreshToken: { type: String,
-      default:null
-    },
+    refreshToken: { type: String, default: null },
     googleId: { type: String, unique: true, sparse: true },
     pic: { type: String },
     socialLogins: [

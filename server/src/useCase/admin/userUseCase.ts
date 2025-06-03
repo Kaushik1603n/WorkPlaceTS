@@ -23,4 +23,13 @@ export class UserUseCase {
     const users = this.user.findOneByIdAndUpdate(userId, status);
     return users;
   }
+
+  async clientDetails(userId:string){
+    const client = this.user.findClientDetails(userId)
+    return client;
+  }
+  async freelancerDetails(userId:string){
+    const freelancer = this.user.findfreelancerDetails(userId)
+    return freelancer;
+  }
 }

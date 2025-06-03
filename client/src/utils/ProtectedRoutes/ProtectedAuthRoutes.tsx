@@ -7,7 +7,7 @@ function ProtectedAuthRoutes() {
     const token = localStorage.getItem('access_token');
 
     if (token && loading) {
-        // return <div>Loading...</div>;
+        return <div>Loading...</div>;
     }
 
     if (!token && !loading) {
