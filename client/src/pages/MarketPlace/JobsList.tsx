@@ -3,6 +3,8 @@ import JobCard from "./JobCard";
 import SearchSection from "./SearchSection";
 import Pagination from "../../components/Pagination";
 import React from "react";
+import JobCardSkeleton from "./JobCardSkeleton";
+
 
 interface JobsListProps {
     currentPage: number;
@@ -12,9 +14,10 @@ interface JobsListProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     handleSubmit: (e: React.FormEvent) => void;
+    isLoading: boolean;
 }
 
-function JobsList({ currentPage, jobs,totalPages, onPageChange, searchQuery, setSearchQuery, handleSubmit }: JobsListProps) {
+function JobsList({ currentPage, jobs, totalPages, onPageChange, searchQuery, setSearchQuery, handleSubmit, isLoading }: JobsListProps) {
     return (
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-5">
             <SearchSection
@@ -24,19 +27,28 @@ function JobsList({ currentPage, jobs,totalPages, onPageChange, searchQuery, set
             />
 
             <div className="space-y-6">
-                {jobs && jobs.map((job: Job) => (
-                    <JobCard key={job._id} job={job} />
-                ))}
+                {isLoading ? (
+                    [...Array(2)].map((_, index) => (
+                        <JobCardSkeleton key={index} />
+                    ))
+                ) : (
+                    jobs && jobs.map((job: Job) => (
+                        <JobCard key={job._id} job={job} />
+                    ))
+                )}
             </div>
 
-            <div className="flex justify-center mt-8">
-                <Pagination
-                 currentPage={currentPage || 1}
-                totalPages={totalPages }
-                onPageChange={onPageChange} />
-            </div>
+            {!isLoading && (
+                <div className="flex justify-center mt-8">
+                    <Pagination
+                        currentPage={currentPage || 1}
+                        totalPages={totalPages}
+                        onPageChange={onPageChange}
+                    />
+                </div>
+            )}
         </main>
     );
 }
 
-export default  React.memo(JobsList);
+export default React.memo(JobsList);

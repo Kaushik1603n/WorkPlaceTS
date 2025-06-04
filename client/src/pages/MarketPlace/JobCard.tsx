@@ -9,7 +9,7 @@ function JobCard({ job }: JobCardProps) {
     return (
         <div
             key={job._id}
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition duration-150"
+            className="bg-white p-6 rounded-lg border border-[#2ECC71] shadow-sm hover:shadow-md transition duration-150"
         >
             <div className="flex flex-col sm:flex-row justify-between">
                 <div>

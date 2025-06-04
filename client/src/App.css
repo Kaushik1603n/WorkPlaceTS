@@ -1,21 +1,41 @@
 @import "tailwindcss";
-.bg-color-first{
+
+.bg-color-first {
     background-color: #2ECC71;
 }
-.bg-color-first-hover{
+
+.bg-color-first-hover {
     background-color: #2bd773;
 }
-.bg-color-light{
+
+.bg-color-light {
     background-color: #EFFFF6;
 }
-.bg-color-secondary{
+
+.bg-color-secondary {
     background-color: #ebfff4;
 }
 
-.border-color{
+.border-color {
     border-color: #27AE60;
 }
 
-.test-color-first{
+.test-color-first {
     color: #2ECC71;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

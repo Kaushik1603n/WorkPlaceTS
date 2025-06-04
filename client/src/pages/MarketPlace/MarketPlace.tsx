@@ -33,7 +33,7 @@ function MarketPlace() {
         console.log("MarketPlace mounted");
     }, []);
     const dispatch: AppDispatch = useDispatch();
-    const { jobs, pagination } = useSelector((store: RootState) => store.market);
+    const { jobs, pagination, loading } = useSelector((store: RootState) => store.market);
 
     // useEffect(() => {
     //     dispatch(getAllTheJobs({ page: currentPage, limit: 5, searchQuery: "", filters: activeFilters })).unwrap();
@@ -74,11 +74,11 @@ function MarketPlace() {
 
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-[#EFFFF6] min-h-screen">
             <NavigationBar />
             <div className="max-w-full px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex gap-8">
-                    <div className="w-64 bg-white rounded-lg shadow-sm border border-gray-100 h-fit sticky top-8 py-5">
+                    <div className="w-64 bg-white rounded-lg shadow-sm border border-[#2bd773]  h-fit sticky top-8 py-5">
                         <SidebarFilters
                             onFiltersChange={handleFiltersChange}
                             initialFilters={activeFilters}
@@ -95,6 +95,7 @@ function MarketPlace() {
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         handleSubmit={handleSubmit}
+                        isLoading={loading}
                     />
                 </div>
             </div>

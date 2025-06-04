@@ -50,7 +50,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <>
           <button
             onClick={() => handlePageChange(1)}
-            className={`w-10 h-10 rounded-md ${1 === currentPage ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            className={`w-7 h-7 rounded-md ${1 === currentPage ? 'bg-[#2bd773] text-white' : 'text-gray-700 hover:bg-gray-100'}`}
           >
             1
           </button>
@@ -62,7 +62,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           key={page}
           onClick={() => handlePageChange(page)}
-          className={`w-10 h-10 rounded-md ${page === currentPage ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          className={`w-7 h-7 rounded-md ${page === currentPage ? 'bg-[#2bd773] text-white' : 'text-gray-700 hover:bg-gray-100'}`}
         >
           {page}
         </button>
@@ -73,7 +73,7 @@ const Pagination: React.FC<PaginationProps> = ({
           {!pageNumbers.includes(totalPages - 1) && <span className="px-2">...</span>}
           <button
             onClick={() => handlePageChange(totalPages)}
-            className={`w-10 h-10 rounded-md ${totalPages === currentPage ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            className={`w-7 h-7 rounded-md ${totalPages === currentPage ? 'bg-[#2bd773] text-white' : 'text-gray-700 hover:bg-gray-100'}`}
           >
             {totalPages}
           </button>
@@ -91,4 +91,4 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-export default  React.memo(Pagination);
+export default React.memo(Pagination);
