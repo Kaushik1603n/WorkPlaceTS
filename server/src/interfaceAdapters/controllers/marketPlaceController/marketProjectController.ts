@@ -24,21 +24,22 @@ export class MarketPlaceProjectController {
         jobTypes = "",
         skills = "",
         experienceLevel = "",
-        duration = "",
       } = req.query as JobQueryParams;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
 
-
-      const result = await marketPlace.getAllProjectDetails({
+      const { result, pagination } = await marketPlace.getAllProjectDetails({
         search,
         minPrice,
         maxPrice,
         jobTypes,
         skills,
         experienceLevel,
-        duration,
+        page,
+        limit,
       });
 
-      res.status(200).json({ success: true, data: result });
+      res.status(200).json({ success: true, data: result, pagination });
     } catch (error) {
       console.error(error);
       res

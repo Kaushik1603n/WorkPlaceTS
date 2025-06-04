@@ -8,7 +8,6 @@ export type FilterData = {
     selectedJobTypes: string[];
     selectedSkills: string[];
     experienceLevel: string[];
-    projectDuration: string[];
 };
 
 interface SidebarFiltersProps {
@@ -34,9 +33,9 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
     const [experienceLevel, setExperienceLevel] = useState<string[]>(
         initialFilters?.experienceLevel || []
     );
-    const [projectDuration, setProjectDuration] = useState<string[]>(
-        initialFilters?.projectDuration || []
-    );
+    // const [projectDuration, setProjectDuration] = useState<string[]>(
+    //     initialFilters?.projectDuration || []
+    // );
 
      useEffect(() => {
       onFiltersChange({
@@ -44,9 +43,9 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
         selectedJobTypes,
         selectedSkills,
         experienceLevel,
-        projectDuration
+        
       });
-    }, [priceRange, selectedJobTypes, selectedSkills, experienceLevel, projectDuration, onFiltersChange]);
+    }, [priceRange, selectedJobTypes, selectedSkills, experienceLevel,  onFiltersChange]);
 
     // Expanded states for filter sections
     const [expandedSections, setExpandedSections] = useState<Record<FilterSection, boolean>>({
@@ -59,9 +58,9 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
 
     // Sample data
     const skills: string[] = ['React', 'Node.js', 'Python', 'JavaScript', 'PHP', 'Laravel', 'Vue.js', 'Angular', 'MongoDB', 'Express.js'];
-    const jobTypes: string[] = ['Fixed Price', 'Hourly', 'Contract', 'Full-time'];
-    const experienceLevels: string[] = ['Entry Level', 'Intermediate', 'Expert'];
-    const durations: string[] = ['Less than 1 month', '1-3 months', '3-6 months', '6+ months'];
+    const jobTypes: string[] = ['Fixed', 'Hourly'];
+    const experienceLevels: string[] = ['Entry', 'Intermediate', 'Expert'];
+    // const durations: string[] = ['Less than 1 month', '1-3 months', '3-6 months', '6+ months'];
 
     const toggleSection = (section: FilterSection) => {
         setExpandedSections(prev => ({
@@ -87,7 +86,6 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
         setSelectedJobTypes([]);
         setSelectedSkills([]);
         setExperienceLevel([]);
-        setProjectDuration([]);
     };
 
     return (
@@ -140,7 +138,7 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
                             <span>$0</span>
-                            <span>$10,000+</span>
+                            <span>$10,00+</span>
                         </div>
                     </div>
                 )}
@@ -224,33 +222,9 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
                 )}
             </div>
 
-            {/* Project Duration Filter */}
-            <div className="mb-6">
-                <button
-                    onClick={() => toggleSection('duration')}
-                    className="flex justify-between items-center w-full text-left mb-3"
-                >
-                    <h3 className="font-medium text-gray-900">Project Duration</h3>
-                    {expandedSections.duration ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
-                {expandedSections.duration && (
-                    <div className="space-y-2">
-                        {durations.map((duration) => (
-                            <label key={duration} className="flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={projectDuration.includes(duration)}
-                                    onChange={() => handleCheckboxChange(duration, setProjectDuration, projectDuration)}
-                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-1"
-                                />
-                                <span className="ml-2 text-sm text-gray-700">{duration}</span>
-                            </label>
-                        ))}
-                    </div>
-                )}
-            </div>
+           
         </div>
     );
 };
 
-export default SidebarFilters;
+export default  React.memo(SidebarFilters);

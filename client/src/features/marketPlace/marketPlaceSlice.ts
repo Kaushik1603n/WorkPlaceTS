@@ -22,34 +22,55 @@ interface FilterData {
   selectedJobTypes: string[];
   selectedSkills: string[];
   experienceLevel: string[];
-  projectDuration: string[];
 }
 
 interface MarketPlaceState {
   jobs: Job[];
   loading: boolean;
   error: string | null;
+  pagination: {
+    currentPage?: number;
+    totalPages?: number;
+    totalItems?: number;
+    itemsPerPage?: number;
+  };
 }
 
 const initialState: MarketPlaceState = {
   jobs: [],
   loading: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 5,
+  },
 };
 
 export const getAllTheJobs = createAsyncThunk<
-  { data: Job[] },
-  { searchQuery: string; filters: FilterData },
+  {
+    data: Job[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+    };
+  },
+  { searchQuery: string; page: number; limit: number; filters: FilterData },
   {
     rejectValue: { error: string };
   }
 >(
   "/jobs/get-jobs",
-  async ({ searchQuery = "", filters }, { rejectWithValue }) => {
+  async ({ searchQuery = "", page = 1, limit = 5, filters }, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams();
 
       if (searchQuery) params.append("search", searchQuery);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+
       if (filters.priceRange) {
         params.append("minPrice", filters.priceRange[0].toString());
         params.append("maxPrice", filters.priceRange[1].toString());
@@ -59,6 +80,9 @@ export const getAllTheJobs = createAsyncThunk<
       }
       if (filters.selectedSkills.length > 0) {
         params.append("skills", filters.selectedSkills.join(","));
+      }
+      if (filters.experienceLevel.length > 0) {
+        params.append("experienceLevel", filters.experienceLevel.join(","));
       }
 
       const response = await axiosClient.get(
@@ -91,9 +115,27 @@ const marketPlaceSlice = createSlice({
       })
       .addCase(
         getAllTheJobs.fulfilled,
-        (state, action: PayloadAction<{ data: Job[] }>) => {
+        (
+          state,
+          action: PayloadAction<{
+            data: Job[];
+            pagination: {
+              currentPage: number;
+              totalPages: number;
+              totalItems: number;
+            };
+          }>
+        ) => {
           state.loading = false;
           state.jobs = action.payload.data;
+          if (action.payload.pagination) {
+            state.pagination = {
+              ...state.pagination,
+              currentPage: action.payload.pagination.currentPage,
+              totalPages: action.payload.pagination.totalPages,
+              totalItems: action.payload.pagination.totalItems,
+            };
+          }
           state.error = null;
         }
       )

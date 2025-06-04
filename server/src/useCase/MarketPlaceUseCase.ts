@@ -9,7 +9,8 @@ type JobQueryParams = {
   jobTypes?: string;
   skills?: string;
   experienceLevel?: string;
-  duration?: string;
+  page: number;
+  limit: number;
 };
 export class MarketPlaceUseCase {
   constructor(private martket: marketPlaceRepo) {
@@ -22,24 +23,20 @@ export class MarketPlaceUseCase {
     jobTypes,
     skills,
     experienceLevel,
-    duration,
+    page,
+    limit,
   }: JobQueryParams) {
-    console.log(
-      minPrice,
-      maxPrice,
-      jobTypes,
-      skills,
-      experienceLevel,
-      duration
-    );
-
     const query: FilterQuery<typeof ProjectModel> = {};
 
+    const andConditions: any[] = [];
+
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
+      andConditions.push({
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
+      });
     }
 
     query.budget = {
@@ -48,34 +45,35 @@ export class MarketPlaceUseCase {
     };
 
     if (skills) {
-      //   const skillsArray = skills.toLowerCase().split(",");
-      //   query.skills = { $in: skillsArray };
       const skillsArray = skills.toLowerCase().split(",");
+      andConditions.push({
+        $or: skillsArray.map((skill) => ({
+          skills: { $regex: skill.trim(), $options: "i" },
+        })),
+      });
+    }
 
-      query.$or = skillsArray.map((skill) => ({
-        skills: { $regex: skill.trim(), $options: "i" }, // case-insensitive partial match
-      }));
+    if (jobTypes) {
+      const typesArray = jobTypes.toLowerCase().split(",");
+      andConditions.push({
+        budgetType: { $in: typesArray },
+      });
     }
 
     if (experienceLevel) {
       const levelsArray = experienceLevel.split(",");
-      query.experienceLevel = { $in: levelsArray };
+      andConditions.push({
+        $or: levelsArray.map((level) => ({
+          experienceLevel: { $regex: level.trim(), $options: "i" },
+        })),
+      });
     }
 
-    if (duration) {
-      const durationsArray = duration.split(",");
-      query.duration = { $in: durationsArray };
+    // Attach to query
+    if (andConditions.length > 0) {
+      query.$and = andConditions;
     }
 
-    // const searchQuery = search
-    //   ? {
-    //       $or: [
-    //         { title: { $regex: search, $options: "i" } },
-    //         { description: { $regex: search, $options: "i" } },
-    //       ],
-    //     }
-    //   : {};
-
-    return await this.martket.findAllProjects(query);
+    return await this.martket.findAllProjects(query, page, limit);
   }
 }
