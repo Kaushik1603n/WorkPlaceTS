@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 // Interface for the Job document
 export interface IJob extends Document {
+  _id:string,
   clientId: Types.ObjectId;
   title: string;
   description: string;

@@ -1,33 +1,25 @@
+import { JobQueryParamsDTO } from "../domain/dto/projectDTO/marketPlaceDTO";
 import ProjectModel from "../domain/models/Projects";
 import { marketPlaceRepo } from "../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
 import { FilterQuery } from "mongoose";
 
-type JobQueryParams = {
-  search?: string;
-  minPrice?: string | number;
-  maxPrice?: string | number;
-  jobTypes?: string;
-  skills?: string;
-  experienceLevel?: string;
-  page: number;
-  limit: number;
-};
 export class MarketPlaceUseCase {
   constructor(private martket: marketPlaceRepo) {
     this.martket = martket;
   }
   async getAllProjectDetails({
-    search,
-    minPrice,
-    maxPrice,
-    jobTypes,
-    skills,
-    experienceLevel,
-    page,
-    limit,
-  }: JobQueryParams) {
-    const query: FilterQuery<typeof ProjectModel> = {};
+    search = "",
+    minPrice = 0,
+    maxPrice = 10000,
+    jobTypes = "",
+    skills = "",
+    experienceLevel = "",
+    page = 1,
+    limit = 5,
+  }: JobQueryParamsDTO) {
 
+    try {
+        const query: FilterQuery<typeof ProjectModel> = {};
     const andConditions: any[] = [];
 
     if (search) {
@@ -75,5 +67,9 @@ export class MarketPlaceUseCase {
     }
 
     return await this.martket.findAllProjects(query, page, limit);
+    } catch (error) {
+          console.error("MarketPlace Usecase error:", error);
+      throw error;
+    }
   }
 }
