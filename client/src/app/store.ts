@@ -3,6 +3,7 @@ import authReducer from "../features/auth/authSlice";
 import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice"
 import freelancerProfileSlice from "../features/freelancerFeatures/profile/freelancerProfileSlice"
 import usersProfileDataSlice from "../features/admin/users/usersSlice"
+import marketPlaceSlice from "../features/marketPlace/marketPlaceSlice"
 import {
   persistStore,
   persistReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   clientProfile: clientProfileReducer,
   freelancerProfile: freelancerProfileSlice,
   userData: usersProfileDataSlice,
+  market: marketPlaceSlice,
 });
 // export const store = configureStore({
 //   reducer: {

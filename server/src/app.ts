@@ -10,6 +10,7 @@ import profileRoute from "./interfaceAdapters/routes/clientRoutes/profileRoute";
 import freelancerProfileRoute from "./interfaceAdapters/routes/freelancerRoutes/freelancerProfile";
 import userRoutes from "./interfaceAdapters/routes/adminRoutes/usersRoute";
 import clientProject from "./interfaceAdapters/routes/clientRoutes/projectRoute";
+import marketPlaceRoute from "./interfaceAdapters/routes/marketPlace/marketPlaceRoute";
 // import bodyParser from "body-parser";
 
 export class App {
@@ -24,6 +25,8 @@ export class App {
     this.app.use("/api/client", profileRoute);
     this.app.use("/api/client/project", clientProject);
     this.app.use("/api/freelancer", freelancerProfileRoute);
+    this.app.use("/api/jobs",marketPlaceRoute)
+
     this.app.use("/api/admin", userRoutes);
   }
 
