@@ -20,6 +20,7 @@ export interface FreelancerProfile {
   location?: string;
   reference?: string;
   bio?: string;
+  createdAt?:string;
 }
 
 // interface ApiResponse {
