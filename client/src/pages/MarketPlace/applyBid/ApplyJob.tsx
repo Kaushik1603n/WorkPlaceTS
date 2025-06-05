@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getFreelancerProfile } from "../../../features/freelancerFeatures/profile/freelancerProfileSlice";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { type AppDispatch, type RootState } from "../../../app/store";
 import ProfileHeader from "../../../components/marketPlace/applyJob/ProfileHeader";
 import MilestoneForm from "../../../components/marketPlace/applyJob/MilestoneForm";
@@ -12,6 +11,7 @@ import BidTypeSelector from "../../../components/marketPlace/applyJob/BidTypeSel
 import ClientRequirements from "../../../components/marketPlace/applyJob/ClientRequirements";
 import cover from "../../../assets/cover.png";
 import avatar from "../../../assets/p1.jpg";
+import { applyJobProposal } from "../../../features/marketPlace/marketPlaceSlice";
 
 interface Milestone {
     id?: number;
@@ -39,7 +39,7 @@ function ApplyJob() {
     const dispatch = useDispatch<AppDispatch>();
     const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const { user } = useSelector((state: RootState) => state.auth);
-    const baseURL = import.meta.env.VITE_API_BASE_URL as string;
+    // const baseURL = import.meta.env.VITE_API_BASE_URL as string;
     const { jobId } = useParams<{ jobId: string }>();
 
     useEffect(() => {
@@ -200,45 +200,43 @@ function ApplyJob() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        const proposalData = {
+            ...formValues,
+            milestones,
+            bidType,
+            agreeVideoCall,
+            agreeNDA,
+            jobId: jobId || "",
+        };
+
+
+
         if (validateForm()) {
-            axios
-                .post(
-                    `${baseURL}/jobs/new-proposal`,
-                    {
-                        ...formValues,
-                        milestones,
-                        bidType,
-                        agreeVideoCall,
-                        agreeNDA,
-                        jobId,
-                    },
-                    {
-                        withCredentials: true,
-                    }
-                )
+            dispatch(applyJobProposal(proposalData))
+                .unwrap()
                 .then((response) => {
-                    console.log("Proposal submitted:", response.data);
-                    toast.success(response.data.message);
-                    setMilestones([]);
-                    setNewMilestone({
-                        title: "",
-                        description: "",
-                        dueDate: "",
-                        amount: "",
-                    });
-                    setFormValues({
-                        coverLetter: "",
-                        bidAmount: "",
-                        timeline: "",
-                        workSamples: "",
-                    });
-                    setAgreeNDA(false);
-                    setAgreeVideoCall(false);
+                    toast.success(response.message || "Proposal submitted successfully");
+                    // setMilestones([]);
+                    // setNewMilestone({
+                    //     title: "",
+                    //     description: "",
+                    //     dueDate: "",
+                    //     amount: "",
+                    // });
+                    // setFormValues({
+                    //     coverLetter: "",
+                    //     bidAmount: "",
+                    //     timeline: "",
+                    //     workSamples: "",
+                    // });
+                    // setAgreeNDA(false);
+                    // setAgreeVideoCall(false);
                 })
                 .catch((error) => {
                     console.error("Error submitting proposal:", error);
-                    toast.error("Error");
+                    toast.error(error.error || "Failed to submit proposal");
                 });
+
         }
     };
 

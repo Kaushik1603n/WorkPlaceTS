@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import axiosClient from "../../utils/axiosClient";
 import type { AxiosError } from "axios";
+import type { ProposalPayload, ProposalResponse } from "./proposalTypes";
 
 interface Job {
   _id: string;
@@ -142,6 +143,25 @@ export const getJobDetails = createAsyncThunk<
   }
 });
 
+export const applyJobProposal = createAsyncThunk<
+  ProposalResponse,
+  ProposalPayload,
+  { rejectValue: { error: string } }
+>("/jobs/apply-job-proposal", async (ProposalPayload, { rejectWithValue }) => {
+  try {
+    const response = await axiosClient.post<ProposalResponse>(
+      `/jobs/apply-job-proposal`,
+      ProposalPayload
+    );
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue({
+      error: error.response?.data.message || "Failed to submit proposal",
+    });
+  }
+});
+
 const marketPlaceSlice = createSlice({
   name: "market",
   initialState,
@@ -201,9 +221,21 @@ const marketPlaceSlice = createSlice({
       .addCase(getJobDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error || "Failed to fetch job details";
+      })
+
+      .addCase(applyJobProposal.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(applyJobProposal.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(applyJobProposal.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || "Failed to submit proposal";
       });
   },
 });
 
-export const { clearError,clearJobs } = marketPlaceSlice.actions;
+export const { clearError, clearJobs } = marketPlaceSlice.actions;
 export default marketPlaceSlice.reducer;

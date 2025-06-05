@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { MarketPlaceUseCase } from "../../../useCase/MarketPlaceUseCase";
 import { marketPlaceRepo } from "../../../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
+import { BidRequest } from "../../../domain/dto/projectDTO/jobProposalDTO";
 
 const marketRepo = new marketPlaceRepo();
 const marketPlace = new MarketPlaceUseCase(marketRepo);
@@ -79,6 +80,58 @@ export class MarketPlaceProjectController {
         success: false,
         error: errorMessage,
       });
+    }
+  };
+
+  jobProposal: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+      const proposalData: BidRequest = req.body;
+
+      if (
+        !proposalData.agreeNDA ||
+        !proposalData.agreeVideoCall ||
+        !proposalData.coverLetter ||
+        !proposalData.bidAmount ||
+        !proposalData.timeline ||
+        !proposalData.workSamples ||
+        !proposalData.milestones ||
+        !proposalData.bidType ||
+        !proposalData.jobId
+      ) {
+        throw new Error("All Field are Require");
+      }
+
+      const result = await marketPlace.jobProposalUseCase(proposalData, userId);
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        });
+        return;
+      }
+
+      res.status(200).json({ success: true, message: "Proposal submitted" });
+    } catch (error) {
+      console.error("Proposal submission error:", error);
+      const statusCode =
+        error instanceof Error && error.message.includes("not found")
+          ? 404
+          : 500;
+      const errorMessage =
+        error instanceof Error ? error.message : "Proposal submission failed";
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
+      });
+      return;
     }
   };
 }

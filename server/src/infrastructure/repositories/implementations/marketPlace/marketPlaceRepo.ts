@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import {
   PaginatedJobResponseDTO,
   ProjectDetails,
@@ -7,6 +7,11 @@ import { Job } from "../../../../domain/interfaces/entities/Job";
 import { IMarketPlace } from "../../../../domain/interfaces/IMarketPlaceRepo";
 import ProjectModel from "../../../../domain/models/Projects";
 import UserModel from "../../../../domain/models/User";
+import {
+  BidRequest,
+  JobProposalResponse,
+} from "../../../../domain/dto/projectDTO/jobProposalDTO";
+import ProposalModel from "../../../../domain/models/Proposal";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -75,10 +80,62 @@ export class marketPlaceRepo implements IMarketPlace {
         },
       };
       return result;
-      
     } catch (error) {
       console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
       throw error;
+    }
+  }
+
+  async createNewJobProposal(
+    proposalData: BidRequest,
+    userId: string
+  ): Promise<JobProposalResponse> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Check if job exists first
+      const jobExists = await ProjectModel.exists({ _id: proposalData.jobId });
+      if (!jobExists) {
+        throw new Error("Job not found");
+      }
+
+      const result = await ProposalModel.create(
+        [
+          {
+            freelancerId: userId,
+            jobId: proposalData.jobId,
+            coverLetter: proposalData.coverLetter,
+            budgetType: proposalData.bidType,
+            bidAmount: proposalData.bidAmount,
+            estimatedTime: proposalData.timeline,
+            workSamples: proposalData.workSamples,
+            milestones: proposalData.milestones,
+            agreeVideoCall: proposalData.agreeVideoCall,
+            agreeNDA: proposalData.agreeNDA,
+          },
+        ],
+        { session }
+      );
+
+      await ProjectModel.findByIdAndUpdate(
+        proposalData.jobId,
+        { $push: { proposals: result[0]._id } },
+        { session }
+      );
+
+      await session.commitTransaction();
+
+      return {
+        success: true,
+        message: "Job proposal submitted successfully",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("Database operation failed:", error);
+      throw error;
+    } finally {
+      session.endSession();
     }
   }
 }

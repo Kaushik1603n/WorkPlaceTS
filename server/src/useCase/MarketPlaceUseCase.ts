@@ -1,3 +1,4 @@
+import { BidRequest } from "../domain/dto/projectDTO/jobProposalDTO";
 import { JobQueryParamsDTO } from "../domain/dto/projectDTO/marketPlaceDTO";
 import ProjectModel from "../domain/models/Projects";
 import { marketPlaceRepo } from "../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
@@ -86,6 +87,20 @@ export class MarketPlaceUseCase {
       return result;
     } catch (error) {
       console.error(`[getProjectDetails] Error fetching job ${jobId}:`, error);
+      throw error;
+    }
+  }
+  async jobProposalUseCase(proposalData: BidRequest, userId: string) {
+    try {
+      const result = await this.market.createNewJobProposal(proposalData,userId);
+
+      if (!result) {
+        throw new Error("Proposal Faild");
+      }
+
+      return result
+    } catch (error) {
+      console.error(`creating proposal usecase error`, error);
       throw error;
     }
   }
