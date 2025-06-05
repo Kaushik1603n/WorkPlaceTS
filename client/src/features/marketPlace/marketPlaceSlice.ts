@@ -24,8 +24,29 @@ interface FilterData {
   experienceLevel: string[];
 }
 
+interface Client {
+  fullName?: string;
+  email?: string;
+}
+interface JobDetails {
+  success: boolean;
+  data: {
+    title?: string;
+    description?: string;
+    stack?: string;
+    time?: string;
+    reference?: string;
+    requiredFeatures?: string | React.ReactNode;
+    budgetType?: string;
+    budget?: string | number;
+    experienceLevel?: string;
+    clientId?: Client;
+  };
+}
+
 interface MarketPlaceState {
   jobs: Job[];
+  currentJob: JobDetails["data"] | null;
   loading: boolean;
   error: string | null;
   pagination: {
@@ -38,6 +59,7 @@ interface MarketPlaceState {
 
 const initialState: MarketPlaceState = {
   jobs: [],
+  currentJob: null,
   loading: false,
   error: null,
   pagination: {
@@ -63,7 +85,10 @@ export const getAllTheJobs = createAsyncThunk<
   }
 >(
   "/jobs/get-jobs",
-  async ({ searchQuery = "", page = 1, limit = 5, filters }, { rejectWithValue }) => {
+  async (
+    { searchQuery = "", page = 1, limit = 5, filters },
+    { rejectWithValue }
+  ) => {
     try {
       const params = new URLSearchParams();
 
@@ -98,6 +123,24 @@ export const getAllTheJobs = createAsyncThunk<
     }
   }
 );
+export const getJobDetails = createAsyncThunk<
+  JobDetails,
+  { jobId: string | undefined },
+  {
+    rejectValue: { error: string };
+  }
+>("/jobs/job-details", async ({ jobId }, { rejectWithValue }) => {
+  try {
+    const response = await axiosClient.get(`/jobs/job-details/${jobId}`);
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue({
+      error:
+        error.response?.data.message || "Failed to fetch freelancer profile",
+    });
+  }
+});
 
 const marketPlaceSlice = createSlice({
   name: "market",
@@ -105,6 +148,9 @@ const marketPlaceSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    clearJobs: (state) => {
+      state.jobs = [];
     },
   },
   extraReducers: (builder) => {
@@ -142,9 +188,22 @@ const marketPlaceSlice = createSlice({
       .addCase(getAllTheJobs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error || "Failed to fetch jobs";
+      })
+
+      .addCase(getJobDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getJobDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentJob = action.payload.data;
+      })
+      .addCase(getJobDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || "Failed to fetch job details";
       });
   },
 });
 
-export const { clearError } = marketPlaceSlice.actions;
+export const { clearError,clearJobs } = marketPlaceSlice.actions;
 export default marketPlaceSlice.reducer;

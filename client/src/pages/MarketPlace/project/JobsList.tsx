@@ -1,7 +1,7 @@
 import type { Job } from "./MarketPlace";
 import JobCard from "./JobCard";
 import SearchSection from "./SearchSection";
-import Pagination from "../../components/Pagination";
+import Pagination from "../../../components/Pagination";
 import React from "react";
 import JobCardSkeleton from "./JobCardSkeleton";
 
@@ -10,7 +10,7 @@ interface JobsListProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
-    jobs: Job[];
+    jobs: Job[] | null;
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     handleSubmit: (e: React.FormEvent) => void;
@@ -18,6 +18,23 @@ interface JobsListProps {
 }
 
 function JobsList({ currentPage, jobs, totalPages, onPageChange, searchQuery, setSearchQuery, handleSubmit, isLoading }: JobsListProps) {
+    // If jobs is null/undefined (not yet loaded), show loading skeleton
+
+    console.log(jobs);
+    
+    if (jobs === null || jobs === undefined) {
+        return (
+            <div className="flex-1 px-4 sm:px-6 lg:px-8 py-5">
+                <SearchSection {...{ searchQuery, setSearchQuery, handleSubmit }} />
+                <div className="space-y-6">
+                    {[...Array(2)].map((_, index) => (
+                        <JobCardSkeleton key={index} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-5">
             <SearchSection

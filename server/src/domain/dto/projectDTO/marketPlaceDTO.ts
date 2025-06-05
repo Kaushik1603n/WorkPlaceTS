@@ -32,3 +32,20 @@ export type JobQueryParamsDTO = {
   page: number;
   limit: number;
 };
+
+export interface Client {
+  fullName?: string;
+  email?: string;
+}
+export interface ProjectDetails {
+  title?: string;
+  description?: string;
+  stack?: string;
+  time?: string;
+  reference?: string;
+  requiredFeatures?: string;
+  budgetType?: string;
+  budget?: string | number;
+  experienceLevel?: string;
+  clientId?: Client;
+}

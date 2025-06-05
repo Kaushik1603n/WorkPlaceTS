@@ -7,7 +7,7 @@ const marketPlace = new MarketPlaceUseCase(marketRepo);
 
 type JobQueryParams = {
   search?: string;
-  minPrice?: string; // comes as string from query
+  minPrice?: string;
   maxPrice?: string;
   jobTypes?: string;
   skills?: string;
@@ -47,6 +47,38 @@ export class MarketPlaceProjectController {
         .json({ success: false, error: "Failed to fetch projects" });
     }
   };
+  getProjectDetails: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { jobId } = req.params;
+
+      if (!jobId) {
+        res.status(400).json({
+          success: false,
+          error: "Job ID is required",
+        });
+        return;
+      }
+
+      const result = await marketPlace.getProjectDetails(jobId);
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      console.error("Job details fetch error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch job details";
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+      });
+    }
+  };
 }
-
-

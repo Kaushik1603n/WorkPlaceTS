@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import NavigationBar from "../../components/navigationBar/NavigationBar";
+import NavigationBar from "../../../components/navigationBar/NavigationBar";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllTheJobs } from "../../features/marketPlace/marketPlaceSlice";
-import type { AppDispatch, RootState } from "../../app/store";
+import { getAllTheJobs } from "../../../features/marketPlace/marketPlaceSlice";
+import type { AppDispatch, RootState } from "../../../app/store";
 import SidebarFilters, { type FilterData } from "./SidebarFilters";
 import JobsList from "./JobsList";
 
@@ -29,15 +29,11 @@ function MarketPlace() {
     const [debouncedFilters, setDebouncedFilters] = useState<FilterData>(activeFilters);
     const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        console.log("MarketPlace mounted");
-    }, []);
+
     const dispatch: AppDispatch = useDispatch();
     const { jobs, pagination, loading } = useSelector((store: RootState) => store.market);
 
-    // useEffect(() => {
-    //     dispatch(getAllTheJobs({ page: currentPage, limit: 5, searchQuery: "", filters: activeFilters })).unwrap();
-    // }, [dispatch, activeFilters,currentPage]);
+
 
     useEffect(() => {
         const timerId = setTimeout(() => {
@@ -91,7 +87,7 @@ function MarketPlace() {
                         onPageChange={(page) => {
                             setCurrentPage(page);
                         }}
-                        jobs={jobs}
+                        jobs={jobs || []}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         handleSubmit={handleSubmit}
