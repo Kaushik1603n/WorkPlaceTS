@@ -21,7 +21,7 @@ function ClientRoutes() {
             element={<>job-proposal</>}
           />
           <Route
-            path="job-details/:jobId/all-proposal/propisal-details/:proposalId"
+            path="jobs/:proposalId/proposals"
             element={<>proposalId</>}
           />
           <Route path="payments" element={<div>Payment Page</div>} />

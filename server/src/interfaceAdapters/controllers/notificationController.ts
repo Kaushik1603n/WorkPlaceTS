@@ -9,7 +9,6 @@ export class NotificationController {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
-      // const userId = "682321f0ebe2e8dac2d7a54b";
       
       if (!userId) {
         res
@@ -17,7 +16,6 @@ export class NotificationController {
           .json({ success: false, error: "User not authenticated" });
         return;
       }
-
 
       const notifications = await notificationUseCase.getNotifications(userId);
       res.status(200).json({ success: true, data: notifications });

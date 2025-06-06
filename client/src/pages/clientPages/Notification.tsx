@@ -85,12 +85,12 @@ const NotificationList: React.FC = () => {
                 <div>
                     <div className="flex-1 p-8">
                         <div className="max-w-2x2 mx-auto">
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                            <div className="bg-[#EFFFF6] rounded-2xl shadow-sm border border-[#27AE60] p-6">
                                 <div className="space-y-4">
                                     {allNotifications.map((notification) => (
                                         <div
                                             key={notification._id}
-                                            className="flex items-center justify-between p-4 bg-[#EFFFF6] rounded-xl border border-gray-200"
+                                            className={`flex items-center justify-between p-4 rounded-xl border border-[#27AE60] ${notification.isRead ? "bg-white" : "bg-blue-50"}`}
                                         >
                                             <div className="flex items-center space-x-4">
 
@@ -105,6 +105,16 @@ const NotificationList: React.FC = () => {
                                                         <span className="text-sm text-gray-500">{notification.type}</span>
                                                     </div>
                                                     <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                                                    <p className="text-sm text-gray-600 mt-1">
+                                                        {new Date(notification.createdAt).toLocaleString('en-US', {
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: true
+                                                        })}
+                                                    </p>
                                                 </div>
                                             </div>
 

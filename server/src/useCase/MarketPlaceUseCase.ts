@@ -1,3 +1,4 @@
+import { Server } from "socket.io";
 import { BidRequest } from "../domain/dto/projectDTO/jobProposalDTO";
 import { JobQueryParamsDTO } from "../domain/dto/projectDTO/marketPlaceDTO";
 import ProjectModel from "../domain/models/Projects";
@@ -90,15 +91,50 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
-  async jobProposalUseCase(proposalData: BidRequest, userId: string) {
+  async jobProposalUseCase(
+    proposalData: BidRequest,
+    userId: string,
+    io: Server,
+    connectedUsers: { [key: string]: string }
+  ) {
     try {
-      const result = await this.market.createNewJobProposal(proposalData,userId);
+      const result = await this.market.createNewJobProposal(
+        proposalData,
+        userId
+      );
 
       if (!result) {
         throw new Error("Proposal Faild");
       }
 
-      return result
+      const job = await this.market.findProposalDetails(proposalData.jobId);
+      const freelancer = await this.market.findFreelancerData(userId)
+      if (job && job?.clientId) {
+        const clientSocketId = connectedUsers[job.clientId.toString()];
+        if (clientSocketId) {
+          io.to(clientSocketId).emit("notification", {
+            _id: result.proposalId,
+            userId: job.clientId.toString(),
+            type: "proposal",
+            title: "New Job Proposal",
+            message: `A new proposal has been submitted for your job by freelancer ${freelancer?.fullName}.`,
+            content: `Proposal ID: ${result.proposalId}`,
+            isRead: false,
+            actionLink: `/client-dashboard/jobs/${proposalData.jobId}/proposals`,
+            metadata: {
+              jobId: proposalData.jobId,
+              proposalId: result.proposalId,
+              freelancerId: userId,
+            },
+            createdAt: new Date().toISOString(),
+          });
+          console.log(`Notification sent to client ${job.clientId}`);
+        } else {
+          console.log(`Client ${job.clientId} is not connected`);
+        }
+      }
+
+      return result;
     } catch (error) {
       console.error(`creating proposal usecase error`, error);
       throw error;

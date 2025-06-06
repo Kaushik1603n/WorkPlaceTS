@@ -52,7 +52,7 @@ const AuthRoutes = () => {
                 <Route path="/otp" element={isAuthenticated ? <Navigate to="/" /> : <ChangePassOtp />} />
                 <Route path="/change-pass" element={isAuthenticated ? <Navigate to="/" /> : <ChangePass />} />
                 <Route path="/success-login" element={<LoginSuccess />} />
-                <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
+                {/* <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} /> */}
             </>
 
         </>
