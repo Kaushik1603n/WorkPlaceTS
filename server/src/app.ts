@@ -1,4 +1,6 @@
 import express, { Application } from "express";
+import { createServer } from "http";
+import { Server, Socket } from "socket.io";
 import connectDB from "./infrastructure/database/db";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -11,33 +13,33 @@ import freelancerProfileRoute from "./interfaceAdapters/routes/freelancerRoutes/
 import userRoutes from "./interfaceAdapters/routes/adminRoutes/usersRoute";
 import clientProject from "./interfaceAdapters/routes/clientRoutes/projectRoute";
 import marketPlaceRoute from "./interfaceAdapters/routes/marketPlace/marketPlaceRoute";
-// import bodyParser from "body-parser";
+import notificationRout from "./interfaceAdapters/routes/notification";
 
 export class App {
   private app: Application;
+  private httpServer: any;
+  private io: Server;
+
   constructor() {
     this.app = express();
+    this.httpServer = createServer(this.app);
+    this.io = new Server(this.httpServer, {
+      cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+    });
     this.setupMiddlewares();
     this.setupRoutes();
-  }
-  private setupRoutes() {
-    this.app.use("/api/auth", authouter);
-    this.app.use("/api/client", profileRoute);
-    this.app.use("/api/client/project", clientProject);
-    this.app.use("/api/freelancer", freelancerProfileRoute);
-    this.app.use("/api/jobs",marketPlaceRoute)
-
-    this.app.use("/api/admin", userRoutes);
+    this.setupSocketIO();
   }
 
   private setupMiddlewares() {
     this.app.use(express.json({ limit: "300mb" }));
- this.app.use(express.urlencoded({ extended: true }));
-    // this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
     this.app.use(morgan("dev"));
-
     this.app.use(
       cors({
         origin: "http://localhost:5173",
@@ -46,10 +48,48 @@ export class App {
     );
     this.app.use(passport.initialize());
   }
+
+  private setupRoutes() {
+    this.app.use("/api/auth", authouter);
+    this.app.use("/api/client", profileRoute);
+    this.app.use("/api/client/project", clientProject);
+    this.app.use("/api/freelancer", freelancerProfileRoute);
+    this.app.use("/api", notificationRout);
+    this.app.use("/api/jobs", marketPlaceRoute);
+    this.app.use("/api/admin", userRoutes);
+  }
+
+  private setupSocketIO() {
+    const connectedUsers: { [key: string]: string } = {};
+
+    this.io.on("connection", (socket: Socket) => {
+      console.log("Client connected:", socket.id);
+
+      socket.on("register", (userId: string) => {
+        connectedUsers[userId] = socket.id;
+        console.log(`User ${userId} registered with socket ${socket.id}`);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
+        for (const userId in connectedUsers) {
+          if (connectedUsers[userId] === socket.id) {
+            delete connectedUsers[userId];
+            break;
+          }
+        }
+      });
+    });
+
+    // Make io accessible to routes
+    this.app.set("io", this.io);
+    this.app.set("connectedUsers", connectedUsers);
+  }
+
   public async listen(port: number) {
     await connectDB();
-    this.app.listen(port, () => {
-      console.log(`sever started on port ${port}`);
+    this.httpServer.listen(port, () => {
+      console.log(`Server started on port ${port}`);
     });
   }
 }

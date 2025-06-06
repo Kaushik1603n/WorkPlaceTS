@@ -12,6 +12,7 @@ import {
   JobProposalResponse,
 } from "../../../../domain/dto/projectDTO/jobProposalDTO";
 import ProposalModel from "../../../../domain/models/Proposal";
+import NotificationModel from "../../../../domain/models/Notification";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -95,10 +96,12 @@ export class marketPlaceRepo implements IMarketPlace {
 
     try {
       // Check if job exists first
-      const jobExists = await ProjectModel.exists({ _id: proposalData.jobId });
+      const jobExists = await ProjectModel.findById({ _id: proposalData.jobId });
       if (!jobExists) {
         throw new Error("Job not found");
       }
+
+      const clientId = jobExists?.clientId
 
       const result = await ProposalModel.create(
         [
@@ -124,12 +127,32 @@ export class marketPlaceRepo implements IMarketPlace {
         { session }
       );
 
+      await NotificationModel.create(
+        [
+          {
+            userId: clientId,
+            type: "proposal",
+            title: "New Job Proposal",
+            message: `A new proposal has been submitted for your job (ID: ${proposalData.jobId}) by freelancer ${userId}.`,
+            content: `Proposal ID: ${result[0]._id}`,
+            isRead: false,
+            actionLink: `/jobs/${proposalData.jobId}/proposals`, // Adjust actionLink as needed
+            metadata: {
+              jobId: proposalData.jobId,
+              proposalId: result[0]._id,
+              freelancerId: userId,
+            },
+          },
+        ],
+        { session }
+      );
+
       await session.commitTransaction();
 
       return {
         success: true,
         message: "Job proposal submitted successfully",
-        proposalId:result[0]._id as string
+        proposalId: result[0]._id as string,
       };
     } catch (error) {
       await session.abortTransaction();

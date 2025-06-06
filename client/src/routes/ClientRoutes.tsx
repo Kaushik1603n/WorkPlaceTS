@@ -5,6 +5,7 @@ import ClientLayout from "../pages/clientPages/ClientLayout";
 import ClientProfile from "../pages/clientPages/profile/ClientProfile";
 import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 import JobPostingForm from "../pages/clientPages/jobPosting/JobPostingForm";
+import NotificationList from "../pages/clientPages/Notification";
 
 
 function ClientRoutes() {
@@ -27,7 +28,7 @@ function ClientRoutes() {
           <Route path="profile" element={<ClientProfile/>} />
           <Route path="profile/edit" element={<EditClientProfile/>} />
           <Route path="message" element={<div>Message Page</div>} />
-          <Route path="notification" element={<div>Notification Page</div>} />
+          <Route path="notification" element={<NotificationList/>} />
           <Route path="posting" element={<JobPostingForm/>} />
           <Route path="freelancer" element={<div>Freelancer Page</div>} />
           <Route

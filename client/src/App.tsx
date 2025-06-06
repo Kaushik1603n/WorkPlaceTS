@@ -15,15 +15,16 @@ import AdminRoutes from "./routes/AdminRoutes";
 import MarketPlace from "./pages/MarketPlace/project/MarketPlace";
 import JobDetails from "./pages/MarketPlace/projectDetails/JobDetails";
 import ApplyJob from "./pages/MarketPlace/applyBid/ApplyJob";
-// import type { RootState } from "./app/store";
-// import { useSelector } from "react-redux";
+import type { RootState } from "./app/store";
+import { useSelector } from "react-redux";
+import { SocketProvider } from './context/SocketContext.tsx'
 
 
 function App() {
-  // const {  user } = useSelector((state: RootState) => state.auth);
-  // console.log(user);
-
+  const {  user } = useSelector((state: RootState) => state.auth);
+const userId = user?.id as string
   return (
+<SocketProvider userId={userId}>
     <>
       <ToastContainer />
       <Router>
@@ -45,6 +46,7 @@ function App() {
         </Routes>
       </Router>
     </>
+    </SocketProvider>
   )
 }
 

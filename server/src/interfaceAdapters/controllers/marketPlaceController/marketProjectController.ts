@@ -2,6 +2,8 @@ import { RequestHandler } from "express";
 import { MarketPlaceUseCase } from "../../../useCase/MarketPlaceUseCase";
 import { marketPlaceRepo } from "../../../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
 import { BidRequest } from "../../../domain/dto/projectDTO/jobProposalDTO";
+import ProjectModel from "../../../domain/models/Projects";
+import { Server } from "socket.io";
 
 const marketRepo = new marketPlaceRepo();
 const marketPlace = new MarketPlaceUseCase(marketRepo);
@@ -16,6 +18,7 @@ type JobQueryParams = {
   duration?: string;
 };
 export class MarketPlaceProjectController {
+
   getAllMarketProjects: RequestHandler = async (req, res): Promise<void> => {
     try {
       const {
@@ -48,6 +51,7 @@ export class MarketPlaceProjectController {
         .json({ success: false, error: "Failed to fetch projects" });
     }
   };
+
   getProjectDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { jobId } = req.params;
@@ -115,6 +119,37 @@ export class MarketPlaceProjectController {
           error: "Job not found",
         });
         return;
+      }
+
+      // Emit Socket.IO notification
+      const io: Server = req.app.get("io");
+      const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
+
+      // Fetch job to get clientId
+      const job = await ProjectModel.findById(proposalData.jobId);
+      if (job && job.clientId) {
+        const clientSocketId = connectedUsers[job.clientId.toString()];
+        if (clientSocketId) {
+          io.to(clientSocketId).emit("notification", {
+            _id: result.proposalId,
+            userId: job.clientId.toString(),
+            type: "proposal",
+            title: "New Job Proposal",
+            message: `A new proposal has been submitted for your job (ID: ${proposalData.jobId}) by freelancer ${userId}.`,
+            content: `Proposal ID: ${result.proposalId}`,
+            isRead: false,
+            actionLink: `/jobs/${proposalData.jobId}/proposals`,
+            metadata: {
+              jobId: proposalData.jobId,
+              proposalId: result.proposalId,
+              freelancerId: userId,
+            },
+            createdAt: new Date().toISOString(),
+          });
+          console.log(`Notification sent to client ${job.clientId}`);
+        } else {
+          console.log(`Client ${job.clientId} is not connected`);
+        }
       }
 
       res.status(200).json({ success: true, message: "Proposal submitted" });
