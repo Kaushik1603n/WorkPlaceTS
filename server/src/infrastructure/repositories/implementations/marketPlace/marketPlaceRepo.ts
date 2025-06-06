@@ -129,6 +129,7 @@ export class marketPlaceRepo implements IMarketPlace {
       return {
         success: true,
         message: "Job proposal submitted successfully",
+        proposalId:result[0]._id as string
       };
     } catch (error) {
       await session.abortTransaction();

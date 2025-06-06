@@ -13,6 +13,7 @@ interface INotification extends Document {
   message: string;
   isRead: boolean;
   actionLink?: string;
+  content?: string;
   metadata?: IMetadata;
   createdAt: Date;
   updatedAt: Date;
@@ -30,28 +31,32 @@ const NotificationSchema: Schema = new Schema(
       enum: ["message", "proposal", "payment", "milestone"],
       required: true,
     },
-    title: { 
-      type: String, 
-      required: true 
+    title: {
+      type: String,
+      required: true,
     },
-    message: { 
-      type: String, 
-      required: true 
+    message: {
+      type: String,
+      required: true,
     },
-    isRead: { 
-      type: Boolean, 
-      default: false 
+    isRead: {
+      type: Boolean,
+      default: false,
     },
-    actionLink: { 
-      type: String 
+    actionLink: {
+      type: String,
     },
-    metadata: { 
-      type: Object 
+    metadata: {
+      type: Object,
     },
+    content: { type: String, required: true },
   },
   { timestamps: true }
 );
 
 // Create and export the model
-const Notification = mongoose.model<INotification>("Notification", NotificationSchema);
+const Notification = mongoose.model<INotification>(
+  "Notification",
+  NotificationSchema
+);
 export default Notification;

@@ -22,4 +22,5 @@ export interface BidRequest {
 export interface JobProposalResponse {
   success: boolean;
   message: string;
+  proposalId:string
 }
