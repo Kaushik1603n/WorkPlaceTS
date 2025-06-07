@@ -108,7 +108,7 @@ export class MarketPlaceUseCase {
       }
 
       const job = await this.market.findProposalDetails(proposalData.jobId);
-      const freelancer = await this.market.findFreelancerData(userId)
+      const freelancer = await this.market.findFreelancerData(userId);
       if (job && job?.clientId) {
         const clientSocketId = connectedUsers[job.clientId.toString()];
         if (clientSocketId) {
@@ -120,7 +120,7 @@ export class MarketPlaceUseCase {
             message: `A new proposal has been submitted for your job by freelancer ${freelancer?.fullName}.`,
             content: `Proposal ID: ${result.proposalId}`,
             isRead: false,
-            actionLink: `/client-dashboard/jobs/${proposalData.jobId}/proposals`,
+            actionLink: `/client-dashboard/jobs/${result.proposalId}/proposals`,
             metadata: {
               jobId: proposalData.jobId,
               proposalId: result.proposalId,
@@ -135,6 +135,38 @@ export class MarketPlaceUseCase {
       }
 
       return result;
+    } catch (error) {
+      console.error(`creating proposal usecase error`, error);
+      throw error;
+    }
+  }
+  async getProposalDetailsUseCase(userId: string, proposalId: string) {
+    try {
+      if (!userId && !proposalId) {
+        throw new Error("Credensial missing");
+      }
+
+      const proposalDetails = await this.market.findProposalById(proposalId);
+
+      if (!proposalId) {
+        throw new Error("Proposal details not found");
+      }
+
+      if (proposalDetails?.clientId?.toString() !== userId) {
+        throw new Error("You Can not access this page");
+      }
+
+      const freelancer = await this.market.findFreelancerById(
+        proposalDetails?.freelancerId
+      );
+
+      const proposal = {
+        ...proposalDetails,
+        profile: freelancer?.profilePic || "",
+        skills: freelancer?.skills || [],
+      };
+
+      return proposal;
     } catch (error) {
       console.error(`creating proposal usecase error`, error);
       throw error;

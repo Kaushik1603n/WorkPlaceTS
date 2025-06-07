@@ -6,6 +6,7 @@ import ClientProfile from "../pages/clientPages/profile/ClientProfile";
 import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 import JobPostingForm from "../pages/clientPages/jobPosting/JobPostingForm";
 import NotificationList from "../pages/clientPages/Notification";
+import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
 
 
 function ClientRoutes() {
@@ -22,7 +23,7 @@ function ClientRoutes() {
           />
           <Route
             path="jobs/:proposalId/proposals"
-            element={<>proposalId</>}
+            element={<ProposalDetails/>}
           />
           <Route path="payments" element={<div>Payment Page</div>} />
           <Route path="profile" element={<ClientProfile/>} />

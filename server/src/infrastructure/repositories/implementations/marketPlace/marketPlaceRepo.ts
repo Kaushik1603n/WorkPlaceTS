@@ -13,6 +13,8 @@ import {
 } from "../../../../domain/dto/projectDTO/jobProposalDTO";
 import ProposalModel from "../../../../domain/models/Proposal";
 import NotificationModel from "../../../../domain/models/Notification";
+import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
+import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -139,7 +141,7 @@ export class marketPlaceRepo implements IMarketPlace {
             message: `A new proposal has been submitted for your job  by freelancer ${freelancer?.fullName}.`,
             content: `Proposal ID: ${result[0]._id}`,
             isRead: false,
-            actionLink: `/client-dashboard/jobs/${proposalData.jobId}/proposals`, // Adjust actionLink as needed
+            actionLink: `/client-dashboard/jobs/${result[0]._id}/proposals`, // Adjust actionLink as needed
             metadata: {
               jobId: proposalData.jobId,
               proposalId: result[0]._id,
@@ -167,11 +169,48 @@ export class marketPlaceRepo implements IMarketPlace {
   }
 
   async findProposalDetails(jobId: string) {
-    const proposal =await ProjectModel.findById(jobId);
+    const proposal = await ProjectModel.findById(jobId);
     return proposal;
   }
   async findFreelancerData(userId: string) {
-    const freelancer =await UserModel.findById(userId);
+    const freelancer = await UserModel.findById(userId);
     return freelancer;
+  }
+
+  async findProposalById(proposalId: string) {
+    const proposalDetails = await ProposalModel.findById(proposalId)
+      .select(
+        "status estimatedTime bidAmount budgetType coverLetter milestones freelancerId jobId createdAt"
+      )
+      .populate({
+        path: "freelancerId",
+        select: "-password -refreshToken",
+      })
+      .populate({
+        path: "jobId",
+      })
+      .lean<ProposalResponse | null>();
+
+    return {
+      proposal_id: proposalDetails?._id,
+      status: proposalDetails?.status,
+      timeline: proposalDetails?.estimatedTime,
+      bidAmount: proposalDetails?.bidAmount,
+      bidType: proposalDetails?.budgetType,
+      coverLetter: proposalDetails?.coverLetter,
+      milestones: proposalDetails?.milestones || [],
+      freelancerId: proposalDetails?.freelancerId?._id,
+      freelancerName: proposalDetails?.freelancerId?.fullName,
+      freelancerEmail: proposalDetails?.freelancerId?.email,
+      jobTitle: proposalDetails?.jobId?.title,
+      clientId: proposalDetails?.jobId?.clientId,
+      submittedAt: proposalDetails?.createdAt,
+    };
+  }
+  async findFreelancerById(userId: any) {
+    const freelancerDetails = await FreelancerProfile.findOne({
+      userId: userId,
+    },{profilePic:1,skills:1});
+    return freelancerDetails;
   }
 }

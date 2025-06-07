@@ -18,7 +18,6 @@ type JobQueryParams = {
   duration?: string;
 };
 export class MarketPlaceProjectController {
-
   getAllMarketProjects: RequestHandler = async (req, res): Promise<void> => {
     try {
       const {
@@ -110,12 +109,18 @@ export class MarketPlaceProjectController {
       ) {
         throw new Error("All Field are Require");
       }
-      
+
       // Emit Socket.IO notification
       const io: Server = req.app.get("io");
-      const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
+      const connectedUsers: { [key: string]: string } =
+        req.app.get("connectedUsers");
 
-      const result = await marketPlace.jobProposalUseCase(proposalData, userId,io,connectedUsers);
+      const result = await marketPlace.jobProposalUseCase(
+        proposalData,
+        userId,
+        io,
+        connectedUsers
+      );
 
       if (!result) {
         res.status(404).json({
@@ -125,8 +130,50 @@ export class MarketPlaceProjectController {
         return;
       }
 
-
       res.status(200).json({ success: true, message: "Proposal submitted" });
+    } catch (error) {
+      console.error("Proposal submission error:", error);
+      const statusCode =
+        error instanceof Error && error.message.includes("not found")
+          ? 404
+          : 500;
+      const errorMessage =
+        error instanceof Error ? error.message : "Proposal submission failed";
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
+      });
+      return;
+    }
+  };
+
+  getProposalDetails: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const proposalId = req.params.proposalId;
+
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+
+      if (!proposalId) {
+        res
+          .status(400)
+          .json({ success: false, message: "Proposal ID is required" });
+        return;
+      }
+
+      const result = await marketPlace.getProposalDetailsUseCase(userId,proposalId)
+
+      // console.log(result);
+      
+
+      res.status(200).json({ success: true, message: "Proposal submitted" ,data:result});
     } catch (error) {
       console.error("Proposal submission error:", error);
       const statusCode =
