@@ -1,3 +1,5 @@
+import { FreelancerProposalResponse } from "../../../../domain/dto/freelancerProposalsDTO";
+import { JonContractDetails } from "../../../../domain/dto/proposalContractDTO";
 import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
 import ContractModel from "../../../../domain/models/ContractModel";
 import ProposalModel from "../../../../domain/models/Proposal";
@@ -54,11 +56,39 @@ export class ProposalRepo {
   }
 
   async createProposalContract(contract: object) {
-   try {
+    try {
       return await ContractModel.create(contract);
     } catch (error) {
-      console.error('Error creating contract:', error);
-      throw new Error('Failed to create contract');
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
+    }
+  }
+  async getProposalbyId(userId: string) {
+    try {
+      const proposals = await ProposalModel.find({ freelancerId: userId })
+        .populate({
+          path: "jobId",
+          select: "title budgetType budget status",
+        })
+        .sort({ createdAt: -1 })
+        .lean<FreelancerProposalResponse[] | null>();
+
+      return proposals;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
+    }
+  }
+  async getContractDetails(contractId: string) {
+    try {
+      const contractDetails = await ContractModel.findById(
+        contractId
+      ).lean<JonContractDetails>();
+
+      return contractDetails;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
     }
   }
 }

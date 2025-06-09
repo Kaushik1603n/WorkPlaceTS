@@ -3,6 +3,7 @@ import ProtectedFreelancer from "../utils/ProtectedRoutes/ProtectedFreelancer";
 import FreelancerLayout from "../pages/freelancerPages/FreelancerLayout";
 import FreelancerProfile from "../pages/freelancerPages/profile/FreelancerProfile";
 import EditFreelancerProfile from "../pages/freelancerPages/profile/EditFreelancerProfile";
+import FreelancerBit from "../pages/freelancerPages/proposal/FreelancerBit";
 
 function FreelancerRoutes() {
     return (
@@ -21,7 +22,7 @@ function FreelancerRoutes() {
                         path="interview"
                         element={<div>Interview Scheduling Page</div>}
                     />
-                    <Route path="proposals" element={<>proposal</>} />
+                    <Route path="proposals" element={<FreelancerBit/>} />
                     <Route
                         path="dispute"
                         element={<div>Dispute Resolution Page</div>}

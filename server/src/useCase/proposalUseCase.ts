@@ -13,14 +13,13 @@ export class ProposalUseCase {
 
       const proposal = await this.proposal.findProposalById(proposalId);
 
-    if (!proposal) {
+      if (!proposal) {
         throw new Error("Proposal not found");
       }
 
       if (proposal?.clientId?.toString() !== userId.toString()) {
         throw new Error("Not authorized to hire for this job");
       }
-console.log( proposal?.status );
 
       if (
         proposal?.status !== "submitted" &&
@@ -55,9 +54,34 @@ console.log( proposal?.status );
         contractDetails._id
       );
 
-      return 
+      return;
     } catch (error) {
       console.error(`creating proposal usecase error`, error);
+      throw error;
+    }
+  }
+  async getAllFreelancerProposalsUseCase(userId: string) {
+    try {
+      const getAllProposals = await this.proposal.getProposalbyId(userId);
+
+      // if (!getAllProposals || getAllProposals?.length) {
+      //   return { message: "No proposals found" }
+      // }
+      return getAllProposals;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
+  async getContractDetailsUseCase(contractId: string) {
+    try {
+      const contractDetails = await this.proposal.getContractDetails(
+        contractId
+      );
+
+      return contractDetails;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
       throw error;
     }
   }

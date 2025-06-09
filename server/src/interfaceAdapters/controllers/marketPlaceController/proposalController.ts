@@ -40,4 +40,63 @@ export class ProposalController {
       });
     }
   };
+
+  getAllFreelancerProposals: RequestHandler = async (
+    req,
+    res
+  ): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const proposals = await proposalCase.getAllFreelancerProposalsUseCase(
+        userId
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: proposals,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+  getContractDetails: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const contractId = req.params.id;
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const contractDetails = await proposalCase.getContractDetailsUseCase(
+        contractId
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: contractDetails,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
 }
