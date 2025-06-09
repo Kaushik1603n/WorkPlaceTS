@@ -65,7 +65,7 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
 
     } catch (error) {
       console.log(error);
-
+      toast.error("Cannot Accept the contract")
     }
 
   }
@@ -73,8 +73,11 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
     try {
       const response = await axiosClient.get(`/proposal/reject-contract/${contractId}`)
       console.log(response);
+      setContract(response.data.data);
+
 
     } catch (error) {
+      toast.error("Cannot reject the contract")
       console.log(error);
     }
   }

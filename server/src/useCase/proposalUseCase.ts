@@ -90,28 +90,24 @@ export class ProposalUseCase {
 
   async acceptProposalUseCase(userId: string, contractId: string) {
     try {
-      console.log(33);
-      
       const contractDetails = await this.proposal.getContractDetails(
         contractId
       );
-      
 
-      const proposal_id= contractDetails?.proposalId?contractDetails?.proposalId:"";
+      const proposal_id = contractDetails?.proposalId
+        ? contractDetails?.proposalId
+        : "";
 
       if (
         contractDetails?.freelancerId.toString() !== userId.toString() &&
         contractDetails?.status === "reject"
       ) {
-        console.log(contractDetails.status);
-        
         throw new Error("You cannot accept this proposal");
       }
 
       const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
-      const jobStatus = await this.proposal.getJobStatus(jobId as string);
 
-      
+      const jobStatus = await this.proposal.getJobStatus(jobId as string);
 
       if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
         throw new Error("Cannot Accept this Contract");
@@ -131,19 +127,35 @@ export class ProposalUseCase {
     }
   }
 
-  async rejectProposalUseCase(contractId: string) {
+  async rejectProposalUseCase(userId: string, contractId: string) {
     try {
       const contractDetails = await this.proposal.getContractDetails(
         contractId
       );
 
-      return contractDetails;
+      const proposal_id = contractDetails?.proposalId
+        ? contractDetails?.proposalId
+        : "";
+
+      if (contractDetails?.freelancerId.toString() !== userId.toString()) {
+        throw new Error("You cannot reject this proposal");
+      }
+
+      const contract = await this.proposal.rejectProposalContract(
+        proposal_id as string,
+        contractId
+      );
+
+      return contract;
     } catch (error) {
       console.error(`proposal usecase error`, error);
       throw error;
     }
   }
 }
+
+
+
 
 const generateDefaultContractTerms = (proposal: any) => {
   const terms = [

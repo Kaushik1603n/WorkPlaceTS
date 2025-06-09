@@ -142,7 +142,6 @@ export class ProposalRepo {
         throw new Error("Contract not found");
       }
 
-
       const proposal = await ProposalModel.findByIdAndUpdate(
         proposal_id,
         {
@@ -167,16 +166,44 @@ export class ProposalRepo {
     }
   }
 
-  async rejectProposalContract(contractId: string) {
-    try {
-      const contractDetails = await ContractModel.findById(
-        contractId
-      ).lean<JonContractDetails>();
+  async rejectProposalContract(proposal_id: string, contractId: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-      return contractDetails;
+    try {
+      const contract = await ContractModel.findByIdAndUpdate(
+        contractId,
+        {
+          status: "reject",
+        },
+        { new: true, session }
+      );
+
+      if (!contract) {
+        throw new Error("Contract not found");
+      }
+
+      const proposal = await ProposalModel.findByIdAndUpdate(
+        proposal_id,
+        {
+          status: "rejected",
+        },
+        { new: true, session }
+      );
+
+      if (!proposal) {
+        throw new Error("Proposal not found");
+      }
+
+      await session.commitTransaction();
+
+      return contract;
     } catch (error) {
+      await session.abortTransaction();
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
+    } finally {
+      session.endSession();
     }
   }
 }

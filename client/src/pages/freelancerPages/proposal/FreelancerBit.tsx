@@ -81,11 +81,23 @@ function FreelancerBit() {
                                 <p className="text-gray-500 mb-2">
                                     Estimated Time: {proposal?.estimatedTime} week(s)
                                 </p>
-                                {(proposal?.status === "accepted" || proposal?.status === "interviewing") && (
+                                {(proposal?.contractId) && (
                                     <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                                        <span className="bg-green-200 text-green-800 px-3 py-1 rounded-md text-sm">
-                                            Accepted
-                                        </span>
+                                        {proposal?.status === "accepted" && (
+                                            <div className="bg-green-200 text-green-800 px-3 py-1 rounded-md text-sm">
+                                                Accepted
+                                            </div>
+                                        )}
+                                        {proposal?.status === "submitted" && (
+                                            <div className=" bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm">
+                                                Submitted
+                                            </div>
+                                        )}
+                                        {proposal?.status === "rejected" && (
+                                            <div className=" bg-red-200 text-red-800 px-3 py-1 rounded-md text-sm">
+                                                Rejected
+                                            </div>
+                                        )}
                                         <button
                                             className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 flex items-center"
                                             onClick={() => handleViewContract(proposal)}
@@ -114,7 +126,7 @@ function FreelancerBit() {
                                         </button>
                                     </div>
                                 )}
-                                {proposal?.status === "submitted" && (
+                                {/* {proposal?.status === "submitted" && (
                                     <div className="absolute bottom-4 right-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm">
                                         Submitted
                                     </div>
@@ -123,7 +135,7 @@ function FreelancerBit() {
                                     <div className="absolute bottom-4 right-4 bg-red-200 text-red-800 px-3 py-1 rounded-md text-sm">
                                         Rejected
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         ))}
                 </div>

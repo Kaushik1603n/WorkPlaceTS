@@ -112,7 +112,10 @@ export class ProposalController {
         return;
       }
 
-     const contractDetails= await proposalCase.acceptProposalUseCase(userId,contractId);
+      const contractDetails = await proposalCase.acceptProposalUseCase(
+        userId,
+        contractId
+      );
 
       res.status(200).json({
         message: "Proposals fetched successfully",
@@ -134,16 +137,14 @@ export class ProposalController {
       const userId = user.userId;
       const contractId = req.params.id;
 
-      if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
-        return;
-      }
-
-      await proposalCase.rejectProposalUseCase(contractId);
+      const contractDetails = await proposalCase.rejectProposalUseCase(
+        userId,
+        contractId
+      );
 
       res.status(200).json({
         message: "Proposals fetched successfully",
-        data: "contractDetails",
+        data: contractDetails,
       });
     } catch (error) {
       console.error(error);
