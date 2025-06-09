@@ -18,6 +18,7 @@ export interface IJob extends Document {
   visibility?: "public" | "private";
   reference?: string;
   Attachments?: string[];
+  hiredFreelancer?: Types.ObjectId;
   contractId?: Types.ObjectId;
   paymentStatus?: "unpaid" | "partially-paid" | "fully-paid";
   createdAt: Date;
@@ -66,6 +67,10 @@ const JobSchema: Schema = new Schema(
     },
     reference: { type: String },
     Attachments: [{ type: String }],
+    hiredFreelancer: { 
+      type: Schema.Types.ObjectId, 
+      ref: "User" 
+    },
     contractId: { 
       type: Schema.Types.ObjectId, 
       ref: "Contract" 

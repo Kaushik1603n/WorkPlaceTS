@@ -60,6 +60,7 @@ export class ProposalUseCase {
       throw error;
     }
   }
+
   async getAllFreelancerProposalsUseCase(userId: string) {
     try {
       const getAllProposals = await this.proposal.getProposalbyId(userId);
@@ -73,7 +74,64 @@ export class ProposalUseCase {
       throw error;
     }
   }
+
   async getContractDetailsUseCase(contractId: string) {
+    try {
+      const contractDetails = await this.proposal.getContractDetails(
+        contractId
+      );
+
+      return contractDetails;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
+
+  async acceptProposalUseCase(userId: string, contractId: string) {
+    try {
+      console.log(33);
+      
+      const contractDetails = await this.proposal.getContractDetails(
+        contractId
+      );
+      
+
+      const proposal_id= contractDetails?.proposalId?contractDetails?.proposalId:"";
+
+      if (
+        contractDetails?.freelancerId.toString() !== userId.toString() &&
+        contractDetails?.status === "reject"
+      ) {
+        console.log(contractDetails.status);
+        
+        throw new Error("You cannot accept this proposal");
+      }
+
+      const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
+      const jobStatus = await this.proposal.getJobStatus(jobId as string);
+
+      
+
+      if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
+        throw new Error("Cannot Accept this Contract");
+      }
+
+      const contract = await this.proposal.acceptProposalContract(
+        userId,
+        jobId as string,
+        proposal_id as string,
+        contractId
+      );
+
+      return contract;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
+
+  async rejectProposalUseCase(contractId: string) {
     try {
       const contractDetails = await this.proposal.getContractDetails(
         contractId

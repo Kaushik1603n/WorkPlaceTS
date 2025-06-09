@@ -71,6 +71,7 @@ export class ProposalController {
       });
     }
   };
+
   getContractDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -89,6 +90,60 @@ export class ProposalController {
       res.status(200).json({
         message: "Proposals fetched successfully",
         data: contractDetails,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+
+  acceptProposalcontract: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const contractId = req.params.id;
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+     const contractDetails= await proposalCase.acceptProposalUseCase(userId,contractId);
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: contractDetails,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+
+  rejectProposalcontract: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const contractId = req.params.id;
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      await proposalCase.rejectProposalUseCase(contractId);
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: "contractDetails",
       });
     } catch (error) {
       console.error(error);

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IContract extends Document {
-  _id:string,
+  _id: string;
   proposalId: mongoose.Types.ObjectId;
   freelancerId: mongoose.Types.ObjectId;
   clientId: mongoose.Types.ObjectId;
@@ -11,7 +11,7 @@ export interface IContract extends Document {
   startDate?: Date;
   endDate?: Date;
   totalAmount: number;
-  status: "active" | "completed" | "terminated";
+  status: "active" | "completed" | "terminated" | "in-progress" | "reject";
   paymentMethod?: string;
   terms: string[];
   createdAt: Date;
@@ -35,42 +35,47 @@ const ContractSchema: Schema = new Schema(
       ref: "User",
       required: true,
     },
-    jobId: { 
-      type: Schema.Types.ObjectId, 
-      ref: "Job", 
-      required: true 
+    jobId: {
+      type: Schema.Types.ObjectId,
+      ref: "Job",
+      required: true,
     },
-    title: { 
-      type: String, 
-      required: true 
+    title: {
+      type: String,
+      required: true,
     },
-    description: { 
-      type: String 
+    description: {
+      type: String,
     },
-    startDate: { 
-      type: Date 
+    startDate: {
+      type: Date,
     },
-    endDate: { 
-      type: Date 
+    endDate: {
+      type: Date,
     },
-    totalAmount: { 
-      type: Number, 
-      required: true 
+    totalAmount: {
+      type: Number,
+      required: true,
     },
-    paymentMethod: { 
-      type: String 
+    paymentMethod: {
+      type: String,
     },
     status: {
       type: String,
-      enum: ["active", "completed", "terminated"],
+      enum: ["active", "completed", "terminated", "in-progress", "reject"],
       default: "active",
     },
-    terms: [{ 
-      type: String 
-    }],
+    terms: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-const ContractModel: Model<IContract> = mongoose.model<IContract>("Contract", ContractSchema);
+const ContractModel: Model<IContract> = mongoose.model<IContract>(
+  "Contract",
+  ContractSchema
+);
 export default ContractModel;

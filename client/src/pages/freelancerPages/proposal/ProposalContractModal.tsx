@@ -57,6 +57,28 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
     };
   }, [contractId]);
 
+  const acceptHandler = async () => {
+
+    try {
+      const response = await axiosClient.get(`/proposal/accept-contract/${contractId}`)
+      setContract(response.data.data);
+
+    } catch (error) {
+      console.log(error);
+
+    }
+
+  }
+  const rejectHandler = async () => {
+    try {
+      const response = await axiosClient.get(`/proposal/reject-contract/${contractId}`)
+      console.log(response);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -149,9 +171,21 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
           >
             Close
           </button>
-          <button className="bg-color-first text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            Download Contract
-          </button>
+
+          {contract.status === "active" && (
+            <button
+              onClick={rejectHandler}
+              className="bg-red-500 text-white px-4 py-2 rounded-md mr-2">
+              Reject
+            </button>
+          )}
+          {contract.status === "active" && (
+            <button
+              onClick={acceptHandler}
+              className="bg-color-first text-white px-4 py-2 rounded-md mr-2">
+              Accept
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -14,7 +14,14 @@ interface Proposal {
     bidAmount: number;
     budgetType: string;
     estimatedTime: number;
-    status: "accepted" | "submitted" | "rejected";
+    status:
+    | "submitted"
+    | "interviewing"
+    | "rejected"
+    | "accepted"
+    | "cancelled"
+    | "active"
+    | "completed";
     contractId?: string;
 }
 
@@ -74,7 +81,7 @@ function FreelancerBit() {
                                 <p className="text-gray-500 mb-2">
                                     Estimated Time: {proposal?.estimatedTime} week(s)
                                 </p>
-                                {proposal?.status === "accepted" && (
+                                {(proposal?.status === "accepted" || proposal?.status === "interviewing") && (
                                     <div className="absolute bottom-4 right-4 flex items-center gap-2">
                                         <span className="bg-green-200 text-green-800 px-3 py-1 rounded-md text-sm">
                                             Accepted

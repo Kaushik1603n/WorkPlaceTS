@@ -1,8 +1,10 @@
+import mongoose, { ObjectId } from "mongoose";
 import { FreelancerProposalResponse } from "../../../../domain/dto/freelancerProposalsDTO";
 import { JonContractDetails } from "../../../../domain/dto/proposalContractDTO";
 import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
 import ContractModel from "../../../../domain/models/ContractModel";
 import ProposalModel from "../../../../domain/models/Proposal";
+import ProjectModel from "../../../../domain/models/Projects";
 
 export class ProposalRepo {
   async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
@@ -80,6 +82,92 @@ export class ProposalRepo {
     }
   }
   async getContractDetails(contractId: string) {
+    try {
+      const contractDetails = await ContractModel.findById(
+        contractId
+      ).lean<JonContractDetails>();
+
+      return contractDetails;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
+    }
+  }
+
+  async getJobStatus(jobId: string) {
+    try {
+      const status = await ProjectModel.findById(jobId, { status: 1 }).lean<{
+        status: string;
+        _id?: ObjectId;
+      }>();
+
+      return status;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
+    }
+  }
+  async acceptProposalContract(
+    userId: string,
+    jobId: string,
+    proposal_id: string,
+    contractId: string
+  ) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const job = await ProjectModel.findByIdAndUpdate(
+        jobId,
+        {
+          status: "in-progress",
+          hiredFreelancer: userId,
+          contractId: contractId,
+        },
+        { new: true, session }
+      );
+
+      if (!job) {
+        throw new Error("Job not found");
+      }
+      const contract = await ContractModel.findByIdAndUpdate(
+        contractId,
+        {
+          status: "in-progress",
+        },
+        { new: true, session }
+      );
+
+      if (!contract) {
+        throw new Error("Contract not found");
+      }
+
+
+      const proposal = await ProposalModel.findByIdAndUpdate(
+        proposal_id,
+        {
+          status: "interviewing",
+        },
+        { new: true, session }
+      );
+
+      if (!proposal) {
+        throw new Error("Proposal not found");
+      }
+
+      await session.commitTransaction();
+
+      return contract;
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("Error update contract accept status:", error);
+      throw new Error("Failed to contract accept status");
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async rejectProposalContract(contractId: string) {
     try {
       const contractDetails = await ContractModel.findById(
         contractId
