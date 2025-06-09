@@ -172,4 +172,19 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
+
+  async getAllJobDetailsUseCase(userId: string) {
+    try {
+      if (!userId) {
+        throw new Error("Credensial missing");
+      }      
+
+      const findProject = await this.market.findActiveProject(userId)
+
+      return findProject;
+    } catch (error) {
+      console.error(`creating proposal usecase error`, error);
+      throw error;
+    }
+  }
 }

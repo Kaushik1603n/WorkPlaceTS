@@ -208,9 +208,40 @@ export class marketPlaceRepo implements IMarketPlace {
     };
   }
   async findFreelancerById(userId: any) {
-    const freelancerDetails = await FreelancerProfile.findOne({
-      userId: userId,
-    },{profilePic:1,skills:1});
+    const freelancerDetails = await FreelancerProfile.findOne(
+      {
+        userId: userId,
+      },
+      { profilePic: 1, skills: 1 }
+    );
     return freelancerDetails;
   }
+
+  async findActiveProject(userId: string):Promise<freelancerProject> {
+    const allProjects = await ProjectModel.find(
+      { hiredFreelancer: userId },
+      {
+        contractId: 1,
+        budget: 1,
+        budgetType: 1,
+        time: 1,
+        status: 1,
+        title: 1,
+        description: 1,
+      }
+    ).lean<freelancerProject>();
+
+    return allProjects;
+  }
+}
+
+interface freelancerProject {
+  _id: string;
+  contractId: string;
+  budget: number;
+  budgetType: string;
+  time: string;
+  status: string;
+  title: string;
+  description: string;
 }

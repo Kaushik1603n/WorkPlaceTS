@@ -154,12 +154,10 @@ export class MarketPlaceProjectController {
       const userId = user.userId;
       const proposalId = req.params.proposalId;
 
-
       if (!userId) {
         res.status(401).json({ message: "user not authenticated" });
         return;
       }
-
 
       if (!proposalId) {
         res
@@ -168,12 +166,14 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getProposalDetailsUseCase(userId,proposalId)
+      const result = await marketPlace.getProposalDetailsUseCase(
+        userId,
+        proposalId
+      );
 
-      // console.log(result);
-      
-
-      res.status(200).json({ success: true, message: "Proposal submitted" ,data:result});
+      res
+        .status(200)
+        .json({ success: true, message: "Proposal submitted", data: result });
     } catch (error) {
       console.error("Proposal submission error:", error);
       const statusCode =
@@ -182,6 +182,38 @@ export class MarketPlaceProjectController {
           : 500;
       const errorMessage =
         error instanceof Error ? error.message : "Proposal submission failed";
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
+      });
+      return;
+    }
+  };
+
+  getAllFreelacerJobs: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const result = await marketPlace.getAllJobDetailsUseCase(userId);
+
+      res
+        .status(200)
+        .json({ success: true, message: "Project Details", data: result });
+    } catch (error) {
+      console.error("Project Details error:", error);
+      const statusCode =
+        error instanceof Error && error.message.includes("not found")
+          ? 404
+          : 500;
+      const errorMessage =
+        error instanceof Error ? error.message : "Project Details failed";
 
       res.status(statusCode).json({
         success: false,
