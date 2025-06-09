@@ -51,6 +51,17 @@ const ProposalSidebar = ({ skills, status, onHire }: ProposalSidebarProps) => {
               Waiting for approval
             </button>
           )}
+          {status === "submitted" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onHire();
+              }}
+              className={`bg-green-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-green-700 transition `}
+            >
+              Hire Now
+            </button>
+          )}
           {status === "interviewing" && (
             <button
               className={`col-span-2 bg-orange-500 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold cursor-not-allowed `}
