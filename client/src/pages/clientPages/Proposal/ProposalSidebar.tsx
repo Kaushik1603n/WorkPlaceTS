@@ -46,25 +46,22 @@ const ProposalSidebar = ({ skills, status, onHire }: ProposalSidebarProps) => {
           <button className="col-span-2 bg-blue-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-blue-700 transition">
             💬 Message Freelancer
           </button>
-          {status === "accepted" ? (
+          {status === "accepted" && (
             <button className="border border-green-600 text-green-600 rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-green-100 transition">
               Waiting for approval
             </button>
-          ) : (
+          )}
+          {status === "interviewing" && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onHire();
-              }}
-              className={`bg-green-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-green-700 transition `}
+              className={`col-span-2 bg-orange-500 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold cursor-not-allowed `}
             >
-              Hire Now
+              Accepted Your Contract
             </button>
           )}
 
-          <button className="bg-red-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-red-700 transition">
+          {/* <button className="bg-red-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-red-700 transition">
             Reject
-          </button>
+          </button> */}
         </div>
       </div>
 
