@@ -7,6 +7,7 @@ import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 import JobPostingForm from "../pages/clientPages/jobPosting/JobPostingForm";
 import NotificationList from "../pages/clientPages/Notification";
 import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
+import ClientProject from "../pages/clientPages/project/ClientProject";
 
 
 function ClientRoutes() {
@@ -15,7 +16,7 @@ function ClientRoutes() {
     <>
       <Route element={<ProtectedClientRoute />}>
         <Route path="/client-dashboard" element={<ClientLayout />}>
-          <Route index element={<>gvgv</>} />
+          <Route index element={<ClientProject/>} />
           <Route path="job-details/:jobId" element={<>job-details</>} />
           <Route
             path="job-details/:jobId/all-proposal"

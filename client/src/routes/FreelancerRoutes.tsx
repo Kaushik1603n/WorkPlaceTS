@@ -19,7 +19,7 @@ function FreelancerRoutes() {
                     <Route path="profile/edit" element={<EditFreelancerProfile />} />
                     <Route path="message" element={<div>Message Page</div>} />
                     <Route path="notification" element={<div>Notification Page</div>} />
-                    <Route path="calender" element={<div>Calender page</div>} />
+                    <Route path="project" element={<div>project page</div>} />
                     <Route path="client" element={<div>Client Page</div>} />
                     <Route
                         path="interview"
