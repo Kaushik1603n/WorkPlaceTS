@@ -11,6 +11,6 @@ marketPlaceRoute.post("/apply-job-proposal",authenticate, project.jobProposal);
 marketPlaceRoute.get("/get-proposal-details/:proposalId",authenticate, project.getProposalDetails);
 
 marketPlaceRoute.get("/get-all-freelancer-jobs",authenticate, project.getAllFreelacerJobs);
-marketPlaceRoute.get("/project-details/:jobId",authenticate, project.getProjectDetails);
+marketPlaceRoute.get("/project-details/:jobId",authenticate, project.getProjectAllInformation);
 
 export default marketPlaceRoute;

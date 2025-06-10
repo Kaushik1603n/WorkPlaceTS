@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import type{ TimelineItem } from './types/project';
-
-interface TimelineProps {
-  timeline: TimelineItem[];
-//   onRequestExtension: () => void;
+interface TimelineItem {
+  id: number;
+  title: string;
+  date: string;
+  status: 'completed' | 'current' | 'upcoming';
+  type: 'started' | 'deadline' | 'milestone' | 'delivery';
 }
+// interface TimelineProps {
+//   timeline: TimelineItem[];
+// //   onRequestExtension: () => void;
+// }
 
-export const Timeline: React.FC<TimelineProps> = ({
-  timeline,
-//   onRequestExtension
-}) => {
+export const Timeline: React.FC = () => {
+  const [timelineItems] = useState<TimelineItem[]>([
+      { id: 1, title: 'Project Started', date: 'May 5, 2025', status: 'completed', type: 'started' },
+      { id: 2, title: 'First Draft Deadline', date: 'May 10, 2025', status: 'current', type: 'deadline' },
+      { id: 3, title: 'Development Milestone', date: 'May 20, 2025', status: 'upcoming', type: 'milestone' },
+      { id: 4, title: 'Final Delivery', date: 'May 30, 2025', status: 'upcoming', type: 'delivery' }
+    ]);
+  
   const getStatusIcon = (status: string) => {
     if (status === 'completed') return <CheckCircle className="w-4 h-4 text-green-500" />;
     if (status === 'current') return <Clock className="w-4 h-4 text-blue-500" />;
@@ -22,7 +31,7 @@ export const Timeline: React.FC<TimelineProps> = ({
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Timeline & Deadlines</h2>
       
       <div className="space-y-4">
-        {timeline.map((item) => (
+        {timelineItems.map((item) => (
           <div key={item.id} className="flex items-start space-x-3">
             <div className="flex-shrink-0 mt-1">
               {getStatusIcon(item.status)}

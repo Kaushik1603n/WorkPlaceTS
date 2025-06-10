@@ -120,6 +120,7 @@ export class ProposalRepo {
       const job = await ProjectModel.findByIdAndUpdate(
         jobId,
         {
+          hiredProposalId:proposal_id,
           status: "in-progress",
           hiredFreelancer: userId,
           contractId: contractId,

@@ -15,6 +15,10 @@ import ProposalModel from "../../../../domain/models/Proposal";
 import NotificationModel from "../../../../domain/models/Notification";
 import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
 import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
+import {
+  allProjectsInfoDTO,
+  ReturnAllProjectsInfoDTO,
+} from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -172,6 +176,7 @@ export class marketPlaceRepo implements IMarketPlace {
     const proposal = await ProjectModel.findById(jobId);
     return proposal;
   }
+
   async findFreelancerData(userId: string) {
     const freelancer = await UserModel.findById(userId);
     return freelancer;
@@ -217,7 +222,7 @@ export class marketPlaceRepo implements IMarketPlace {
     return freelancerDetails;
   }
 
-  async findActiveProject(userId: string):Promise<freelancerProject> {
+  async findActiveProject(userId: string): Promise<freelancerProject> {
     const allProjects = await ProjectModel.find(
       { hiredFreelancer: userId },
       {
@@ -232,6 +237,62 @@ export class marketPlaceRepo implements IMarketPlace {
     ).lean<freelancerProject>();
 
     return allProjects;
+  }
+
+  async getProjectAllInformation(
+    jobId: string
+  ): Promise<ReturnAllProjectsInfoDTO> {
+    if (!isValidObjectId(jobId)) {
+      throw new Error("Invalid Job ID format");
+    }
+
+    try {
+      const project = await ProjectModel.findById(
+        jobId
+      ).lean<allProjectsInfoDTO>();
+      const client = await UserModel.findById(project?.clientId, {
+        fullName: 1,
+        email: 1,
+      }).lean<{ _id: string; fullName: string; email: string }>();
+
+      const result: ReturnAllProjectsInfoDTO = {
+        jobId: project?._id,
+        title: project?.title,
+        description: project?.description,
+        stack: project?.stack,
+        time: project?.time,
+        reference: project?.reference,
+        requiredFeatures: project?.requiredFeatures,
+        hiredFreelancer: project?.hiredFreelancer,
+        hiredProposalId: project?.hiredProposalId,
+        budgetType: project?.budgetType,
+        budget: project?.budget,
+        clientId: client?._id,
+        clientEmail: client?.email,
+        clientFullName: client?.fullName,
+      };
+      return result;
+    } catch (error) {
+      console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
+      throw error;
+    }
+  }
+
+  async ProposalAllInfo(proposal_id: string) {
+    const proposal = await ProposalModel.findById(proposal_id, {
+      _id: 1,
+      coverLetter: 1,
+      milestones: 1,
+      bidAmount: 1,
+      budgetType: 1,
+      estimatedTime: 1,
+      status: 1,
+      contractId: 1,
+      payments: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    return proposal;
   }
 }
 

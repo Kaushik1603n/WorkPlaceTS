@@ -19,6 +19,7 @@ export interface IJob extends Document {
   reference?: string;
   Attachments?: string[];
   hiredFreelancer?: Types.ObjectId;
+  hiredProposalId?: Types.ObjectId;
   contractId?: Types.ObjectId;
   paymentStatus?: "unpaid" | "partially-paid" | "fully-paid";
   createdAt: Date;
@@ -70,6 +71,10 @@ const JobSchema: Schema = new Schema(
     hiredFreelancer: { 
       type: Schema.Types.ObjectId, 
       ref: "User" 
+    },
+    hiredProposalId: { 
+      type: Schema.Types.ObjectId, 
+      ref: "Proposal" 
     },
     contractId: { 
       type: Schema.Types.ObjectId, 

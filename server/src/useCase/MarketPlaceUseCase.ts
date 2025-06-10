@@ -177,13 +177,41 @@ export class MarketPlaceUseCase {
     try {
       if (!userId) {
         throw new Error("Credensial missing");
-      }      
+      }
 
-      const findProject = await this.market.findActiveProject(userId)
+      const findProject = await this.market.findActiveProject(userId);
 
       return findProject;
     } catch (error) {
       console.error(`creating proposal usecase error`, error);
+      throw error;
+    }
+  }
+
+  async getProjectAllInformationUseCase(jobId: string, userId: string) {
+    if (!jobId || typeof jobId !== "string") {
+      throw new Error("Invalid Job ID");
+    }
+    try {
+      const result = await this.market.getProjectAllInformation(jobId);
+      if (!result) {
+        throw new Error("Job not found");
+      }
+
+      if (result.hiredFreelancer?.toString() !== userId.toString()) {
+        throw new Error("You cannot access this data");
+      }
+
+      const proposal = await this.market.ProposalAllInfo(
+        result.hiredProposalId as string
+      );
+
+      return {
+        jobDetails: result,
+        proposalDetails: proposal,
+      };
+    } catch (error) {
+      console.error(`[getProjectDetails] Error fetching job ${jobId}:`, error);
       throw error;
     }
   }
