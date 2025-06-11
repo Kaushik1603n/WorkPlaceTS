@@ -32,6 +32,7 @@ export interface SocialLogin {
 }
 
 export interface User extends Document {
+  _id:string;
   fullName: string;
   email: string;
   password?: string;
