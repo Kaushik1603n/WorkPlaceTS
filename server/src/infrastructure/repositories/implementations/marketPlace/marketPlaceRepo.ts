@@ -20,6 +20,7 @@ import {
   ReturnAllProjectsInfoDTO,
 } from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
 export class marketPlaceRepo implements IMarketPlace {
+
   async findAllProjects(
     searchQuery: object,
     page: number,
@@ -212,6 +213,7 @@ export class marketPlaceRepo implements IMarketPlace {
       submittedAt: proposalDetails?.createdAt,
     };
   }
+
   async findFreelancerById(userId: any) {
     const freelancerDetails = await FreelancerProfile.findOne(
       {
@@ -296,7 +298,7 @@ export class marketPlaceRepo implements IMarketPlace {
   }
 }
 
-interface freelancerProject {
+export interface freelancerProject {
   _id: string;
   contractId: string;
   budget: number;
