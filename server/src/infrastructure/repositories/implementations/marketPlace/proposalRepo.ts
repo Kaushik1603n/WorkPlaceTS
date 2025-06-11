@@ -5,8 +5,10 @@ import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
 import ContractModel from "../../../../domain/models/ContractModel";
 import ProposalModel from "../../../../domain/models/Proposal";
 import ProjectModel from "../../../../domain/models/Projects";
+import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 
-export class ProposalRepo {
+export class ProposalRepo implements IProposalRepo {
+
   async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
     try {
       return await ProposalModel.findByIdAndUpdate(
@@ -21,6 +23,7 @@ export class ProposalRepo {
       throw new Error("Failed to update proposal status");
     }
   }
+
   async findProposalById(proposalId: string) {
     try {
       const getProposal = await ProposalModel.findById(proposalId)
@@ -65,6 +68,7 @@ export class ProposalRepo {
       throw new Error("Failed to create contract");
     }
   }
+
   async getProposalbyId(userId: string) {
     try {
       const proposals = await ProposalModel.find({ freelancerId: userId })
@@ -81,6 +85,7 @@ export class ProposalRepo {
       throw new Error("Failed to create contract");
     }
   }
+
   async getContractDetails(contractId: string) {
     try {
       const contractDetails = await ContractModel.findById(
@@ -107,6 +112,7 @@ export class ProposalRepo {
       throw new Error("Failed to create contract");
     }
   }
+
   async acceptProposalContract(
     userId: string,
     jobId: string,
