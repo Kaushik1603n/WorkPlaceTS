@@ -39,7 +39,7 @@ export class marketPlaceRepo implements IMarketPlace {
     })
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: -1 });
 
     const jobs: Job[] = result.map((doc) => ({
       _id: doc._id.toString(),
