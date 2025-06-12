@@ -75,6 +75,18 @@ export class ProposalUseCase {
     }
   }
 
+  async getAllProjectProposalsUseCase(jobId: string) {
+    try {
+      const getAllProposals = await this.proposal.getProjectProposalbyId(jobId);
+
+    
+      return getAllProposals;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
+
   async getContractDetailsUseCase(contractId: string) {
     try {
       const contractDetails = await this.proposal.getContractDetails(

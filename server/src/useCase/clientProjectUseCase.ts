@@ -37,4 +37,13 @@ export class ClientProjectUserCase {
       throw error;
     }
   }
+  async getProjectUseCase(userId: string) {
+    try {
+      const result = await this.project.findProjects(userId);
+      return result;
+    } catch (error) {
+      console.error("Use case error:", error);
+      throw error;
+    }
+  }
 }

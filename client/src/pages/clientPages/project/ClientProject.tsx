@@ -29,7 +29,7 @@ export default function ClientProject() {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await axiosClient.get("jobs/get-all-client-jobs");
+                const res = await axiosClient.get("client/project/get-project");
                 setAllProjects(res.data.data);
             } catch (err) {
                 const error = err as AxiosError;
@@ -47,11 +47,11 @@ export default function ClientProject() {
 
     const handleViewContract = async (projectId: string) => {
         try {
-            console.log("Viewing project for:", projectId);
-            const project = await axiosClient.get(`jobs/project-details/${projectId}`);
-            console.log(project.data.data);
+            // console.log("Viewing project for:", projectId);
+            // const project = await axiosClient.get(`jobs/job-details/${projectId}`);
+            // console.log(project.data.data);
             
-            navigate(`project/project-details/${projectId}`)
+            navigate(`job-details/${projectId}`)
         } catch (err) {
             const error = err as AxiosError;
             console.error("Failed to view project:", error);

@@ -63,4 +63,21 @@ export class ProjectController {
       }
     }
   };
+
+  getAllProject: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { userId } = req.user as { userId: string; email: string };
+      const project= await projectUserCase.getProjectUseCase(userId);
+      res
+        .status(200)
+        .json({ success: true, message: "Project get successfully" ,data:project });
+      
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "User Verification faild" });
+      }
+    }
+  };
 }

@@ -12,6 +12,7 @@ interface IMilestone {
 
 // Define the main Proposal document interface
 interface IProposal extends Document {
+  _id:string;
   freelancerId: Types.ObjectId;
   jobId: Types.ObjectId;
   coverLetter: string;

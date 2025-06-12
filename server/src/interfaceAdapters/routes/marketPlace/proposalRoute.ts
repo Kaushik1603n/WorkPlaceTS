@@ -7,7 +7,7 @@ const proposalRout = express.Router();
 
 proposalRout.put("/hire-request/:proposalId",authenticate, proposal.hireRequest);
 proposalRout.get("/get-freelacer-proposal",authenticate, proposal.getAllFreelancerProposals);
-// proposalRout.get("/get-contract-details/:id",authenticate, proposal.getContractDetails);
+proposalRout.get("/all-proposal/:id",authenticate, proposal.getAllPropjectProposals);
 
 proposalRout.get("/get-contract-details/:id",authenticate, proposal.getContractDetails);
 proposalRout.get("/accept-contract/:id",authenticate, proposal.acceptProposalcontract);

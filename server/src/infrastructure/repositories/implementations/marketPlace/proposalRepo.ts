@@ -8,7 +8,6 @@ import ProjectModel from "../../../../domain/models/Projects";
 import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 
 export class ProposalRepo implements IProposalRepo {
-
   async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
     try {
       return await ProposalModel.findByIdAndUpdate(
@@ -86,6 +85,48 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
+  async getProjectProposalbyId(jobId: string) {
+    try {
+      const allProposals = await ProposalModel.find(
+        { jobId: jobId },
+        {
+          _id: 1,
+          freelancerId: 1,
+          status: 1,
+          createdAt: 1,
+          bidAmount: 1,
+          jobId: 1, // Make sure to include jobId in the projection
+        }
+      )
+        .populate<{ freelancerId: PopulatedFreelancer }>({
+          path: "freelancerId",
+          select: "fullName email",
+        })
+        .populate<{ jobId: PopulatedJob }>({
+          path: "jobId",
+          select: "title stack",
+        })
+        .sort({ createdAt: -1 })
+        .lean<Proposal[]>();
+
+      const formattedProposals = allProposals.map((proposal) => ({
+        proposal_id: proposal._id.toString(),
+        freelancerName: (proposal.freelancerId as PopulatedFreelancer)
+          ?.fullName,
+        freelancerEmail: (proposal.freelancerId as PopulatedFreelancer)?.email,
+        jobTitle: (proposal.jobId as PopulatedJob)?.title,
+        status: proposal.status,
+        bidAmount: proposal.bidAmount,
+        submittedAt: new Date(proposal.createdAt).toLocaleString(),
+      }));
+
+      return formattedProposals
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw new Error("Failed to create contract");
+    }
+  }
+
   async getContractDetails(contractId: string) {
     try {
       const contractDetails = await ContractModel.findById(
@@ -126,7 +167,7 @@ export class ProposalRepo implements IProposalRepo {
       const job = await ProjectModel.findByIdAndUpdate(
         jobId,
         {
-          hiredProposalId:proposal_id,
+          hiredProposalId: proposal_id,
           status: "in-progress",
           hiredFreelancer: userId,
           contractId: contractId,
@@ -213,4 +254,25 @@ export class ProposalRepo implements IProposalRepo {
       session.endSession();
     }
   }
+}
+
+interface PopulatedFreelancer {
+  _id: string;
+  fullName: string;
+  email: string;
+}
+
+interface PopulatedJob {
+  _id: string;
+  title: string;
+  stack: string[];
+}
+
+interface Proposal {
+  _id: string;
+  freelancerId: PopulatedFreelancer | ObjectId; // Can be either populated or just ObjectId
+  jobId: PopulatedJob | ObjectId;
+  status: string;
+  createdAt: Date;
+  bidAmount: number;
 }

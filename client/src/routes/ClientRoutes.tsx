@@ -8,6 +8,7 @@ import JobPostingForm from "../pages/clientPages/jobPosting/JobPostingForm";
 import NotificationList from "../pages/clientPages/Notification";
 import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
 import ClientProject from "../pages/clientPages/project/ClientProject";
+import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
 
 
 function ClientRoutes() {
@@ -17,7 +18,7 @@ function ClientRoutes() {
       <Route element={<ProtectedClientRoute />}>
         <Route path="/client-dashboard" element={<ClientLayout />}>
           <Route index element={<ClientProject/>} />
-          <Route path="job-details/:jobId" element={<>job-details</>} />
+          <Route path="job-details/:jobId" element={<ClientJobWithProposals/>} />
           <Route
             path="job-details/:jobId/all-proposal"
             element={<>job-proposal</>}

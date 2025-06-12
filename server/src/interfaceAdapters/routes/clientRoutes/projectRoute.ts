@@ -6,7 +6,7 @@ const project =new ProjectController()
 const clientProject = express.Router();
 
 clientProject.post("/new-project",authenticate, project.newProject);
-// clientProject.get("/get-profile",authenticate, project.profileDetails);
+clientProject.get("/get-project",authenticate, project.getAllProject);
 
 
 export default clientProject;

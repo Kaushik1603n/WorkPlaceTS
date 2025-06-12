@@ -34,4 +34,14 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
+  async findProjects(
+    userId: string,
+  ) {
+    try {
+      return await ProjectModel.find({clientId:userId})
+    } catch (error) {
+      console.error("Repository error:", error);
+      throw new Error("Failed to create project in database");
+    }
+  }
 }
