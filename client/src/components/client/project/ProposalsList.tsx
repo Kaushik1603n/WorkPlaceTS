@@ -1,4 +1,3 @@
-// components/ProposalsList.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { DollarSign, Clock, Briefcase } from "lucide-react";

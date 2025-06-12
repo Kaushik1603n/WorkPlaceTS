@@ -1,4 +1,3 @@
-// components/JobDetailsCard.tsx
 import React from "react";
 import {
   Briefcase,
@@ -39,7 +38,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
 
   return (
     <div className="space-y-6">
-      {/* Main Job Card */}
       <div className="bg-white rounded-2xl shadow-lg border border-[#2bd773] overflow-hidden">
         <div className="bg-gradient-to-r from-[#2ECC71] to-[#2bd773] p-6 text-white">
           <h2 className="text-2xl font-bold mb-2">Job Details</h2>
@@ -47,7 +45,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
         </div>
 
         <div className="p-8 space-y-8">
-          {/* Description */}
           <div className="border-l-4 border-emerald-500 pl-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-emerald-600" />
@@ -56,7 +53,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
             <p className="text-gray-700 leading-relaxed">{job?.description}</p>
           </div>
 
-          {/* Tech Stack */}
           <div className="bg-[#EFFFF6] rounded-xl p-6 border border-[#2bd773]">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               Tech Preferences
@@ -73,7 +69,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
             </div>
           </div>
 
-          {/* Project Info Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-[#EFFFF6] rounded-xl p-6 border border-[#2bd773]">
               <div className="flex items-center gap-3 mb-2">
@@ -92,7 +87,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
             </div>
           </div>
 
-          {/* Budget Section */}
           <div className="bg-[#EFFFF6] rounded-xl p-6 border border-[#2bd773]">
             <div className="flex items-center gap-3 mb-4">
               <BudgetIcon className="w-5 h-5 text-green-600" />
@@ -110,7 +104,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
             </div>
           </div>
 
-          {/* Required Features */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Required Features / Pages
@@ -120,7 +113,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
             </div>
           </div>
 
-          {/* Reference Link */}
           {job?.reference && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Reference</h3>
@@ -138,7 +130,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
         </div>
       </div>
 
-      {/* Client Info Card */}
       <div className="bg-white rounded-2xl shadow-lg border border-[#2bd773] p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <User className="w-5 h-5 text-gray-600" />

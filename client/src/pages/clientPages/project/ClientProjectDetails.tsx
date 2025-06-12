@@ -1,4 +1,3 @@
-// ClientJobWithProposals.tsx
 import { useEffect, useState } from "react";
 import {  useParams } from "react-router-dom";
 import {  Calendar, Eye, ExternalLink } from "lucide-react";
@@ -126,7 +125,6 @@ function ClientJobWithProposals() {
   return (
     <div className="min-h-screen  m-3 rounded-lg border border-[#2bd773] bg-[#EFFFF6]">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header Section */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {job?.title}
