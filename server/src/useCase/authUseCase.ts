@@ -197,6 +197,36 @@ export class AuthUseCase {
 
     return { userId: user._id } as UserIdDTO;
   }
+  async changePasswordUseCase(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const user = await this.user.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    const matchPass = await bcrypt.compare(currentPassword, user.password);
+
+    if (!matchPass) {
+      throw new Error("Current Passwords do not match");
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+
+    if (isSamePassword) {
+      throw new Error("New password must be different");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.user.updatePassword(userId, hashedPassword);
+
+    return { userId: user._id } as UserIdDTO;
+  }
 
   async refresh(userId: string, checkRefreshToken: string) {
     const user = await this.user.findById(userId);

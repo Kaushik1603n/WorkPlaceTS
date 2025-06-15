@@ -87,6 +87,15 @@ export interface ChangePassArgs {
   confirmPassword: string;
   userId: string | null;
 }
+interface changePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+interface ChangePassResponse {
+  success: boolean;
+  message: string;
+}
 
 // export interface AuthResponse {
 //   accessToken: string;
@@ -225,7 +234,7 @@ export const getUserDetails = createAsyncThunk<
   try {
     const response = await authApi.getUserDetails();
     console.log(response.data);
-    
+
     return response.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
@@ -246,6 +255,22 @@ export const roleUpdate = createAsyncThunk<
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
     return rejectWithValue(error.response?.data.message || "Login failed");
+  }
+});
+
+export const changePass = createAsyncThunk<
+  ChangePassResponse,
+  changePasswordData,
+  { rejectValue: string }
+>("auth/changePass", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await authApi.changepass(credentials);
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue(
+      error.response?.data.message || "Password change failed"
+    );
   }
 });
 
@@ -423,6 +448,17 @@ const authSlice = createSlice({
         }
       )
       .addCase(roleUpdate.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+      .addCase(changePass.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePass.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(changePass.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
       })

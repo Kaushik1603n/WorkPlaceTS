@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../app/store";
 import RecentProject from "../../../components/client/profile/RecentProject";
 import { getFreelancerProfile } from "../../../features/freelancerFeatures/profile/freelancerProfileSlice";
+import { PasswordChangeModal } from "../../../components/changePass/PasswordChangeModal";
+import { changePass } from "../../../features/auth/authSlice";
+import { toast } from "react-toastify";
 
 export default function FreelancerProfile() {
     const dispatch = useDispatch<AppDispatch>();
@@ -26,6 +29,26 @@ export default function FreelancerProfile() {
         pending: 2,
     });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handlePasswordChange = (passwords: {
+        currentPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+    }) => {
+        dispatch(changePass(passwords))
+            .unwrap()
+            .then(() => {
+                toast.success("Password changed successfully!");
+            })
+            .catch((error) => {
+                const errorMessage = typeof error === 'string'
+                    ? error
+                    : error?.message || "Failed to change password";
+                toast.error(errorMessage);
+
+            });
+    }
 
 
     return (
@@ -155,6 +178,18 @@ export default function FreelancerProfile() {
               </div> */}
 
                             <div className="mt-6">
+                                <button
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="w-full mt-3 bg-[#EFFFF6] border border-[#2ECC71] hover:bg-[#2ECC71] text-[#2ECC71] hover:text-[#fff] py-2 px-4 rounded-md font-medium transition-colors"
+                                >
+                                    Change Password
+                                </button>
+
+                                <PasswordChangeModal
+                                    isOpen={isModalOpen}
+                                    onClose={() => setIsModalOpen(false)}
+                                    onSubmit={handlePasswordChange}
+                                />
 
                                 <Link
                                     to="edit"

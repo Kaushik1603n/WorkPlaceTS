@@ -163,7 +163,7 @@ export class AuthControllers {
     }
   };
 
-  changePassword: RequestHandler = async (req, res) => {
+  resetPassword: RequestHandler = async (req, res) => {
     const { userId, newPassword, confirmPassword } = req.body;
     try {
       if (!userId || !newPassword || !confirmPassword) {
@@ -198,6 +198,56 @@ export class AuthControllers {
           : error.message === "New password must be different"
           ? 409
           : 400;
+      res.status(statusCode).json({ success: false, message: error.message });
+    }
+  };
+  changePassword: RequestHandler = async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    try {
+      if (!req.user) {        
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(400).json({ message: "User ID not found" });
+        return;
+      }
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        res
+          .status(400)
+          .json({ success: false, message: "All fields are required" });
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        res
+          .status(400)
+          .json({ success: false, message: "Passwords do not match" });
+        return;
+      }
+      if (newPassword.length < 6) {
+        res.status(400).json({
+          success: false,
+          message: "Password must be at least 8 characters",
+        });
+        return;
+      }
+
+      await useCase.changePasswordUseCase(userId, currentPassword, newPassword);
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+      });
+    } catch (error: any) {
+      const statusCode =
+        error.message === "User not found"
+          ? 404
+          : error.message === "New password must be different"
+          ? 409
+          : 400;          
       res.status(statusCode).json({ success: false, message: error.message });
     }
   };
@@ -268,7 +318,7 @@ export class AuthControllers {
 
       try {
         const result = await useCase.getUserDetails(userId);
-        res.status(200).json({ success: true, user:result });
+        res.status(200).json({ success: true, user: result });
       } catch (error) {}
     } catch (error) {
       console.error("error during get user", error);
