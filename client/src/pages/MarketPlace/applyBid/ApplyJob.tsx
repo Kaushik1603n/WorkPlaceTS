@@ -216,21 +216,21 @@ function ApplyJob() {
                 .unwrap()
                 .then((response) => {
                     toast.success(response.message || "Proposal submitted successfully");
-                    // setMilestones([]);
-                    // setNewMilestone({
-                    //     title: "",
-                    //     description: "",
-                    //     dueDate: "",
-                    //     amount: "",
-                    // });
-                    // setFormValues({
-                    //     coverLetter: "",
-                    //     bidAmount: "",
-                    //     timeline: "",
-                    //     workSamples: "",
-                    // });
-                    // setAgreeNDA(false);
-                    // setAgreeVideoCall(false);
+                    setMilestones([]);
+                    setNewMilestone({
+                        title: "",
+                        description: "",
+                        dueDate: "",
+                        amount: "",
+                    });
+                    setFormValues({
+                        coverLetter: "",
+                        bidAmount: "",
+                        timeline: "",
+                        workSamples: "",
+                    });
+                    setAgreeNDA(false);
+                    setAgreeVideoCall(false);
                 })
                 .catch((error) => {
                     console.error("Error submitting proposal:", error);

@@ -38,7 +38,7 @@ export class ProjectRepo implements IProjectRepo {
     userId: string,
   ) {
     try {
-      return await ProjectModel.find({clientId:userId})
+      return await ProjectModel.find({clientId:userId}).sort({createdAt:-1})
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");

@@ -1,6 +1,14 @@
 import { RequestHandler } from "express";
 import { verifyAccessToken } from "../shared/utils/jwt";
+// import UserModel from "../domain/models/User";
 
+
+interface DecodedToken {
+  userId: string;
+  email: string;
+  iat?: number;
+  exp?: number;
+}
 const authenticate: RequestHandler = async (req, res, next) => {
   const accessToken =
     req.cookies?.accessToken ||
@@ -12,8 +20,21 @@ const authenticate: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const decoded = verifyAccessToken(accessToken);
+    console.log("auth");
+    
+    const decoded = verifyAccessToken(accessToken) as DecodedToken;
     req.user = decoded;
+
+    // const userData = await UserModel.findById(decoded.userId);
+
+    // if (!userData) {
+    //   console.log("not user");
+      
+    //   res.status(401).json({ success: false, message: "User not found" });
+    //   return;
+    // }
+    
+  
 
     next();
   } catch (error: any) {
