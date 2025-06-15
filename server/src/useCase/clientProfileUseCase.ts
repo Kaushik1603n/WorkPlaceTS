@@ -21,7 +21,7 @@ export class ClientProfileUserCase {
       throw new Error("Invalid user ID");
     }
     // console.log(coverPic);
-    
+
     let coverPromise, profilePromise;
 
     if (coverPic && !coverPic.includes("res.cloudinary.com")) {
@@ -29,7 +29,6 @@ export class ClientProfileUserCase {
         folder: "cover_uploads",
       });
       console.log((await coverPromise).url);
-      
     } else {
       coverPromise = Promise.resolve({ secure_url: coverPic });
     }
@@ -88,18 +87,21 @@ export class ClientProfileUserCase {
         throw new Error("Email already in use");
       }
     }
-    
-    const  userData = await this.user.updateName(userId, fullName);
-    
+
+    const userData = await this.user.updateName(userId, fullName);
 
     return userData;
   }
 
-  async profileDetails(userId:string|unknown){
-     if (typeof userId !== "string") {
+  async profileDetails(userId: string | unknown) {
+    if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
     const result = await this.client.findOne(userId);
-    return result
+    return result;
+  }
+  async freelancerUseCase(page:number,limit:number) {
+    const result = await this.client.findFreelancer(page,limit);
+    return result;
   }
 }

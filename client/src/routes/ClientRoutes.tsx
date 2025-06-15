@@ -9,6 +9,7 @@ import NotificationList from "../pages/clientPages/Notification";
 import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
 import ClientProject from "../pages/clientPages/project/ClientProject";
 import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
+import FreelancerList from "../pages/clientPages/freelancerListing/FreelancerList";
 
 
 function ClientRoutes() {
@@ -33,7 +34,7 @@ function ClientRoutes() {
           <Route path="message" element={<div>Message Page</div>} />
           <Route path="notification" element={<NotificationList/>} />
           <Route path="posting" element={<JobPostingForm/>} />
-          <Route path="freelancer" element={<div>Freelancer Page</div>} />
+          <Route path="freelancer" element={<FreelancerList/>} />
           <Route
             path="interview"
             element={<div>Interview Scheduling Page</div>}

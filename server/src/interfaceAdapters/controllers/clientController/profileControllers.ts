@@ -10,7 +10,6 @@ const clientUseCase = new ClientProfileUserCase(client, user);
 // const useCase = new AuthUseCase(user);
 
 export class profileCondroller {
-  
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
@@ -92,6 +91,33 @@ export class profileCondroller {
       res.status(200).json({
         success: true,
         client: client,
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get client details" });
+    }
+  };
+  freelancer: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const { page = "1", limit = "5" } = req.query;
+
+      const pageNum = parseInt(String(page), 10);
+      const limitNum = parseInt(String(limit), 10);
+
+      const { freelancers, pagination } = await clientUseCase.freelancerUseCase(
+        pageNum,
+        limitNum
+      );
+
+      res.status(200).json({
+        success: true,
+        freelancer: freelancers,
+        pagination
       });
     } catch (error) {
       console.error("Error in get client profile:", error);

@@ -32,7 +32,7 @@ export interface SocialLogin {
 }
 
 export interface User extends Document {
-  _id:string;
+  _id: string;
   fullName: string;
   email: string;
   password?: string;
@@ -101,6 +101,7 @@ UserSchema.virtual("profile", {
   ref: "FreelancerProfile",
   localField: "_id",
   foreignField: "userId",
+  justOne: true,
 });
 
 UserSchema.set("toObject", { virtuals: true });
