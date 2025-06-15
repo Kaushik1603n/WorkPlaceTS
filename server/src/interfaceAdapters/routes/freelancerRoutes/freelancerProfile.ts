@@ -8,5 +8,6 @@ const freelancerProfileRoute = express.Router();
 freelancerProfileRoute.post("/edit-profile",authenticate, profile.profileEdit);
 freelancerProfileRoute.get("/get-profile",authenticate, profile.profileDetails);
 
+freelancerProfileRoute.get("/client",authenticate, profile.client);
 
 export default freelancerProfileRoute;

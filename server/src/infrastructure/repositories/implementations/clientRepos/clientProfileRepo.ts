@@ -76,7 +76,6 @@ export class ClientRepo implements clientRepoI {
 
     const totalCount = await UserModel.countDocuments({ role: "freelancer" });
     const totalPages = Math.ceil(totalCount / limit);
-    console.log(freelancers);
 
     return {
       freelancers,

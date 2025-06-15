@@ -1,6 +1,7 @@
 import freelancerModal from "../../../../domain/models/FreelancerProfile";
 import { IfreelancerRepo } from "../../../../domain/interfaces/IfreelancerRepo";
 import mongoose from "mongoose";
+import UserModel, { UserRole } from "../../../../domain/models/User";
 
 export class FreelancerRepo implements IfreelancerRepo {
   async findOneAndUpdate(
@@ -50,4 +51,66 @@ export class FreelancerRepo implements IfreelancerRepo {
     const result = await freelancerModal.findOne({ userId });    
     return result;
   }
+
+  async findFreelancer(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const clients: ClientResult[] =
+      await UserModel.aggregate<ClientResult>([
+        {
+          $match: {
+            role: "client",
+          },
+        },
+        {
+          $lookup: {
+            from: "clientprofiles",
+            localField: "_id",
+            foreignField: "userId",
+            as: "profile",
+          },
+        },
+        {
+          $addFields: {
+            profile: { $arrayElemAt: ["$profile", 0] },
+          },
+        },
+        {
+          $project: {
+            fullName: 1,
+            email: 1,
+            role: 1,
+            profilePic: "$profile.profilePic",
+            hourlyRate: "$profile.hourlyRate",
+            location: "$profile.location",
+            description: "$profile.description",
+          },
+        },
+        { $skip: skip },
+        { $limit: limit },
+      ]);
+
+    const totalCount = await UserModel.countDocuments({ role: "client" });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      clients,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+      },
+    };
+  }
+}
+
+interface ClientResult {
+  _id: mongoose.Types.ObjectId;
+  fullName: string;
+  email: string;
+  role: UserRole.CLIENT;
+  profilePic?: string;
+  description?: string;
+  location?: string;
+  hourlyRate?: number;
 }

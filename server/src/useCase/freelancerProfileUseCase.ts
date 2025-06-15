@@ -97,4 +97,9 @@ export class FreelancerProfileUseCase {
     const result = await this.freelancer.findOne(userId);
     return result;
   }
+
+    async clientUseCase(page:number,limit:number) {
+    const result = await this.freelancer.findFreelancer(page,limit);
+    return result;
+  }
 }

@@ -6,6 +6,7 @@ import EditFreelancerProfile from "../pages/freelancerPages/profile/EditFreelanc
 import FreelancerBit from "../pages/freelancerPages/proposal/FreelancerBit";
 import FreelancerProject from "../pages/freelancerPages/project/projects";
 import ProjectSubmittion from "../pages/freelancerPages/project/ProjectSubmittion";
+import ClientList from "../pages/freelancerPages/clientListing/ClientList";
 
 function FreelancerRoutes() {
     return (
@@ -20,7 +21,7 @@ function FreelancerRoutes() {
                     <Route path="message" element={<div>Message Page</div>} />
                     <Route path="notification" element={<div>Notification Page</div>} />
                     <Route path="project" element={<div>project page</div>} />
-                    <Route path="client" element={<div>Client Page</div>} />
+                    <Route path="client" element={<ClientList/>} />
                     <Route
                         path="interview"
                         element={<div>Interview Scheduling Page</div>}

@@ -108,4 +108,31 @@ export class freelancerProfileControllers {
       }
     }
   };
+  client: RequestHandler = async (req, res): Promise<void> => {
+  try {
+      if (!req.user) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const { page = "1", limit = "5" } = req.query;
+
+      const pageNum = parseInt(String(page), 10);
+      const limitNum = parseInt(String(limit), 10);
+
+      const { clients, pagination } = await freelancerUseCase.clientUseCase(
+        pageNum,
+        limitNum
+      );
+
+      res.status(200).json({
+        success: true,
+        clients: clients,
+        pagination
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get clients" });
+    }
+  };
 }
