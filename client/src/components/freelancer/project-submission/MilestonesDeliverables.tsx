@@ -30,7 +30,7 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
     switch (status) {
       case 'interviewing': return 'bg-yellow-100 text-yellow-800';
       case 'submitted': return 'bg-blue-100 text-blue-800';
-      case 'accepted': return 'bg-green-100 text-green-800';
+      case 'approved': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
       case 'pending':
       default: return 'bg-gray-100 text-gray-600';
@@ -41,7 +41,7 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
     switch (status) {
       case 'interviewing': return 'In Progress';
       case 'submitted': return 'Submitted for Review';
-      case 'accepted': return 'accepted';
+      case 'approved': return 'accepted';
       case 'rejected': return 'Rejected - Needs Revision';
       case 'pending':
       default: return 'Pending';
@@ -90,7 +90,7 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-gray-900">${milestone.amount.toFixed(2)}</span>
-                {milestone.status === 'interviewing' || milestone.status === 'active' ? (
+                {milestone.status === 'interviewing' || milestone.status === 'active' || milestone.status === 'rejected' ? (
                   <button
                     className="border border-green-500 text-green-600 hover:bg-green-50 text-sm font-medium px-3 py-1 rounded transition-colors"
                     onClick={() => onSubmitWork(milestone._id)}
