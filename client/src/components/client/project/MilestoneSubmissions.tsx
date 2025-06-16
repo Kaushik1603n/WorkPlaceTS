@@ -1,5 +1,6 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axiosClient from '../../../utils/axiosClient';
+import { toast } from 'react-toastify';
 
 interface Deliverable {
     links: string[];
@@ -78,10 +79,11 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
 
     const handleApprove = async (milestoneId: string) => {
         try {
-            await axiosClient.patch(`/milestones/${milestoneId}/approve`);
+            await axiosClient.patch(`/proposal/milestones/${milestoneId}/approve`);
             setMilestones(milestones.map(m =>
                 m._id === milestoneId ? { ...m, status: 'approved' } : m
             ));
+            toast.success("milestone approved")
         } catch (error) {
             console.error('Approval failed:', error);
         }
@@ -89,7 +91,8 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
 
     const handleRequestRevision = async (milestoneId: string) => {
         try {
-            await axiosClient.patch(`/milestones/${milestoneId}/request-revision`);
+            await axiosClient.patch(`/proposal/milestones/${milestoneId}/rejected`);
+            toast.success("milestone rejected")
             setMilestones(milestones.map(m =>
                 m._id === milestoneId ? { ...m, status: 'rejected' } : m
             ));
@@ -98,7 +101,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
         }
     };
 
-    const formatLink = (url:string) => {
+    const formatLink = (url: string) => {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return `https://${url}`;
         }

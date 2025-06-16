@@ -211,4 +211,57 @@ export class ProposalController {
       });
     }
   };
+
+  proposalMilestonesApprove: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const milestoneId = req.params.milestoneId;
+
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      const data = await proposalCase.proposalMilestonesApproveUseCase(
+        milestoneId
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: data,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+  proposalMilestonesReject: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const milestoneId = req.params.milestoneId;
+
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      const data = await proposalCase.proposalMilestonesRejectUseCase(
+        milestoneId
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: data,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
 }

@@ -174,6 +174,38 @@ export class ProposalUseCase {
       throw error;
     }
   }
+  async proposalMilestonesApproveUseCase(milestoneId: string) {
+    try {
+      const proposal = await this.proposal.proposalMilestonesApprove(
+        milestoneId
+      );
+
+      if (!proposal) {
+        throw new Error("Milestone not found");
+      }
+
+      return proposal;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
+  async proposalMilestonesRejectUseCase(milestoneId: string) {
+    try {
+      const proposal = await this.proposal.proposalMilestonesReject(
+        milestoneId
+      );
+
+      if (!proposal) {
+        throw new Error("Milestone not found");
+      }
+
+      return proposal;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
 }
 
 const generateDefaultContractTerms = (proposal: any) => {

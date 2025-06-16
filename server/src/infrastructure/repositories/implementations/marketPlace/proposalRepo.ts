@@ -256,9 +256,7 @@ export class ProposalRepo implements IProposalRepo {
       session.endSession();
     }
   }
-  async proposalMilestones(
-    jobId: string
-  ): Promise<IProposalMilestones> {
+  async proposalMilestones(jobId: string): Promise<IProposalMilestones> {
     const proposal = await ProposalModel.findOne(
       { jobId },
       { _id: 1, freelancerId: 1, milestones: 1 }
@@ -273,6 +271,24 @@ export class ProposalRepo implements IProposalRepo {
       freelancerId: proposal.freelancerId,
       milestones: proposal.milestones,
     };
+  }
+  async proposalMilestonesApprove(milestoneId: string) {
+    const proposal = await ProposalModel.findOneAndUpdate(
+      { "milestones._id": milestoneId },
+      { $set: { "milestones.$.status": "approved" } },
+      { new: true }
+    );
+
+    return proposal;
+  }
+  async proposalMilestonesReject(milestoneId: string) {
+    const proposal = await ProposalModel.findOneAndUpdate(
+      { "milestones._id": milestoneId },
+      { $set: { "milestones.$.status": "rejected" } },
+      { new: true }
+    );
+
+    return proposal;
   }
 }
 
