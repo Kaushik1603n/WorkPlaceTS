@@ -64,6 +64,7 @@ interface ProposalDetails {
 
 interface JobDetails {
   jobId: string;
+  job_Id: string;
   title: string;
   description: string;
   stack: string;
@@ -427,6 +428,7 @@ const ProjectDashboard: React.FC = () => {
 
   const [jobDetails, SetJobDetails] = useState<JobDetails>({
     jobId: '',
+    job_Id: '',
     title: '',
     description: '',
     stack: '',
@@ -500,7 +502,7 @@ const ProjectDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <ProjectHeader title={jobDetails.title} clientName={jobDetails.clientFullName}
-          status={"active"} jobId={jobDetails.jobId}
+          status={"active"} jobId={jobDetails.job_Id}
           acceptedDate={"1/1/1"} progress={50} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

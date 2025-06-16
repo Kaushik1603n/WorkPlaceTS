@@ -49,6 +49,7 @@ export class ProposalRepo implements IProposalRepo {
         freelancerName: getProposal?.freelancerId?.fullName,
         freelancerEmail: getProposal?.freelancerId?.email,
         jobId: getProposal?.jobId?._id,
+        job_Id: getProposal?.jobId?.job_Id,
         jobTitle: getProposal?.jobId?.title,
         clientId: getProposal?.jobId?.clientId,
         submittedAt: getProposal?.createdAt,

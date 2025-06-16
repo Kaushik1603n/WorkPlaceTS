@@ -15,6 +15,7 @@ interface IProposal extends Document {
   _id:string;
   freelancerId: Types.ObjectId;
   jobId: Types.ObjectId;
+  job_Id: string;
   coverLetter: string;
   budgetType: "fixed" | "hourly";
   bidAmount: number;
@@ -53,6 +54,9 @@ const ProposalSchema: Schema = new Schema(
     coverLetter: {
       type: String,
       required: true,
+    },
+    job_Id: {
+      type: String,
     },
     budgetType: {
       type: String,

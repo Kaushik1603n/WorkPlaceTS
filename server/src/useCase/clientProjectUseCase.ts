@@ -1,4 +1,5 @@
 import { ProjectRepo } from "../infrastructure/repositories/implementations/clientRepos/clientProjectRepo";
+import { v4 as uuidv4 } from "uuid";
 
 export class ClientProjectUserCase {
   constructor(private project: ProjectRepo) {
@@ -19,8 +20,11 @@ export class ClientProjectUserCase {
     reference: string
   ) {
     try {
+      const jobId: string = uuidv4();
+
       await this.project.creteNewProject(
         userId,
+        jobId,
         jobTitle,
         description,
         requiredFeatures,

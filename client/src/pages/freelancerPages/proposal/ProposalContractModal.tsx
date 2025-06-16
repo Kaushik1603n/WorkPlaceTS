@@ -14,6 +14,7 @@ interface Contract {
   totalAmount?: number;
   freelancerId?: string;
   jobId?: string;
+  job_Id?: string;
   terms?: string;
   clientId?: string;
 }
@@ -135,7 +136,7 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
                 <Briefcase className="w-5 h-5 text-blue-600 mr-2 mt-1" />
                 <div>
                   <p className="text-sm text-gray-500">Job ID</p>
-                  <p className="font-medium">{contract?.jobId}</p>
+                  <p className="font-medium">{contract?.job_Id}</p>
                 </div>
               </div>
             </div>

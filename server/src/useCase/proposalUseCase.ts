@@ -30,6 +30,7 @@ export class ProposalUseCase {
 
       const contract = {
         jobId: proposal?.jobId,
+        job_Id: proposal?.job_Id,
         proposalId: proposalId,
         clientId: userId,
         freelancerId: proposal?.freelancerId,
@@ -171,7 +172,7 @@ export class ProposalUseCase {
 
 const generateDefaultContractTerms = (proposal: any) => {
   const terms = [
-    `The freelancer will complete the work as described in proposal ${proposal._id}`,
+    `The freelancer will complete the work as described in proposal ${proposal?.proposal_id}`,
     `The total contract amount is ${proposal.bidAmount} ${
       proposal?.bidType === "hourly" ? "per hour" : ""
     }`,

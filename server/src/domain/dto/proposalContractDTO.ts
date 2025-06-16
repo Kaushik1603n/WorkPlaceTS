@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 
 export interface JonContractDetails {
   _id: ObjectId;
+  job_Id: string;
   proposalId: ObjectId;
   freelancerId: ObjectId;
   clientId: ObjectId;

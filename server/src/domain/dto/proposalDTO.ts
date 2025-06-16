@@ -7,6 +7,7 @@ interface Client {
 
 interface Job {
   _id?: Types.ObjectId;
+  job_Id?: string;
   clientId?: Types.ObjectId | Client;
   Attachments?: any[];
   __v?: number;

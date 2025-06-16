@@ -4,6 +4,7 @@ import ProjectModel from "../../../../domain/models/Projects";
 export class ProjectRepo implements IProjectRepo {
   async creteNewProject(
     userId: string,
+    job_Id: string,
     jobTitle: string,
     description: string,
     requiredFeatures: string,
@@ -16,8 +17,10 @@ export class ProjectRepo implements IProjectRepo {
     reference: string
   ) {
     try {
+      
       await ProjectModel.create({
         clientId: userId,
+        job_Id:job_Id,
         title: jobTitle,
         description,
         requiredFeatures,

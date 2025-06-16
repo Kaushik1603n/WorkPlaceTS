@@ -1,6 +1,7 @@
 export interface IProjectRepo {
   creteNewProject(
     userId: string,
+    job_Id: string,
     jobTitle: string,
     description: string,
     requiredFeatures: string,

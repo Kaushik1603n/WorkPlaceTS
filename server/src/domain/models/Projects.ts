@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 // Interface for the Job document
 export interface IJob extends Document {
   _id:string,
+  job_Id:string,
   clientId: Types.ObjectId;
   title: string;
   description: string;
@@ -33,6 +34,7 @@ const JobSchema: Schema = new Schema(
       ref: "User",
       required: true,
     },
+    job_Id: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     requiredFeatures: { type: String },

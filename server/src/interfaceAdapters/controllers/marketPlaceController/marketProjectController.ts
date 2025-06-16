@@ -249,9 +249,6 @@ export class MarketPlaceProjectController {
         });
         return;
       }
-
-      console.log(data);
-
       res.status(200).json({ success: true, data });
     } catch (error) {
       console.error("Job details fetch error:", error);
