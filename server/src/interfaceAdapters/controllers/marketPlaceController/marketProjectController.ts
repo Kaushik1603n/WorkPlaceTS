@@ -240,7 +240,10 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const data = await marketPlace.getProjectAllInformationUseCase(jobId,userId);
+      const data = await marketPlace.getProjectAllInformationUseCase(
+        jobId,
+        userId
+      );
 
       if (!data) {
         res.status(404).json({
@@ -250,6 +253,49 @@ export class MarketPlaceProjectController {
         return;
       }
       res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Job details fetch error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch job details";
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+      });
+    }
+  };
+  submitMilestone: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { jobId } = req.params;
+
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      const {
+        milestoneId,
+        comments,
+        links,
+      }: { milestoneId: string; comments: string; links: string[] } = req.body;
+      if (!userId) {
+        throw new Error("user not Authenticated");
+      }
+
+      const data = await marketPlace.submitMilestoneUseCase(
+        jobId,
+        userId,
+        milestoneId,
+        comments,
+        links
+      );
+
+      if (!data) {
+        res.status(404).json({
+          success: false,
+          error: "Milestone not found",
+        });
+        return;
+      }
+      res.status(200).json({ success: true, data: "" });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =

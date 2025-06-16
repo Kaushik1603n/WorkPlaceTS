@@ -13,4 +13,6 @@ marketPlaceRoute.get("/get-proposal-details/:proposalId",authenticate, project.g
 marketPlaceRoute.get("/get-all-freelancer-jobs",authenticate, project.getAllFreelacerJobs);
 marketPlaceRoute.get("/project-details/:jobId",authenticate, project.getProjectAllInformation);
 
+marketPlaceRoute.post("/submit-milestone/:jobId",authenticate, project.submitMilestone);
+
 export default marketPlaceRoute;

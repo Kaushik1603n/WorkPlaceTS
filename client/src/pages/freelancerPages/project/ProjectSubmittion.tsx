@@ -8,6 +8,7 @@ import { ProjectOverview } from '../../../components/freelancer/project-submissi
 import { MilestonesDeliverables } from '../../../components/freelancer/project-submission/MilestonesDeliverables';
 import { Timeline } from '../../../components/freelancer/project-submission/Timeline';
 import { MilestoneSubmissionModal } from '../../../components/freelancer/project-submission/MilestoneSubmissionModal';
+import { toast } from 'react-toastify';
 
 
 interface Milestones {
@@ -230,11 +231,11 @@ const ProjectDashboard: React.FC = () => {
       const res = await axiosClient.get(`/jobs/project-details/${jobId}`);
       setProposalDetails(res.data.data?.proposalDetails);
 
-      alert('Milestone submitted successfully!');
+      toast.success('Milestone submitted successfully!');
     } catch (err) {
       const error = err as AxiosError;
       console.error('Failed to submit milestone:', error);
-      alert('Failed to submit milestone. Please try again.');
+      toast.error('Failed to submit milestone. Please try again.');
     } finally {
       setLoading(false);
     }

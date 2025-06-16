@@ -20,7 +20,6 @@ import {
   ReturnAllProjectsInfoDTO,
 } from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
 export class marketPlaceRepo implements IMarketPlace {
-
   async findAllProjects(
     searchQuery: object,
     page: number,
@@ -295,6 +294,41 @@ export class marketPlaceRepo implements IMarketPlace {
       updatedAt: 1,
     });
     return proposal;
+  }
+  async submitMilestoneRepo(
+    jobId: string,
+    userId: string,
+    milestoneId: string,
+    comments: string,
+    links: string[]
+  ) {
+    console.log(jobId, userId, milestoneId, comments, links);
+    const proposal = await ProposalModel.findOne({
+      jobId,
+      freelancerId: userId,
+    });
+
+    if (!proposal) {
+      throw new Error("Proposal not found ");
+    }
+
+    const result =await ProposalModel.findOneAndUpdate(
+      { jobId, "milestones._id": milestoneId },
+      {
+        $set: {
+          "milestones.$.deliverables": {
+            links: links || [],
+            comments: comments || "",
+            submittedAt: new Date(),
+          },
+          "milestones.$.status": "submitted",
+        },
+      },
+      { new: true }
+    );
+    console.log(result);
+    
+    return result;
   }
 }
 

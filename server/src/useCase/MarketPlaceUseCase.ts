@@ -215,4 +215,25 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
+  async submitMilestoneUseCase(jobId: string, userId: string, milestoneId: string,comments: string,links: string[]) {
+    if (!jobId || typeof jobId !== "string") {
+      throw new Error("Invalid Job ID");
+    }
+    
+    try {
+      const result = await this.market.submitMilestoneRepo(jobId,userId, milestoneId,comments,links);
+      if (!result) {
+        throw new Error("Job not found");
+      }
+
+     
+
+      return {
+        jobDetails: result,
+      };
+    } catch (error) {
+      console.error(`[getProjectDetails] Error fetching job ${jobId}:`, error);
+      throw error;
+    }
+  }
 }

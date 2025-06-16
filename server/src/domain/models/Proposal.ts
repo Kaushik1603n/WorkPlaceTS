@@ -6,6 +6,7 @@ interface IDeliverable {
   submittedAt: Date;
 }
 interface IMilestone {
+  _id: string;
   title: string;
   description: string;
   amount: number;
