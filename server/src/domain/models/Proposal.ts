@@ -4,6 +4,7 @@ interface IDeliverable {
   links: string[];
   comments: string;
   submittedAt: Date;
+  feedback?: string;
 }
 interface IMilestone {
   _id: string;
@@ -11,8 +12,16 @@ interface IMilestone {
   description: string;
   amount: number;
   dueDate: Date;
-  status: "pending" |"submitted"| "approved" |"rejected"| "completed" | "paid" | "interviewing";
-  paymentId?: string;
+  status:
+    | "pending"
+    | "submitted"
+    | "approved"
+    | "rejected"
+    | "completed"
+    | "paid"
+    | "interviewing";
+  paymentId?: Types.ObjectId; // Reference to Payment document
+  paymentRequestId?: Types.ObjectId; // Reference to PaymentRequest document
   deliverables?: IDeliverable;
 }
 
@@ -29,6 +38,7 @@ interface IProposal extends Document {
   workSamples?: string;
   PortfolioAttachments?: string[];
   milestones: IMilestone[];
+  payments: Types.ObjectId[]; // References to Payment documents
   status:
     | "submitted"
     | "interviewing"
@@ -38,7 +48,6 @@ interface IProposal extends Document {
     | "active"
     | "completed";
   contractId?: Types.ObjectId;
-  payments?: Types.ObjectId[];
   agreeNDA: boolean;
   agreeVideoCall: boolean;
   createdAt: Date;
@@ -94,10 +103,22 @@ const ProposalSchema: Schema = new Schema(
         dueDate: Date,
         status: {
           type: String,
-          enum: ["pending", "submitted", "approved", "rejected", "completed", "paid","interviewing"],
+          enum: [
+            "pending",
+            "submitted",
+            "approved",
+            "rejected",
+            "completed",
+            "paid",
+            "interviewing",
+          ],
           default: "pending",
         },
-        paymentId: String,
+        payments: [{ type: Schema.Types.ObjectId, ref: "Payment" }],
+        paymentRequestId: {
+          type: Schema.Types.ObjectId,
+          ref: "PaymentRequest",
+        },
         deliverables: {
           links: [{ type: String }],
           comments: String,
@@ -105,6 +126,7 @@ const ProposalSchema: Schema = new Schema(
         },
       },
     ],
+    payments: [{ type: Schema.Types.ObjectId, ref: "Payment" }],
     status: {
       type: String,
       enum: [
@@ -122,12 +144,6 @@ const ProposalSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Contract",
     },
-    payments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Payment",
-      },
-    ],
   },
   { timestamps: true }
 );

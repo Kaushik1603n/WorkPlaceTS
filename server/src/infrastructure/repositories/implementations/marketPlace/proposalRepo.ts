@@ -7,6 +7,7 @@ import ProposalModel from "../../../../domain/models/Proposal";
 import ProjectModel from "../../../../domain/models/Projects";
 import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 import { IProposalMilestones } from "../../../../domain/dto/proposalMilstoneDTO";
+import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 
 export class ProposalRepo implements IProposalRepo {
   async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
@@ -272,15 +273,91 @@ export class ProposalRepo implements IProposalRepo {
       milestones: proposal.milestones,
     };
   }
-  async proposalMilestonesApprove(milestoneId: string) {
-    const proposal = await ProposalModel.findOneAndUpdate(
+
+  async proposalMilestonesApprove(
+    milestoneId: string,
+    session: mongoose.ClientSession
+  ) {
+    return await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.status": "approved" } },
-      { new: true }
-    );
-
-    return proposal;
+      { new: true, session }
+    ).lean();
   }
+
+  async findProposal(milestoneId: string, session: mongoose.ClientSession) {
+    const proposal = await ProposalModel.findOne(
+      { "milestones._id": milestoneId },
+      {
+        jobId: 1,
+        job_Id: 1,
+        freelancerId: 1,
+        milestones: { $elemMatch: { _id: milestoneId } },
+      }
+    )
+      .session(session)
+      .lean();
+
+    if (!proposal || !proposal.milestones?.length) return null;
+
+    const milestone = proposal.milestones[0];
+
+    return {
+      _id: proposal._id,
+      freelancerId: proposal.freelancerId,
+      jobId: proposal.jobId,
+      job_Id: proposal.job_Id,
+      milestoneId: milestone._id,
+      title: milestone.title,
+      description: milestone.description,
+      amount: milestone.amount,
+      dueDate: milestone.dueDate,
+      status: milestone.status,
+      deliverables: milestone.deliverables,
+    };
+  }
+
+  async paymentRequest(
+    jobId: any,
+    freelancerId: any,
+    proposalId: string,
+    milestoneId: string,
+    amount: number,
+    clientId: string,
+    status: string,
+    platformFee: number,
+    netAmount: number,
+    session: mongoose.ClientSession
+  ) {
+    return await PaymentRequestModel.create(
+      [
+        {
+          jobId,
+          proposalId,
+          milestoneId,
+          amount,
+          platformFee,
+          netAmount,
+          status,
+          freelancerId,
+          clientId,
+        },
+      ],
+      { session }
+    );
+  }
+  async updatePaymentID(
+    milestoneId: string,
+    paymentRequestId: any,
+    session: mongoose.ClientSession
+  ) {
+    await ProposalModel.findOneAndUpdate(
+      { "milestones._id": milestoneId },
+      { $set: { "milestones.$.paymentRequestId": paymentRequestId } },
+      { session }
+    );
+  }
+
   async proposalMilestonesReject(milestoneId: string) {
     const proposal = await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },

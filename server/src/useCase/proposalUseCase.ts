@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ProposalRepo } from "../infrastructure/repositories/implementations/marketPlace/proposalRepo";
 
 export class ProposalUseCase {
@@ -174,22 +175,55 @@ export class ProposalUseCase {
       throw error;
     }
   }
-  async proposalMilestonesApproveUseCase(milestoneId: string) {
-    try {
-      const proposal = await this.proposal.proposalMilestonesApprove(
-        milestoneId
-      );
 
-      if (!proposal) {
-        throw new Error("Milestone not found");
-      }
+async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-      return proposal;
-    } catch (error) {
-      console.error(`proposal usecase error`, error);
-      throw error;
-    }
+  try {
+    const proposalApprove = await this.proposal.proposalMilestonesApprove(
+      milestoneId,
+      session
+    );
+    if (!proposalApprove) throw new Error("Milestone not found");
+
+    const proposal = await this.proposal.findProposal(milestoneId, session);
+    if (!proposal) throw new Error("Proposal not found");
+
+    const platformFee=(proposal.amount/100)*10;
+    const netAmount=proposal.amount-platformFee
+    const paymentRequest = await this.proposal.paymentRequest(
+      proposal.jobId,
+      proposal.freelancerId,
+      proposal._id,
+      milestoneId,
+      proposal.amount,
+      userId,
+      "pending",
+      platformFee,
+      netAmount,
+      session
+    );
+    await this.proposal.updatePaymentID(
+      milestoneId,
+      paymentRequest[0]._id,     
+      session
+    );
+
+    
+    await session.commitTransaction();
+    session.endSession();
+
+    return proposalApprove;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error(`Proposal usecase error`, error);
+    throw error;
   }
+}
+
+
   async proposalMilestonesRejectUseCase(milestoneId: string) {
     try {
       const proposal = await this.proposal.proposalMilestonesReject(

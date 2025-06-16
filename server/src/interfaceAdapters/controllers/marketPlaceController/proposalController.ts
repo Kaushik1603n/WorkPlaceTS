@@ -222,7 +222,8 @@ export class ProposalController {
         throw new Error("User Not Authenticated");
       }
       const data = await proposalCase.proposalMilestonesApproveUseCase(
-        milestoneId
+        milestoneId,
+        userId
       );
 
       res.status(200).json({
