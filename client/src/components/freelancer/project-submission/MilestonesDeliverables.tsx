@@ -7,7 +7,7 @@ interface Milestone {
   description?: string;
   amount: number;
   dueDate: string | Date;
-  status:  "submitted"
+  status: "submitted"
   | "interviewing"
   | "rejected"
   | "accepted"
@@ -88,13 +88,20 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
                   {getStatusText(milestone.status)}
                 </span>
               </div>
-
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-gray-900">${milestone.amount.toFixed(2)}</span>
-                {milestone.status === 'interviewing' && (
+                {milestone.status === 'interviewing' || milestone.status === 'active' ? (
                   <button
                     className="border border-green-500 text-green-600 hover:bg-green-50 text-sm font-medium px-3 py-1 rounded transition-colors"
                     onClick={() => onSubmitWork(milestone._id)}
+                  >
+                    Submit for Review
+                  </button>
+                ) : (
+                  <button
+                    className="border border-gray-300 text-gray-400 text-sm font-medium px-3 py-1 rounded cursor-not-allowed"
+                    disabled
+                    title={`Cannot submit: Milestone is ${milestone.status}`}
                   >
                     Submit for Review
                   </button>

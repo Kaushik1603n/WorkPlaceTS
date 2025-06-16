@@ -1,18 +1,23 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
-// Define types for the Milestone subdocument
+interface IDeliverable {
+  links: string[];
+  comments: string;
+  submittedAt: Date;
+}
 interface IMilestone {
   title: string;
   description: string;
   amount: number;
   dueDate: Date;
-  status: "pending" | "approved" | "completed" | "paid";
+  status: "pending" |"submitted"| "approved" |"rejected"| "completed" | "paid" | "interviewing";
   paymentId?: string;
+  deliverables?: IDeliverable;
 }
 
 // Define the main Proposal document interface
 interface IProposal extends Document {
-  _id:string;
+  _id: string;
   freelancerId: Types.ObjectId;
   jobId: Types.ObjectId;
   job_Id: string;
@@ -88,10 +93,15 @@ const ProposalSchema: Schema = new Schema(
         dueDate: Date,
         status: {
           type: String,
-          enum: ["pending", "approved", "completed", "paid"],
+          enum: ["pending", "submitted", "approved", "rejected", "completed", "paid","interviewing"],
           default: "pending",
         },
         paymentId: String,
+        deliverables: {
+          links: [{ type: String }],
+          comments: String,
+          submittedAt: Date,
+        },
       },
     ],
     status: {
