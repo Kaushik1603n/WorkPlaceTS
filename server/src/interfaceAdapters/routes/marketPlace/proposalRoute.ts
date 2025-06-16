@@ -13,4 +13,6 @@ proposalRout.get("/get-contract-details/:id",authenticate, proposal.getContractD
 proposalRout.get("/accept-contract/:id",authenticate, proposal.acceptProposalcontract);
 proposalRout.get("/reject-contract/:id",authenticate, proposal.rejectProposalcontract);
 
+proposalRout.get("/:jobId/milestones",authenticate, proposal.proposalMilestones);
+
 export default proposalRout;

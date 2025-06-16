@@ -80,7 +80,6 @@ export class ProposalUseCase {
     try {
       const getAllProposals = await this.proposal.getProjectProposalbyId(jobId);
 
-    
       return getAllProposals;
     } catch (error) {
       console.error(`proposal usecase error`, error);
@@ -165,10 +164,17 @@ export class ProposalUseCase {
       throw error;
     }
   }
+  async proposalMilestonesUseCase(jobId: string) {
+    try {
+      const data = await this.proposal.proposalMilestones(jobId);
+
+      return data;
+    } catch (error) {
+      console.error(`proposal usecase error`, error);
+      throw error;
+    }
+  }
 }
-
-
-
 
 const generateDefaultContractTerms = (proposal: any) => {
   const terms = [

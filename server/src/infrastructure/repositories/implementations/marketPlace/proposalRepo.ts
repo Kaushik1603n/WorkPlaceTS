@@ -6,6 +6,7 @@ import ContractModel from "../../../../domain/models/ContractModel";
 import ProposalModel from "../../../../domain/models/Proposal";
 import ProjectModel from "../../../../domain/models/Projects";
 import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
+import { IProposalMilestones } from "../../../../domain/dto/proposalMilstoneDTO";
 
 export class ProposalRepo implements IProposalRepo {
   async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
@@ -121,7 +122,7 @@ export class ProposalRepo implements IProposalRepo {
         submittedAt: new Date(proposal.createdAt).toLocaleString(),
       }));
 
-      return formattedProposals
+      return formattedProposals;
     } catch (error) {
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
@@ -254,6 +255,24 @@ export class ProposalRepo implements IProposalRepo {
     } finally {
       session.endSession();
     }
+  }
+  async proposalMilestones(
+    jobId: string
+  ): Promise<IProposalMilestones> {
+    const proposal = await ProposalModel.findOne(
+      { jobId },
+      { _id: 1, freelancerId: 1, milestones: 1 }
+    ).lean<IProposalMilestones>();
+
+    if (!proposal) {
+      throw new Error("Proposal not found");
+    }
+
+    return {
+      _id: proposal._id,
+      freelancerId: proposal.freelancerId,
+      milestones: proposal.milestones,
+    };
   }
 }
 

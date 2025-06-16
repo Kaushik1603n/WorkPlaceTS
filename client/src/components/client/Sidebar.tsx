@@ -24,6 +24,7 @@ const sidebarItems: SidebarItem[] = [
     { icon: <MessageSquare size={18} />, label: "Message", path: "/client-dashboard/message" },
     { icon: <Bell size={18} />, label: "Notification", path: "/client-dashboard/notification" },
     { icon: <ChevronRight size={18} />, label: "Project Posting", path: "/client-dashboard/posting" },
+    { icon: <Briefcase size={18} />, label: "Active Projects", path: "/client-dashboard/active-project" },
     { icon: <User size={18} />, label: "Freelancer", path: "/client-dashboard/freelancer" },
     { icon: <Calendar size={18} />, label: "Interview Scheduling", path: "/client-dashboard/interview" },
     { icon: <Shield size={18} />, label: "Dispute Resolution", path: "/client-dashboard/dispute" },

@@ -71,16 +71,11 @@ export class ProposalController {
       });
     }
   };
-  getAllPropjectProposals: RequestHandler = async (
-    req,
-    res
-  ): Promise<void> => {
+  getAllPropjectProposals: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
-        const jobId = req.params.id;
-
-
+      const jobId = req.params.id;
 
       if (!jobId) {
         res.status(401).json({ message: "jobId Require" });
@@ -91,9 +86,7 @@ export class ProposalController {
         return;
       }
 
-      const proposals = await proposalCase.getAllProjectProposalsUseCase(
-        jobId
-      );
+      const proposals = await proposalCase.getAllProjectProposalsUseCase(jobId);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
@@ -182,6 +175,32 @@ export class ProposalController {
       res.status(200).json({
         message: "Proposals fetched successfully",
         data: contractDetails,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+  proposalMilestones: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const jobId = req.params.jobId;
+
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      const data = await proposalCase.proposalMilestonesUseCase(
+        jobId
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: data,
       });
     } catch (error) {
       console.error(error);

@@ -10,6 +10,7 @@ import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
 import ClientProject from "../pages/clientPages/project/ClientProject";
 import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
 import FreelancerList from "../pages/clientPages/freelancerListing/FreelancerList";
+import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
 
 
 function ClientRoutes() {
@@ -33,6 +34,8 @@ function ClientRoutes() {
           <Route path="profile/edit" element={<EditClientProfile/>} />
           <Route path="message" element={<div>Message Page</div>} />
           <Route path="notification" element={<NotificationList/>} />
+          <Route path="active-project" element={<>active</>} />
+          <Route path="active-project/:jobId" element={<ClientProjectPage/>} />
           <Route path="posting" element={<JobPostingForm/>} />
           <Route path="freelancer" element={<FreelancerList/>} />
           <Route
