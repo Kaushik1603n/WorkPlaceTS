@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 interface IPayment extends Document {
+  _id:string,
   jobId: Types.ObjectId;
   proposalId: Types.ObjectId;
   milestoneId: Types.ObjectId;

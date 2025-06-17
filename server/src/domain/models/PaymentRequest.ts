@@ -3,6 +3,7 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 interface IPaymentRequest extends Document {
   jobId: Types.ObjectId;
   proposalId: Types.ObjectId;
+  freelancerId: Types.ObjectId;
   milestoneId: Types.ObjectId;
   amount: number;
   status: "pending" | "paid" | "cancelled";

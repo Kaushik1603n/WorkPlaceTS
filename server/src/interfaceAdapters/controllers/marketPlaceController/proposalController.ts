@@ -194,9 +194,7 @@ export class ProposalController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
-      const data = await proposalCase.proposalMilestonesUseCase(
-        jobId
-      );
+      const data = await proposalCase.proposalMilestonesUseCase(jobId);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
@@ -212,7 +210,10 @@ export class ProposalController {
     }
   };
 
-  proposalMilestonesApprove: RequestHandler = async (req, res): Promise<void> => {
+  proposalMilestonesApprove: RequestHandler = async (
+    req,
+    res
+  ): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
@@ -239,7 +240,10 @@ export class ProposalController {
       });
     }
   };
-  proposalMilestonesReject: RequestHandler = async (req, res): Promise<void> => {
+  proposalMilestonesReject: RequestHandler = async (
+    req,
+    res
+  ): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
@@ -265,4 +269,60 @@ export class ProposalController {
       });
     }
   };
+
+  pendingPaments: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      const data = await proposalCase.pendingPamentsUseCase(userId);
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: data,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+
+  // milestonePayment: RequestHandler = async (req, res): Promise<void> => {
+  //   try {
+
+  //     const { amount, receipt } = req.body;
+
+  //     const options = {
+  //       amount: amount * 100, // Razorpay expects amount in paise (multiply by 100 for INR)
+  //       currency: "INR",
+  //       receipt: receipt,
+  //       payment_capture: 1,
+  //     };
+
+  //     const order = await createOrder(options);
+
+  //     // if (!userId) {
+  //     //   throw new Error("User Not Authenticated");
+  //     // }
+
+  //     res.status(200).json({
+  //       message: "Proposals fetched successfully",
+  //       data: order
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({
+  //       success: false,
+  //       error:
+  //         error instanceof Error ? error.message : "Failed to get proposal",
+  //     });
+  //   }
+  // };
 }

@@ -240,6 +240,12 @@ async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
       throw error;
     }
   }
+
+  async pendingPamentsUseCase (userId:string){
+
+    const data = await this.proposal.findPayment(userId)
+    return data
+  }
 }
 
 const generateDefaultContractTerms = (proposal: any) => {

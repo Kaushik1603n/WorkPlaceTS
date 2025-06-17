@@ -367,8 +367,27 @@ export class ProposalRepo implements IProposalRepo {
 
     return proposal;
   }
-}
+  async findPayment(userId: string): Promise<IPaymentRequest> {
+    const data = await PaymentRequestModel.find({
+      clientId: userId,
+    }).lean<IPaymentRequest>();
 
+    return data;
+  }
+}
+interface IPaymentRequest {
+  jobId: string;
+  proposalId: string;
+  milestoneId: string;
+  amount: number;
+  netAmount: number;
+  platformFee: number;
+  status: "pending" | "paid" | "cancelled";
+  freelancerId: string;
+  clientId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 interface PopulatedFreelancer {
   _id: string;
   fullName: string;

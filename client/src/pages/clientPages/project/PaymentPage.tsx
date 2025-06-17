@@ -1,75 +1,52 @@
-import  { useState } from 'react';
-import { Clock, DollarSign, Eye, CreditCard, User, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Clock, DollarSign, Eye, CreditCard, User, } from 'lucide-react';
+import { loadRazorpay } from '../../../utils/razorpay';
+import axiosClient from '../../../utils/axiosClient';
+import { toast } from 'react-toastify';
 
+type PaymentStatus = 'pending' | 'completed' | 'failed';
+
+interface IPaymentRequest {
+  _id: string,
+  jobId: string;
+  proposalId: string;
+  milestoneId: string;
+  amount: number;
+  netAmount: number;
+  platformFee: number;
+  status: PaymentStatus;
+  freelancerId: string;
+  clientId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// interface OrderResponse {
+//   id: string;
+//   currency: string;
+//   amount: number;
+// }
 const PendingPaymentsTable = () => {
-  const [sortField, setSortField] = useState('createdAt');
-  const [sortDirection, setSortDirection] = useState('desc');
+  const [payments, setPayments] = useState<IPaymentRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(false)
 
-  // Sample data array (expanded from the single object)
-  const paymentsData = [
-    {
-      _id: '68503964ba5d54f906a5b2ef',
-      jobId: '684a708302f195cc7d0b6606',
-      proposalId: '684a72a4bafd81e8d9345c8a',
-      milestoneId: '684a72a4bafd81e8d9345c8c',
-      amount: 50,
-      platformFee: 5,
-      netAmount: 45,
-      status: 'pending',
-      freelancerId: '68260956ec6ff5b5ef769b40',
-      clientId: '682321f0ebe2e8dac2d7a54b',
-      createdAt: '2025-06-16T15:33:56.804Z',
-      updatedAt: '2025-06-16T15:33:56.804Z',
-      __v: 0
-    },
-    {
-      _id: '68503964ba5d54f906a5b2f0',
-      jobId: '684a708302f195cc7d0b6607',
-      proposalId: '684a72a4bafd81e8d9345c8b',
-      milestoneId: '684a72a4bafd81e8d9345c8d',
-      amount: 125,
-      platformFee: 12.5,
-      netAmount: 112.5,
-      status: 'pending',
-      freelancerId: '68260956ec6ff5b5ef769b41',
-      clientId: '682321f0ebe2e8dac2d7a54c',
-      createdAt: '2025-06-16T14:22:30.120Z',
-      updatedAt: '2025-06-16T14:22:30.120Z',
-      __v: 0
-    },
-    {
-      _id: '68503964ba5d54f906a5b2f1',
-      jobId: '684a708302f195cc7d0b6608',
-      proposalId: '684a72a4bafd81e8d9345c8c',
-      milestoneId: '684a72a4bafd81e8d9345c8e',
-      amount: 200,
-      platformFee: 20,
-      netAmount: 180,
-      status: 'completed',
-      freelancerId: '68260956ec6ff5b5ef769b42',
-      clientId: '682321f0ebe2e8dac2d7a54d',
-      createdAt: '2025-06-16T13:15:45.890Z',
-      updatedAt: '2025-06-16T16:20:12.456Z',
-      __v: 0
-    },
-    {
-      _id: '68503964ba5d54f906a5b2f2',
-      jobId: '684a708302f195cc7d0b6609',
-      proposalId: '684a72a4bafd81e8d9345c8d',
-      milestoneId: '684a72a4bafd81e8d9345c8f',
-      amount: 75,
-      platformFee: 7.5,
-      netAmount: 67.5,
-      status: 'pending',
-      freelancerId: '68260956ec6ff5b5ef769b43',
-      clientId: '682321f0ebe2e8dac2d7a54e',
-      createdAt: '2025-06-16T12:45:18.330Z',
-      updatedAt: '2025-06-16T12:45:18.330Z',
-      __v: 0
+  const fetchPendingPayments = async () => {
+    setLoading(true)
+    try {
+      const res = await axiosClient.get("/proposal/pending-paments")
+      setPayments(res.data.data)
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false)
     }
-  ];
+  }
+  useEffect(() => {
+    fetchPendingPayments()
+  }, [])
 
-  const formatDate = (dateString) => {
+
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -79,7 +56,8 @@ const PendingPaymentsTable = () => {
     });
   };
 
-  const getStatusBadge = (status:string) => {
+
+  const getStatusBadge = (status: PaymentStatus) => {
     const statusConfig = {
       pending: {
         bg: 'bg-yellow-100',
@@ -112,47 +90,59 @@ const PendingPaymentsTable = () => {
     );
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
+  //  const handleProcessPayment = async (paymentRequestId:string,milestoneId: string, amount: number) => {
+
+  //   const { data } = await axiosClient.post("/payments/order", {
+  //     paymentRequestId,
+  //     milestoneId,
+  //     amount,
+  //     receipt: `receipt_${Date.now()}`
+  //   });
+
+  //   loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD");
+  // };
+
+  const handleProcessPayment = async (paymentRequestId: string, milestoneId: string, amount: number) => {
+    try {
+      const { data } = await axiosClient.post("/payments/order", {
+        paymentRequestId,
+        milestoneId,
+        amount,
+        receipt: `receipt_${Date.now()}`
+      });
+
+      if (!data?.data?.id || !data?.data?.amount) {
+        throw new Error("Invalid order response from server");
+      }
+
+      loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD",
+          () => {
+        fetchPendingPayments();
+        toast.success("Payment completed successfully!");
+      }
+      )
+
+    } catch (error) {
+      console.error("Payment initiation failed:", error);
+      toast.error("Failed to initiate payment. Please try again.");
     }
   };
 
-  const sortedPayments = [...paymentsData].sort((a, b) => {
-    let aValue = a[sortField];
-    let bValue = b[sortField];
-    
-    if (sortField === 'createdAt' || sortField === 'updatedAt') {
-      aValue = new Date(aValue);
-      bValue = new Date(bValue);
-    }
-    
-    if (sortDirection === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
-
-  const handleProcessPayment = (paymentId:string) => {
-    alert(`Processing payment: ${paymentId}`);
-    // Add your payment processing logic here
-  };
-
-  const handleViewDetails = (paymentId:string) => {
+  const handleViewDetails = (paymentId: string) => {
     alert(`Viewing details for payment: ${paymentId}`);
-    // Add your navigation logic here
   };
 
-  const SortIcon = ({ field }) => {
-    if (sortField !== field) return null;
-    return sortDirection === 'asc' ? 
-      <ChevronUp className="w-4 h-4 ml-1" /> : 
-      <ChevronDown className="w-4 h-4 ml-1" />;
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading payment details...</p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
@@ -171,11 +161,11 @@ const PendingPaymentsTable = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Payments</p>
-              <p className="text-xl font-semibold text-gray-800">{paymentsData.length}</p>
+              <p className="text-xl font-semibold text-gray-800">{payments.length}</p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
@@ -184,12 +174,12 @@ const PendingPaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Pending</p>
               <p className="text-xl font-semibold text-gray-800">
-                {paymentsData.filter(p => p.status === 'pending').length}
+                {payments.filter(p => p.status === 'pending').length}
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
@@ -198,12 +188,12 @@ const PendingPaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                ${paymentsData.reduce((sum, p) => sum + p.amount, 0)}
+                ${payments.reduce((sum, p) => sum + (p.amount || 0), 0)}
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
@@ -212,7 +202,7 @@ const PendingPaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Net Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                ${paymentsData.reduce((sum, p) => sum + p.netAmount, 0)}
+                ${payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)}
               </p>
             </div>
           </div>
@@ -225,22 +215,19 @@ const PendingPaymentsTable = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('_id')}
+
                 >
                   <div className="flex items-center">
                     Payment ID
-                    <SortIcon field="_id" />
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('amount')}
                 >
                   <div className="flex items-center">
                     Amount
-                    <SortIcon field="amount" />
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -249,25 +236,21 @@ const PendingPaymentsTable = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Net Amount
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('status')}
                 >
                   <div className="flex items-center">
                     Status
-                    <SortIcon field="status" />
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Parties
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('createdAt')}
                 >
                   <div className="flex items-center">
                     Created
-                    <SortIcon field="createdAt" />
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -276,14 +259,14 @@ const PendingPaymentsTable = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {sortedPayments.map((payment) => (
+              {payments.map((payment) => (
                 <tr key={payment._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {payment._id.slice(-8)}
+                      {payment._id ? payment._id.slice(-8) : ""}
                     </div>
                     <div className="text-sm text-gray-500">
-                      Job: {payment.jobId.slice(-6)}
+                      Job: {payment.jobId ? payment.jobId.slice(-6) : ""}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -293,7 +276,7 @@ const PendingPaymentsTable = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-red-600">
-                      -${payment.platformFee}
+                      -${payment.platformFee ? payment.platformFee : 0}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -302,20 +285,20 @@ const PendingPaymentsTable = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(payment.status)}
+                    {getStatusBadge(payment.status ? payment.status : "pending")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>F: {payment.freelancerId.slice(-6)}</div>
-                    <div>C: {payment.clientId.slice(-6)}</div>
+                    <div>F: {payment.freelancerId ? payment.freelancerId.slice(-6) : ""}</div>
+                    <div>C: {payment.clientId ? payment.clientId.slice(-6) : ""}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(payment.createdAt)}
+                    {formatDate(payment.createdAt ? payment.createdAt : "")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       {payment.status === 'pending' && (
                         <button
-                          onClick={() => handleProcessPayment(payment._id)}
+                          onClick={() => handleProcessPayment(payment._id, payment.milestoneId, payment.amount)}
                           className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs hover:bg-blue-700 transition-colors flex items-center"
                         >
                           <CreditCard className="w-3 h-3 mr-1" />
@@ -339,7 +322,7 @@ const PendingPaymentsTable = () => {
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
+      {/* <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
         <div className="flex-1 flex justify-between sm:hidden">
           <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
             Previous
@@ -351,8 +334,8 @@ const PendingPaymentsTable = () => {
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">1</span> to <span className="font-medium">{paymentsData.length}</span> of{' '}
-              <span className="font-medium">{paymentsData.length}</span> results
+              Showing <span className="font-medium">1</span> to <span className="font-medium">{payments.length}</span> of{' '}
+              <span className="font-medium">{payments.length}</span> results
             </p>
           </div>
           <div>
@@ -369,7 +352,7 @@ const PendingPaymentsTable = () => {
             </nav>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

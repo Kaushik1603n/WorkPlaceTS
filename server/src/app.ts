@@ -15,6 +15,7 @@ import clientProject from "./interfaceAdapters/routes/clientRoutes/projectRoute"
 import marketPlaceRoute from "./interfaceAdapters/routes/marketPlace/marketPlaceRoute";
 import notificationRout from "./interfaceAdapters/routes/notification";
 import proposalRout from "./interfaceAdapters/routes/marketPlace/proposalRoute";
+import paymentRoutes from "./interfaceAdapters/routes/marketPlace/paymentRoute";
 
 export class App {
   private app: Application;
@@ -58,6 +59,7 @@ export class App {
     this.app.use("/api", notificationRout);
     this.app.use("/api/jobs", marketPlaceRoute);
     this.app.use("/api/proposal", proposalRout);
+    this.app.use("/api/payments", paymentRoutes);
     this.app.use("/api/admin", userRoutes);
   }
 
