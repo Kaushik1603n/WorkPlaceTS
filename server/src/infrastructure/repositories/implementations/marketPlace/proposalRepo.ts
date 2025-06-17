@@ -370,7 +370,9 @@ export class ProposalRepo implements IProposalRepo {
   async findPayment(userId: string): Promise<IPaymentRequest> {
     const data = await PaymentRequestModel.find({
       clientId: userId,
-    }).lean<IPaymentRequest>();
+    })
+      .sort({ createdAt: -1 })
+      .lean<IPaymentRequest>();
 
     return data;
   }

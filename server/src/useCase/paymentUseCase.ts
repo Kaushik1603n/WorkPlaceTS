@@ -106,6 +106,14 @@ export class PaymentUseCase {
         session
       );
 
+      if (!proposal) {
+        throw new Error("Proposal not found");
+      }
+
+      const title =
+        proposal.milestones.find(
+          (mile) => mile._id.toString() === payment.milestoneId.toString()
+        )?.title || "";
       const totalMilestoneAmount = proposal!.milestones.reduce(
         (sum, m) => sum + m.amount,
         0
@@ -122,6 +130,23 @@ export class PaymentUseCase {
         totalPaid >= totalMilestoneAmount ? "fully-paid" : "partially-paid";
 
       await this.payment.updatePaymentStatus(job._id, paymentStatus, session);
+
+      const freelancerWallet =await this.payment.updateFreelancerWallet(
+        payment.freelancerId,
+        payment.netAmount,
+        payment._id,
+        title,
+        session
+      );
+      const adminWallet =await this.payment.updateAdminWallet(
+        payment.platformFee,
+        payment._id,
+        title,
+        session
+      );
+
+      console.log(freelancerWallet);
+      console.log(adminWallet);
 
       // Notify freelancer
 

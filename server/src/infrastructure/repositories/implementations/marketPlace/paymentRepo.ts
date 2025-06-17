@@ -4,6 +4,7 @@ import PaymentModel from "../../../../domain/models/PaymentModel";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import ProposalModel from "../../../../domain/models/Proposal";
 import ProjectModel from "../../../../domain/models/Projects";
+import WalletModel from "../../../../domain/models/Wallet";
 
 export class PaymentRepo implements IpamentRepo {
   async findProposal(milestoneId: string) {
@@ -129,5 +130,52 @@ export class PaymentRepo implements IpamentRepo {
     );
 
     return job;
+  }
+  async updateFreelancerWallet(
+    freelancerId: Types.ObjectId,
+    netAmount: number,
+    paymentId: string,
+    title:string,
+    session: ClientSession
+  ) {
+    const freelancerWallet = await WalletModel.findOneAndUpdate(
+      { userId: freelancerId },
+      {
+        $inc: { balance: netAmount*80 },
+        $push: {
+          transactions: {
+            type: "credit",
+            amount: netAmount*80,
+            description: `Payment for milestone: ${title}`,
+            paymentId: paymentId,
+          },
+        },
+      },
+      { upsert: true, new: true ,session} // Create wallet if it doesn't exist
+    );
+    return freelancerWallet;
+  }
+  async updateAdminWallet(
+    platformFee: number,
+    paymentId: string,
+    title:string,
+    session: ClientSession
+  ) {
+    const freelancerWallet = await WalletModel.findOneAndUpdate(
+      { userId: "admin" },
+      {
+        $inc: { balance: platformFee*80 },
+        $push: {
+          transactions: {
+            type: "credit",
+            amount: platformFee*80,
+            description: `Payment for milestone: ${title}`,
+            paymentId: paymentId,
+          },
+        },
+      },
+      { upsert: true, new: true ,session}
+    );
+    return freelancerWallet;
   }
 }
