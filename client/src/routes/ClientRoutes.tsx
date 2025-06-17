@@ -11,6 +11,7 @@ import ClientProject from "../pages/clientPages/project/ClientProject";
 import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
 import FreelancerList from "../pages/clientPages/freelancerListing/FreelancerList";
 import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
+import PendingPaymentListing from "../pages/clientPages/project/PaymentPage";
 
 
 function ClientRoutes() {
@@ -29,7 +30,7 @@ function ClientRoutes() {
             path="jobs/:proposalId/proposals"
             element={<ProposalDetails/>}
           />
-          <Route path="payments" element={<div>Payment Page</div>} />
+          <Route path="payments" element={<PendingPaymentListing/>} />
           <Route path="profile" element={<ClientProfile/>} />
           <Route path="profile/edit" element={<EditClientProfile/>} />
           <Route path="message" element={<div>Message Page</div>} />
