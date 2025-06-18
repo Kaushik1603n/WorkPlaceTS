@@ -40,7 +40,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode; userId: strin
 
     setSocket(newSocket);
 
-    // Register user
     newSocket.emit("register", userId);
 
     // Listen for notifications

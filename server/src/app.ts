@@ -74,6 +74,39 @@ export class App {
         console.log(`User ${userId} registered with socket ${socket.id}`);
       });
 
+      socket.on(
+        "sendMessage",
+        (message: {
+          id: string;
+          text: string;
+          senderId: string;
+          contactId: string;
+          timestamp: string;
+          isRead: boolean;
+        }) => {
+          if (!message.senderId || !message.contactId) {
+            console.log("Error: Invalid message format", message);
+            return;
+          }
+
+          const recipientSocketId = connectedUsers[message.contactId];
+          if (recipientSocketId) {
+            this.io.to(recipientSocketId).emit("message", {
+              ...message,
+              timestamp: message.timestamp || new Date().toISOString(),
+              isRead: false,
+            });
+          }
+
+          // Also send back to sender to confirm receipt
+          this.io.to(socket.id).emit("message", {
+            ...message,
+            timestamp: message.timestamp || new Date().toISOString(),
+            isRead: true,
+          });
+        }
+      );
+
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
         for (const userId in connectedUsers) {

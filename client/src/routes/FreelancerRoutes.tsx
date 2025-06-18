@@ -7,6 +7,8 @@ import FreelancerBit from "../pages/freelancerPages/proposal/FreelancerBit";
 import FreelancerProject from "../pages/freelancerPages/project/projects";
 import ProjectSubmittion from "../pages/freelancerPages/project/ProjectSubmittion";
 import ClientList from "../pages/freelancerPages/clientListing/ClientList";
+// import MessagingPage from "../pages/message/MessagingPage";
+import MessagingPagef from "../pages/message/MessagingPageF";
 
 function FreelancerRoutes() {
     return (
@@ -18,7 +20,7 @@ function FreelancerRoutes() {
                     <Route path="payments" element={<div>Payment Page</div>} />
                     <Route path="profile" element={<FreelancerProfile />} />
                     <Route path="profile/edit" element={<EditFreelancerProfile />} />
-                    <Route path="message" element={<div>Message Page</div>} />
+                    <Route path="message" element={<MessagingPagef/>} />
                     <Route path="notification" element={<div>Notification Page</div>} />
                     <Route path="project" element={<div>project page</div>} />
                     <Route path="client" element={<ClientList/>} />
