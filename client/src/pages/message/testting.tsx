@@ -3,13 +3,25 @@ import { Phone, Send } from 'lucide-react';
 import { useSocket } from '../../context/SocketContext'; // Adjust the import path as needed
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../app/store';
+import axiosClient from '../../utils/axiosClient';
 
 interface Contact {
-    id: string;
-    name: string;
+    _id: string;
+    fullName: string;
     role: string;
+    email: string;
+    id: string;
     avatar: string;
     isOnline: boolean;
+}
+
+interface IMessage {
+    id: string;
+    text: string;
+    senderId: string;
+    contactId: string;
+    timestamp: string;
+    isRead: boolean;
 }
 
 interface Message {
@@ -28,30 +40,71 @@ const MessagingPage = () => {
     const [messageInput, setMessageInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    // const [latestMessagedUsers, setLatestMessagedUsers] = useState([]);
+    const [contacts, setContact] = useState<Contact[]>([]);
 
     const { user } = useSelector((state: RootState) => state.auth);
     const userId = user?.id
 
-    const contacts: Contact[] = [
-        { id: "682321f0ebe2e8dac2d7a54b", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "2", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "3", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "4", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "5", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "6", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "7", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "8", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-        { id: "9", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true }
-    ];
+    // const contacts: Contact[] = [
+    //     { id: "68260956ec6ff5b5ef769b40", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "2", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "3", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "4", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "5", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "6", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "7", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "8", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
+    //     { id: "9", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true }
+    // ];
 
     // Scroll to bottom of messages
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const getUserLatestMessage = async () => {
+        try {
+            const response = await axiosClient.get(
+                '/message/getlatest'
+            );
+            // setLatestMessagedUsers(response.data.data.latestMessagedUsers);
+            console.log(response.data.data.user);
+
+            setContact(response.data.data.user)
+
+        } catch (error) {
+            console.error('Error fetching User:', error);
+        }
+    }
+    useEffect(() => {
+        getUserLatestMessage();
+    }, []);
     // Socket.IO message handlers
     useEffect(() => {
-        if (!socket || !userId) return;
+        if (!socket || !userId || !selectedContact) return;
+        const fetchMessages = async () => {
+            try {
+                const response = await axiosClient.post(
+                    '/message/getMessage',
+                    {
+                        senderId: userId,
+                        contactId: selectedContact.id,
+                    },
+
+                );
+                setMessages(
+                    response.data.data.map((msg: IMessage) => ({
+                        ...msg,
+                        sender: msg.senderId === userId ? 'user' : 'contact',
+                    }))
+                );
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        };
+        fetchMessages();
+
         // Listen for incoming messages
         socket.on('message', (message: Message) => {
             if (selectedContact && (message.contactId === String(selectedContact.id) || message.senderId === String(selectedContact.id))) {
@@ -85,11 +138,11 @@ const MessagingPage = () => {
     }, [messages]);
 
     // Set initial contact
-    useEffect(() => {
-        if (contacts.length > 0 && !selectedContact) {
-            setSelectedContact(contacts[0]);
-        }
-    }, [selectedContact]);
+    // useEffect(() => {
+    //     if (contacts.length > 0 && !selectedContact) {
+    //         setSelectedContact(contacts[0]);
+    //     }
+    // }, [selectedContact]);
 
     const handleSendMessage = () => {
         if (!userId) {
@@ -107,7 +160,6 @@ const MessagingPage = () => {
                 isRead: false
             };
 
-            // Emit message to server
             socket.emit('sendMessage', newMessage);
 
             // Update local messages
@@ -135,7 +187,7 @@ const MessagingPage = () => {
                                 {selectedContact.avatar}
                             </div>
                             <div>
-                                <h3 className="font-semibold text-gray-900">{selectedContact.name}</h3>
+                                <h3 className="font-semibold text-gray-900">{selectedContact.fullName}</h3>
                                 <p className="text-sm text-green-600">Online</p>
                             </div>
                         </div>
@@ -146,12 +198,12 @@ const MessagingPage = () => {
                 )}
 
                 {/* Messages Area */}
-                <div className="flex-1 p-4 overflow-y-auto bg-[#EFFFF6]/30">
-                    <div className="space-y-4 max-h-full">
+                <div className="flex-1 p-4 mb-5 overflow-y-auto ">
+                    <div className="space-y-4 max-h-full ">
                         {messages.map((message, index) => (
                             <div key={message.id} className="flex flex-col">
                                 {(index === 0 || messages[index - 1].sender !== message.sender) && (
-                                    <div className="text-xs text-gray-500 text-center mb-2 bg-white px-3 py-1 rounded-full w-fit mx-auto shadow-sm">
+                                    <div className="text-xs text-gray-500 text-center  bg-white px-3 py-1 rounded-full w-fit mx-auto shadow-sm">
                                         {message.timestamp}
                                     </div>
                                 )}
@@ -159,12 +211,12 @@ const MessagingPage = () => {
                                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div
-                                        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm  ${message.sender === 'user'
+                                        className={`max-w-xs  lg:max-w-md px-4 py-3 rounded-2xl shadow-sm  ${message.sender === 'user'
                                             ? 'bg-green-500 text-white rounded-br-md'
                                             : 'bg-white text-gray-800 border border-[#27AE60] rounded-bl-md'
                                             }`}
                                     >
-                                        <p className="text-sm">{message.text}</p>
+                                        <p className="text-sm ">{message.text}</p>
                                     </div>
                                 </div>
                             </div>
@@ -174,7 +226,7 @@ const MessagingPage = () => {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 bg-white border-t border-[#27AE60] rounded-b-lg">
+                <div className="p-4   bg-[#EFFFF6] border-t border-[#27AE60] rounded-b-lg">
                     <div className="flex items-center space-x-3">
                         <input
                             type="text"
@@ -225,7 +277,7 @@ const MessagingPage = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-semibold text-gray-900 truncate">
-                                            {contact.name}
+                                            {contact.fullName}
                                         </p>
                                         <p className="text-xs text-gray-600 truncate">
                                             {contact.role}

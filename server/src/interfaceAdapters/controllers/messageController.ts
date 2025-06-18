@@ -61,10 +61,7 @@ export class MessageController {
         return;
       }
 
-      const messages = await messageCase.getMessageUseCase(
-        senderId,
-        contactId
-      );
+      const messages = await messageCase.getMessageUseCase(senderId, contactId);
       res.status(200).json({
         message: "Messages retrieved successfully",
         data: messages,
@@ -75,6 +72,44 @@ export class MessageController {
         success: false,
         error:
           error instanceof Error ? error.message : "Message retrieval failed",
+      });
+    }
+  };
+  getLatestMessages: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+
+      const unreadMessages = await messageCase.getUnreadMessagesUseCase(userId);
+
+      const getUser = await messageCase.getUserUseCase(userId);
+      
+      const latestMessagedUsers =
+      await messageCase.getLatestMessagedUsersUseCase(userId);
+      console.log(user);
+      console.log(unreadMessages);
+      console.log(latestMessagedUsers);
+
+      res.status(200).json({
+        message: "Latest messages and users retrieved successfully",
+        data: {
+          unreadMessages,
+          latestMessagedUsers,
+          user:getUser
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to retrieve latest messages",
       });
     }
   };

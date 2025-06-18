@@ -16,7 +16,7 @@ import marketPlaceRoute from "./interfaceAdapters/routes/marketPlace/marketPlace
 import notificationRout from "./interfaceAdapters/routes/notification";
 import proposalRout from "./interfaceAdapters/routes/marketPlace/proposalRoute";
 import paymentRoutes from "./interfaceAdapters/routes/marketPlace/paymentRoute";
-import measseageRoute from "./interfaceAdapters/routes/messageRoute";
+import messageRoute from "./interfaceAdapters/routes/messageRoute";
 import { MessageRepo } from "./infrastructure/repositories/implementations/messageRepo";
 import { MessageUseCase } from "./useCase/messageUseCase";
 
@@ -63,7 +63,7 @@ export class App {
     this.app.use("/api/jobs", marketPlaceRoute);
     this.app.use("/api/proposal", proposalRout);
     this.app.use("/api/payments", paymentRoutes);
-    this.app.use("/api/message", measseageRoute);
+    this.app.use("/api/message", messageRoute);
     this.app.use("/api/admin", userRoutes);
   }
 
