@@ -75,10 +75,10 @@ const Sidebar = () => {
                                 key={item.path}
                                 to={item.path}
                                 onClick={() => setIsOpen(false)}
-                                className={`w-full flex items-center p-3 my-1 rounded-md text-sm border border-color ${
+                                className={`w-full flex items-center p-3 my-1 rounded-md text-sm border border-[#27AE60] ${
                                     isActive
-                                        ?  "bg-color-first text-white"
-                                        : "text-gray-900 bg-white border-gray-200 hover:bg-green-100"
+                                        ?  "bg-[#2ECC71] text-white"
+                                        : "text-gray-900 bg-white border-[#27AE60] hover:bg-green-100"
                                 }`}
                             >
                                 <span className="mr-2">{item.icon}</span>
