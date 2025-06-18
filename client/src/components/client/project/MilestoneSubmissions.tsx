@@ -43,18 +43,29 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
     }, [jobId]);
 
     const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'submitted':
-                return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'approved':
-                return 'bg-green-100 text-green-800 border-green-200';
-            case 'rejected':
-                return 'bg-red-100 text-red-800 border-red-200';
-            case 'pending':
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
+      switch (status.toLowerCase()) {
+        case 'submitted':
+            return 'bg-blue-50 text-blue-700 border-blue-200';
+        case 'interviewing':
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'approved':
+        case 'accepted':
+            return 'bg-green-50 text-green-700 border-green-200';
+        case 'rejected':
+            return 'bg-red-50 text-red-700 border-red-200';
+        case 'cancelled':
+            return 'bg-red-50 text-red-700 border-red-200';
+        case 'active':
+            return 'bg-blue-50 text-blue-700 border-blue-200';
+        case 'completed':
+            return 'bg-green-100 text-green-800 border-green-300';
+        case 'paid':
+            return 'bg-emerald-600 text-white border-emerald-600'; // Darker for better contrast
+        case 'pending':
+        default:
+            return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+
     };
 
     const formatDate = (date: string | Date | undefined) => {
@@ -120,7 +131,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
     if (error) {
         return (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center">
+                <div className="flex items-center ">
                     <div className="text-red-400">
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />

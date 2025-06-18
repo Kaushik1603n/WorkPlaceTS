@@ -14,7 +14,8 @@ interface Milestone {
   | "cancelled"
   | "active"
   | "completed"
-  | "pending";
+  | "pending"
+  | "paid"
 }
 
 interface MilestonesDeliverablesProps {
@@ -27,10 +28,13 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
   onSubmitWork
 }) => {
   const getStatusColor = (status: string) => {
+    console.log(status);
+
     switch (status) {
       case 'interviewing': return 'bg-yellow-100 text-yellow-800';
       case 'submitted': return 'bg-blue-100 text-blue-800';
       case 'approved': return 'bg-green-100 text-green-800';
+      case 'paid': return 'bg-green-200 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
       case 'pending':
       default: return 'bg-gray-100 text-gray-600';
@@ -42,6 +46,7 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
       case 'interviewing': return 'In Progress';
       case 'submitted': return 'Submitted for Review';
       case 'approved': return 'accepted';
+      case 'paid': return 'Paid';
       case 'rejected': return 'Rejected - Needs Revision';
       case 'pending':
       default: return 'Pending';
@@ -98,13 +103,17 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
                     Submit for Review
                   </button>
                 ) : (
-                  <button
-                    className="border border-gray-300 text-gray-400 text-sm font-medium px-3 py-1 rounded cursor-not-allowed"
-                    disabled
-                    title={`Cannot submit: Milestone is ${milestone.status}`}
-                  >
-                    Submit for Review
-                  </button>
+                  milestone.status !== 'accepted' &&
+                    milestone.status !== 'paid' &&
+                    milestone.status !== 'completed' ? (
+                    <button
+                      className="border border-gray-300 text-gray-400 text-sm font-medium px-3 py-1 rounded cursor-not-allowed"
+                      disabled
+                      title={`Cannot submit: Milestone is ${milestone.status}`}
+                    >
+                      Submit for Review
+                    </button>
+                  ) : null
                 )}
               </div>
             </div>
