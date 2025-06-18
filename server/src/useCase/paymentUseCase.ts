@@ -7,7 +7,6 @@ import crypto from "crypto";
 export class PaymentUseCase {
   constructor(private payment: PaymentRepo) {
     this.payment = payment;
-    console.log(this.payment);
   }
 
   async createPaymentUseCase(

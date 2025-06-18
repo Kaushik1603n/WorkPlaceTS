@@ -16,6 +16,9 @@ import marketPlaceRoute from "./interfaceAdapters/routes/marketPlace/marketPlace
 import notificationRout from "./interfaceAdapters/routes/notification";
 import proposalRout from "./interfaceAdapters/routes/marketPlace/proposalRoute";
 import paymentRoutes from "./interfaceAdapters/routes/marketPlace/paymentRoute";
+import measseageRoute from "./interfaceAdapters/routes/messageRoute";
+import { MessageRepo } from "./infrastructure/repositories/implementations/messageRepo";
+import { MessageUseCase } from "./useCase/messageUseCase";
 
 export class App {
   private app: Application;
@@ -60,10 +63,13 @@ export class App {
     this.app.use("/api/jobs", marketPlaceRoute);
     this.app.use("/api/proposal", proposalRout);
     this.app.use("/api/payments", paymentRoutes);
+    this.app.use("/api/message", measseageRoute);
     this.app.use("/api/admin", userRoutes);
   }
 
   private setupSocketIO() {
+    const messageRepo = new MessageRepo();
+    const messageUseCase = new MessageUseCase(messageRepo);
     const connectedUsers: { [key: string]: string } = {};
 
     this.io.on("connection", (socket: Socket) => {
@@ -76,7 +82,7 @@ export class App {
 
       socket.on(
         "sendMessage",
-        (message: {
+        async (message: {
           id: string;
           text: string;
           senderId: string;
@@ -89,21 +95,41 @@ export class App {
             return;
           }
 
-          const recipientSocketId = connectedUsers[message.contactId];
-          if (recipientSocketId) {
-            this.io.to(recipientSocketId).emit("message", {
+          try {
+            const savedMessage = await messageUseCase.sendMessageUseCase({
               ...message,
               timestamp: message.timestamp || new Date().toISOString(),
               isRead: false,
             });
+
+            const recipientSocketId = connectedUsers[message.contactId];
+            if (recipientSocketId) {
+              this.io.to(recipientSocketId).emit("message", savedMessage);
+            }
+
+            this.io.to(socket.id).emit("message", {
+              ...savedMessage,
+              isRead: true,
+            });
+          } catch (error) {
+            console.error("Error saving message:", error);
           }
 
-          // Also send back to sender to confirm receipt
-          this.io.to(socket.id).emit("message", {
-            ...message,
-            timestamp: message.timestamp || new Date().toISOString(),
-            isRead: true,
-          });
+          // const recipientSocketId = connectedUsers[message.contactId];
+          // if (recipientSocketId) {
+          //   this.io.to(recipientSocketId).emit("message", {
+          //     ...message,
+          //     timestamp: message.timestamp || new Date().toISOString(),
+          //     isRead: false,
+          //   });
+          // }
+
+          // // Also send back to sender to confirm receipt
+          // this.io.to(socket.id).emit("message", {
+          //   ...message,
+          //   timestamp: message.timestamp || new Date().toISOString(),
+          //   isRead: true,
+          // });
         }
       );
 

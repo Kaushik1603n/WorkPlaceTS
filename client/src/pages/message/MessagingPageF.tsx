@@ -52,13 +52,9 @@ const MessagingPage = () => {
     // Socket.IO message handlers
     useEffect(() => {
         if (!socket || !userId) return;
-
         // Listen for incoming messages
         socket.on('message', (message: Message) => {
-
-
             if (selectedContact && (message.contactId === String(selectedContact.id) || message.senderId === String(selectedContact.id))) {
-
                 setMessages((prevMessages) => {
                     if (prevMessages.some((msg) => msg.id === message.id)) {
                         return prevMessages.map((msg) =>
