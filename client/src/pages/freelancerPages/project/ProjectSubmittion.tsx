@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DollarSign } from 'lucide-react';
+// import { DollarSign } from 'lucide-react';
 import axiosClient from '../../../utils/axiosClient';
 import type { AxiosError } from 'axios';
 import { useParams } from 'react-router-dom';
@@ -59,14 +59,19 @@ interface JobDetails {
   clientFullName: string;
 }
 
-const FinancialDetails: React.FC = () => (
+interface FinancialDetailsProps {
+  proposalDetails: number;
+}
+
+
+const FinancialDetails: React.FC<FinancialDetailsProps> = ({proposalDetails}) => (
   <div className="bg-white border border-gray-200 rounded-lg p-6">
     <h2 className="text-lg font-semibold text-gray-900 mb-4">Financial Details</h2>
 
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Agreed Price:</span>
-        <span className="font-semibold text-gray-900">$2,000 (Fixed Price)</span>
+        <span className="font-semibold text-gray-900">${proposalDetails} (Fixed Price)</span>
       </div>
 
       <div className="flex justify-between items-center">
@@ -76,14 +81,14 @@ const FinancialDetails: React.FC = () => (
 
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Platform Fee:</span>
-        <span className="text-gray-900">10% ($200)</span>
+        <span className="text-gray-900">10% (${proposalDetails*0.1})</span>
       </div>
 
       <hr className="border-gray-200" />
 
       <div className="flex justify-between items-center">
         <span className="text-sm font-semibold text-gray-700">You'll Receive:</span>
-        <span className="text-lg font-bold text-gray-900">$1,800</span>
+        <span className="text-lg font-bold text-gray-900">${proposalDetails*0.9}</span>
       </div>
 
       <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -120,22 +125,22 @@ const TermsConditions: React.FC = () => (
   </div>
 );
 
-const Actions: React.FC = () => (
-  <div className="bg-white border border-gray-200 rounded-lg p-6">
-    <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
+// const Actions: React.FC = () => (
+//   <div className="bg-white border border-gray-200 rounded-lg p-6">
+//     <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
 
-    <div className="space-y-3">
-      <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-        Submit Work for Milestone 1
-      </button>
+//     <div className="space-y-3">
+//       <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+//         Submit Work for Milestone 1
+//       </button>
 
-      <button className="w-full border border-blue-500 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
-        <DollarSign className="w-4 h-4" />
-        <span>Request Milestone Payment</span>
-      </button>
-    </div>
-  </div>
-);
+//       <button className="w-full border border-blue-500 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
+//         <DollarSign className="w-4 h-4" />
+//         <span>Request Milestone Payment</span>
+//       </button>
+//     </div>
+//   </div>
+// );
 
 // Main Dashboard Component
 const ProjectDashboard: React.FC = () => {
@@ -258,13 +263,13 @@ const ProjectDashboard: React.FC = () => {
               deadline={proposalDetails.updatedAt}
             />
             <MilestonesDeliverables milestones={proposalDetails.milestones} onSubmitWork={onSubmitWork} />
-            <TermsConditions />
           </div>
 
           <div className="space-y-6">
-            <FinancialDetails />
+            <FinancialDetails proposalDetails={proposalDetails.bidAmount} />
             <Timeline />
-            <Actions />
+            <TermsConditions />
+            {/* <Actions /> */}
           </div>
         </div>
       </div>
