@@ -93,6 +93,25 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 
+   async findClientActiveProject(userId: string): Promise<ClientProject> {
+    const allProjects = await ProjectModel.find(
+      { clientId: userId,
+        status:"in-progress"
+       },
+      {
+        contractId: 1,
+        budget: 1,
+        budgetType: 1,
+        time: 1,
+        status: 1,
+        title: 1,
+        description: 1,
+      }
+    ).lean<ClientProject>();
+
+    return allProjects;
+  }
+
   async createNewJobProposal(
     proposalData: BidRequest,
     userId: string
@@ -332,6 +351,16 @@ export class marketPlaceRepo implements IMarketPlace {
   }
 }
 
+export interface ClientProject {
+  _id: string;
+  contractId: string;
+  budget: number;
+  budgetType: string;
+  time: string;
+  status: string;
+  title: string;
+  description: string;
+}
 export interface freelancerProject {
   _id: string;
   contractId: string;

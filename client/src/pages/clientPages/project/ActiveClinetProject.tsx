@@ -5,9 +5,9 @@ import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
-import { Plus, TrendingUp } from "lucide-react";
+import {  TrendingUp } from "lucide-react";
 
-interface FreelancerProject {
+interface ClientProject {
     _id: string;
     contractId: string;
     budget: number;
@@ -18,8 +18,8 @@ interface FreelancerProject {
     description: string;
 }
 
-function ActiveProject() {
-    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
+function ActiveClinetProject() {
+    const [allProjects, setAllProjects] = useState<ClientProject[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +30,7 @@ function ActiveProject() {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await axiosClient.get("jobs/get-all-freelancer-jobs");
+                const res = await axiosClient.get("jobs/active-jobs");
                 setAllProjects(res.data.data);
             } catch (err) {
                 const error = err as AxiosError;
@@ -48,7 +48,7 @@ function ActiveProject() {
 
     const handleViewContract = async (projectId: string) => {
         try {
-            navigate(`project-details/${projectId}`)
+            navigate(`${projectId}`)
         } catch (err) {
             console.error("Failed to view project:", err);
         }
@@ -70,23 +70,10 @@ function ActiveProject() {
         );
     }
     return (
-        <div className="flex-1  p-4">
+        <div className="flex-1 p-4">
             {allProjects.length === 0 ? (
-                // <div className="text-center py-8">
-                //     <p className="text-gray-500">No active projects found</p>
-                // </div>
-                <div className="bg-white h-full  rounded-xl shadow-sm border border-[#2ECC71] text-center py-16">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <TrendingUp className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Projects</h3>
-                    <p className="text-gray-500 mb-6">Get started by creating your first project</p>
-                    <button 
-                    onClick={()=> navigate("/market-place")}
-                    className="inline-flex items-center px-6 py-3 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-colors">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Find New Project
-                    </button>
+                <div className="text-center py-8">
+                    <p className="text-gray-500">No active projects found</p>
                 </div>
             ) : (
                 <div>
@@ -114,7 +101,7 @@ function ActiveProject() {
                         </div>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 pb-10">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {allProjects.map((project) => (
                             <ProjectCard
                                 key={project._id}
@@ -122,7 +109,6 @@ function ActiveProject() {
                                 onViewContract={handleViewContract}
                             />
                         ))}
-
                     </div>
                 </div>
             )}
@@ -130,4 +116,4 @@ function ActiveProject() {
     )
 }
 
-export default ActiveProject
+export default ActiveClinetProject

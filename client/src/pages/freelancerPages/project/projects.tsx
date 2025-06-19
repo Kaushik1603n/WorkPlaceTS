@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
+import { Plus, TrendingUp } from "lucide-react";
 
 interface FreelancerProject {
     _id: string;
@@ -22,7 +23,7 @@ export default function FreelancerDashboard() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const navigate= useNavigate()
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -47,10 +48,10 @@ export default function FreelancerDashboard() {
 
     const handleViewContract = async (projectId: string) => {
         try {
-            console.log("Viewing project for:", projectId);
-            const project = await axiosClient.get(`jobs/project-details/${projectId}`);
-            console.log(project.data.data);
-            
+            // console.log("Viewing project for:", projectId);
+            // const project = await axiosClient.get(`jobs/project-details/${projectId}`);
+            // console.log(project.data.data);
+
             navigate(`project/project-details/${projectId}`)
         } catch (err) {
             const error = err as AxiosError;
@@ -100,22 +101,57 @@ export default function FreelancerDashboard() {
             </div>
 
             <div className="bg-color-light rounded-lg border border-color p-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">
-                    Active Projects
-                </h3>
                 {allProjects.length === 0 ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-500">No active projects found</p>
+                    <div className="bg-white h-full  rounded-xl shadow-sm border border-[#2ECC71] text-center py-16">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <TrendingUp className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Projects</h3>
+                        <p className="text-gray-500 mb-6">Get started by find your first project</p>
+                        <button
+                            onClick={() => navigate("/market-place")}
+                            className="inline-flex items-center px-6 py-3 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-colors">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Find New Project
+                        </button>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        {allProjects.map((project) => (
-                            <ProjectCard
-                                key={project._id}
-                                project={project}
-                                onViewContract={handleViewContract}
-                            />
-                        ))}
+                    <div>
+                        <div className="bg-white shadow-sm border-b border-gray-200 mb-5">
+                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                                <div className="py-8">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="flex items-center space-x-3 mb-4 sm:mb-0">
+                                            <div className="w-10 h-10 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl flex items-center justify-center">
+                                                <TrendingUp className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div>
+                                                <h1 className="text-3xl font-bold text-gray-900">All Projects</h1>
+                                                <p className="text-gray-600 mt-1">Manage and track your projects</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <span className="px-3 py-2 bg-[#e3ffef] text-[#2ECC71] rounded-lg text-sm font-medium">
+                                                {allProjects.length} Projects
+                                            </span>
+                                            <button onClick={() => navigate("/market-place")} className="inline-flex items-center px-4 py-2 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-colors shadow-sm">
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Find New Project
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {allProjects.map((project) => (
+                                <ProjectCard
+                                    key={project._id}
+                                    project={project}
+                                    onViewContract={handleViewContract}
+                                />
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

@@ -91,6 +91,22 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
+
+  async getActiveProjectUseCase(userId: string) {
+   
+    try {
+      const result = await this.market.findClientActiveProject(userId);
+
+      if (!result) {
+        throw new Error("Jobs not found");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("getActiveProjectUseCase ", error);
+      throw error;
+    }
+  }
   async jobProposalUseCase(
     proposalData: BidRequest,
     userId: string,
