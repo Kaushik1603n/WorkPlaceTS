@@ -130,14 +130,14 @@ export class PaymentUseCase {
 
       await this.payment.updatePaymentStatus(job._id, paymentStatus, session);
 
-      const freelancerWallet =await this.payment.updateFreelancerWallet(
+      const freelancerWallet = await this.payment.updateFreelancerWallet(
         payment.freelancerId,
         payment.netAmount,
         payment._id,
         title,
         session
       );
-      const adminWallet =await this.payment.updateAdminWallet(
+      const adminWallet = await this.payment.updateAdminWallet(
         payment.platformFee,
         payment._id,
         title,
@@ -156,5 +156,10 @@ export class PaymentUseCase {
       session.endSession();
       throw err;
     }
+  }
+
+  async getPaymentsUseCase(userId: string) {
+    const paymentList = await this.payment.findPaymentByUserId(userId);
+    return paymentList;
   }
 }

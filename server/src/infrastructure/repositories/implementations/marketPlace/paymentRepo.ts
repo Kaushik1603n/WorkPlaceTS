@@ -135,47 +135,78 @@ export class PaymentRepo implements IpamentRepo {
     freelancerId: Types.ObjectId,
     netAmount: number,
     paymentId: string,
-    title:string,
+    title: string,
     session: ClientSession
   ) {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: freelancerId },
       {
-        $inc: { balance: netAmount*80 },
+        $inc: { balance: netAmount * 80 },
         $push: {
           transactions: {
             type: "credit",
-            amount: netAmount*80,
+            amount: netAmount * 80,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },
         },
       },
-      { upsert: true, new: true ,session} // Create wallet if it doesn't exist
+      { upsert: true, new: true, session } // Create wallet if it doesn't exist
     );
     return freelancerWallet;
   }
   async updateAdminWallet(
     platformFee: number,
     paymentId: string,
-    title:string,
+    title: string,
     session: ClientSession
   ) {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: "admin" },
       {
-        $inc: { balance: platformFee*80 },
+        $inc: { balance: platformFee * 80 },
         $push: {
           transactions: {
             type: "credit",
-            amount: platformFee*80,
+            amount: platformFee * 80,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },
         },
       },
-      { upsert: true, new: true ,session}
+      { upsert: true, new: true, session }
     );
     return freelancerWallet;
   }
+
+  async findPaymentByUserId(userId: string) {
+    const wallet = await WalletModel.findOne({
+      userId: new Types.ObjectId(userId),
+    }).lean<IWallet | null>();
+    const payment = await PaymentRequestModel.find({
+      freelancerId: new Types.ObjectId(userId),
+    }).sort({createdAt:-1}).lean();
+
+    
+
+    return {wallet,payment};
+  }
+}
+
+interface IWalletTransaction {
+  type: "credit" | "debit"; 
+  amount: number;
+  description: string; 
+  paymentId?: Types.ObjectId; 
+  createdAt: Date;
+}
+
+export interface IWallet  {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId | "admin"; 
+  balance: number;
+  currency: string; 
+  transactions: IWalletTransaction[]; 
+  createdAt: Date;
+  updatedAt: Date;
 }

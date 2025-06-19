@@ -9,6 +9,7 @@ const payment =new PaymentController()
 paymentRoutes.post("/order",authenticate,payment.milestonePayment);
 paymentRoutes.post("/verify",authenticate,payment.verifyPayment);
 
+paymentRoutes.get("/get-payment",authenticate,payment.getPayments);
 
 export default paymentRoutes
 

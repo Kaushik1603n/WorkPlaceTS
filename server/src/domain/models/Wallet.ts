@@ -10,7 +10,7 @@ interface IWalletTransaction {
 }
 
 // Interface for the Wallet document
-interface IWallet extends Document {
+export interface IWallet extends Document {
   _id: Types.ObjectId;
   userId: Types.ObjectId | "admin"; // User ID or "admin" for platform wallet
   balance: number; // Current balance in smallest currency unit (e.g., paise for INR)

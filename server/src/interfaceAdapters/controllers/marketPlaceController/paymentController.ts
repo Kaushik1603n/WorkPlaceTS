@@ -48,13 +48,36 @@ export class PaymentController {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
         req.body;
 
-
-      const result = await paymentlCase.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature )
-      
+      const result = await paymentlCase.verifyPayment(
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature
+      );
 
       res.status(200).json({
-        message: "Proposals fetched successfully",
+        message: "Verifyed Payment successfully",
         data: result,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to get proposal",
+      });
+    }
+  };
+  getPayments: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      const {wallet,payment} = await paymentlCase.getPaymentsUseCase(userId);
+
+      res.status(200).json({
+        message: "Payment fetched successfully",
+        data: wallet,
+        payment
       });
     } catch (error) {
       console.error(error);
