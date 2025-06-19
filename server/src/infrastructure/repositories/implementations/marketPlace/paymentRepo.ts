@@ -82,7 +82,6 @@ export class PaymentRepo implements IpamentRepo {
     paymentId: string,
     session: ClientSession
   ) {
-    console.log(milestoneId);
     const proposal = await ProposalModel.findOneAndUpdate(
       {
         "milestones._id": milestoneId,

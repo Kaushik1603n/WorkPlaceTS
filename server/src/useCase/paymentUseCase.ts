@@ -130,22 +130,22 @@ export class PaymentUseCase {
 
       await this.payment.updatePaymentStatus(job._id, paymentStatus, session);
 
-      const freelancerWallet = await this.payment.updateFreelancerWallet(
+      await this.payment.updateFreelancerWallet(
         payment.freelancerId,
         payment.netAmount,
         payment._id,
         title,
         session
       );
-      const adminWallet = await this.payment.updateAdminWallet(
+     await this.payment.updateAdminWallet(
         payment.platformFee,
         payment._id,
         title,
         session
       );
 
-      console.log(freelancerWallet);
-      console.log(adminWallet);
+      // console.log(freelancerWallet);
+      // console.log(adminWallet);
 
       // Notify freelancer
 

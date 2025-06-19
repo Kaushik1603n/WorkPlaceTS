@@ -90,9 +90,7 @@ export class MessageController {
       
       const latestMessagedUsers =
       await messageCase.getLatestMessagedUsersUseCase(userId);
-      console.log(user);
-      console.log(unreadMessages);
-      console.log(latestMessagedUsers);
+    
 
       res.status(200).json({
         message: "Latest messages and users retrieved successfully",

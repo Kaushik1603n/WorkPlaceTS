@@ -13,7 +13,7 @@ export class MessageRepo {
         { senderId, contactId },
         { senderId: contactId, contactId: senderId },
       ],
-    }).sort({ timestamp: 1 });
+    }).sort({ id: 1 });
   }
 
   async getUnreadMessages(userId: string): Promise<IMessage[]> {

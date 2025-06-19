@@ -7,6 +7,8 @@ interface IMessage extends Document {
   contactId: string;
   timestamp: string;
   isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Message Schema
@@ -17,6 +19,6 @@ const MessageSchema: Schema = new Schema({
   contactId: { type: String, required: true },
   timestamp: { type: String, required: true },
   isRead: { type: Boolean, default: false },
-});
+}, { timestamps: true });
 
 export const MessageModel = mongoose.model<IMessage>('Message', MessageSchema);
