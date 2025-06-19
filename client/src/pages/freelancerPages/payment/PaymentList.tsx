@@ -81,8 +81,8 @@ function WalletTransactions() {
 
     // Payment statistics
     // const getTotalPayments = () => payments.reduce((sum, p) => sum + p.amount, 0);
-    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount, 0);
-    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee, 0);
+    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount*80, 0);
+    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee*80, 0);
     // const getCompletedPayments = () => payments.filter(p => p.status === 'completed').length;
     // const getPendingPayments = () => payments.filter(p => p.status === 'pending').length;
     // const getFailedPayments = () => payments.filter(p => p.status === 'failed').length;
@@ -270,17 +270,17 @@ function WalletTransactions() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-gray-900">
-                                                {formatCurrency(payment.amount)}
+                                                {payment.amount*80}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-green-600">
-                                                {formatCurrency(payment.netAmount)}
+                                                {payment.netAmount*80}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-red-600">
-                                                {formatCurrency(payment.platformFee)}
+                                                {payment.platformFee*80}
                                             </div>
                                         </td>
                                         {/* <td className="px-6 py-4 whitespace-nowrap">
