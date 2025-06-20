@@ -118,12 +118,14 @@ export class PaymentRepo implements IpamentRepo {
   async updatePaymentStatus(
     jobId: string,
     paymentStatus: string,
+    status:string,
     session: ClientSession
   ) {
     const job = await ProjectModel.findByIdAndUpdate(
       jobId,
       {
         paymentStatus: paymentStatus,
+        status,
       },
       { session }
     );

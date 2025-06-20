@@ -36,7 +36,7 @@ export class MarketPlaceUseCase {
         $gte: parseInt(minPrice as string),
         $lte: parseInt(maxPrice as string),
       };
-
+      
       if (skills) {
         const skillsArray = skills.toLowerCase().split(",");
         andConditions.push({
@@ -62,10 +62,11 @@ export class MarketPlaceUseCase {
         });
       }
 
-      // Attach to query
+      andConditions.push({ status: "posted" });
+
       if (andConditions.length > 0) {
         query.$and = andConditions;
-      }
+      }      
 
       return await this.market.findAllProjects(query, page, limit);
     } catch (error) {

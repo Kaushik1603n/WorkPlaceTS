@@ -127,8 +127,10 @@ export class PaymentUseCase {
 
       const paymentStatus =
         totalPaid >= totalMilestoneAmount ? "fully-paid" : "partially-paid";
+      const status =
+        totalPaid >= totalMilestoneAmount ? "completed" : "in-progress";
 
-      await this.payment.updatePaymentStatus(job._id, paymentStatus, session);
+      await this.payment.updatePaymentStatus(job._id, paymentStatus,status, session);
 
       await this.payment.updateFreelancerWallet(
         payment.freelancerId,

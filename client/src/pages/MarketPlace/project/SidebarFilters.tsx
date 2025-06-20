@@ -22,7 +22,7 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
 }) => {
     // Filter states
     const [priceRange, setPriceRange] = useState<[number, number]>(
-        initialFilters?.priceRange || [0, 1000]
+        initialFilters?.priceRange || [0, 10000]
     );
     const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>(
         initialFilters?.selectedJobTypes || []
@@ -82,7 +82,7 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
     };
 
     const clearAllFilters = () => {
-        setPriceRange([0, 1000]);
+        setPriceRange([0, 10000]);
         setSelectedJobTypes([]);
         setSelectedSkills([]);
         setExperienceLevel([]);
@@ -123,14 +123,14 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
                                 type="number"
                                 placeholder="Max"
                                 value={priceRange[1]}
-                                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 1000])}
+                                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 10000])}
                                 className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-green-500"
                             />
                         </div>
                         <input
                             type="range"
                             min="0"
-                            max="1000"
+                            max="10000"
                             step="100"
                             value={priceRange[1]}
                             onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}

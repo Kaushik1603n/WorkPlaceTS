@@ -31,7 +31,7 @@ export class ProposalUseCase {
 
       const contract = {
         jobId: proposal?.jobId,
-        job_Id: proposal?.job_Id,
+        job_Id: proposal?.job_Id  || new Date(),
         proposalId: proposalId,
         clientId: userId,
         freelancerId: proposal?.freelancerId,

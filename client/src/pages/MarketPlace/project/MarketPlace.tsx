@@ -21,7 +21,7 @@ function MarketPlace() {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
     const [activeFilters, setActiveFilters] = useState<FilterData>({
-        priceRange: [0, 1000],
+        priceRange: [0, 10000],
         selectedJobTypes: [],
         selectedSkills: [],
         experienceLevel: [],

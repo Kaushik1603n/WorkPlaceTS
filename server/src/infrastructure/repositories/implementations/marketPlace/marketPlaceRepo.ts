@@ -28,6 +28,7 @@ export class marketPlaceRepo implements IMarketPlace {
     const total = await ProjectModel.countDocuments(searchQuery);
     const result = await ProjectModel.find(searchQuery, {
       _id: 1,
+      job_Id:1,
       title: 1,
       stack: 1,
       description: 1,
@@ -42,6 +43,7 @@ export class marketPlaceRepo implements IMarketPlace {
 
     const jobs: Job[] = result.map((doc) => ({
       _id: doc._id.toString(),
+      job_Id: doc.job_Id.toString(),
       title: doc.title,
       stack: doc.stack,
       description: doc.description,
