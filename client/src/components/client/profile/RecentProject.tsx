@@ -19,7 +19,6 @@ function RecentProject({ allProject }: Props) {
     const [recentProjects, setRecentProjects] = useState<freelancerProject[]>(allProject || []);
 
     useEffect(() => {
-        console.log("Projects updated:", allProject);
         setRecentProjects(allProject || []);
     }, [allProject]);
 

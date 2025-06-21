@@ -258,8 +258,6 @@ export const getUserDetails = createAsyncThunk<
 >("auth/get-user-details", async (_, { rejectWithValue }) => {
   try {
     const response = await authApi.getUserDetails();
-    console.log(response.data);
-
     return response.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
