@@ -10,11 +10,26 @@ import { PasswordChangeModal } from "../../../components/changePass/PasswordChan
 import { changeEmail, changeEmailOtp, changePass, getUserDetails } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
+import axiosClient from "../../../utils/axiosClient";
+import type { AxiosError } from "axios";
 
+interface FreelancerProject {
+    _id: string;
+    contractId: string;
+    budget: number;
+    budgetType: string;
+    time: string;
+    status: string;
+    title: string;
+    description: string;
+}
 export default function FreelancerProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
+    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
+    const [completePrg, setCompletePrg] = useState<number>();
+    const [pendingPrg, setPendingPrg] = useState<number>();
     const { user } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
@@ -24,7 +39,7 @@ export default function FreelancerProfile() {
             .catch((error) => {
                 console.error(error?.message);
             });
-            
+
         dispatch(getUserDetails())
             .unwrap()
             .then(() => {
@@ -34,12 +49,37 @@ export default function FreelancerProfile() {
             });
     }, [dispatch]);
 
-   
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
 
-    const [projectStats] = useState({
-        completed: 10,
-        pending: 2,
-    });
+                const res = await axiosClient.get("jobs/get-all-freelancer-jobs");
+                setAllProjects(res.data.data);
+            } catch (err) {
+                const error = err as AxiosError;
+                toast.error("Failed to fetch projects")
+                console.error("Failed to fetch projects:", error);
+
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+
+
+    useEffect(() => {
+        setPendingPrg(
+            allProjects.reduce((acc, prg) => {
+                return prg.status === "in-progress" ? acc + 1 : acc;
+            }, 0)
+        );
+        setCompletePrg(
+            allProjects.reduce((acc, prg) => {
+                return prg.status === "completed" ? acc + 1 : acc;
+            }, 0)
+        );
+    }, [allProjects])
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -260,15 +300,15 @@ export default function FreelancerProfile() {
                                         Completed Projects
                                     </h3>
                                     <p className="text-2xl font-bold mt-1">
-                                        {projectStats.completed}
+                                        {completePrg || 0}
                                     </p>
                                 </div>
                                 <div className=" p-4 rounded-md text-center shadow-sm bg-color-light border border-color">
                                     <h3 className="text-green-800 font-medium">
-                                        Pending Projects
+                                        In-Progress Projects
                                     </h3>
                                     <p className="text-2xl font-bold mt-1">
-                                        {projectStats.pending}
+                                        {pendingPrg || 0}
                                     </p>
                                 </div>
                             </div>
@@ -276,7 +316,8 @@ export default function FreelancerProfile() {
                             <div className="mt-6">
                                 <h3 className="text-lg font-medium mb-4">Recent Projects</h3>
 
-                                <RecentProject />
+                                <RecentProject
+                                    allProject={allProjects} />
                             </div>
                         </div>
                     </div>

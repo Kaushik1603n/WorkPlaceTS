@@ -10,13 +10,28 @@ import { PasswordChangeModal } from "../../../components/changePass/PasswordChan
 import { changeEmail, changeEmailOtp, changePass, getUserDetails } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
-
+import axiosClient from "../../../utils/axiosClient";
+import type { AxiosError } from "axios";
+interface FreelancerProject {
+    _id: string;
+    contractId: string;
+    budget: number;
+    budgetType: string;
+    time: string;
+    status: string;
+    title: string;
+    description: string;
+}
 export default function ClientProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { client } = useSelector((state: RootState) => state.clientProfile);
     const { user } = useSelector((state: RootState) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
+    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
+    const [completeProject, setCompleteProject] = useState<number>();
+    const [pendingProject, setProgressProject] = useState<number>();
+    const [postedProject, setPostedProject] = useState<number>();
 
     useEffect(() => {
         dispatch(getClientProfile())
@@ -26,7 +41,7 @@ export default function ClientProfile() {
                 console.error(error?.message);
             });
 
-            dispatch(getUserDetails())
+        dispatch(getUserDetails())
             .unwrap()
             .then(() => {
             })
@@ -35,10 +50,44 @@ export default function ClientProfile() {
             });
     }, [dispatch]);
 
-    const [projectStats] = useState({
-        completed: 10,
-        pending: 2,
-    });
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+
+                const res = await axiosClient.get("client/project/get-project");
+                setAllProjects(res.data.data);
+                console.log(res.data.data);
+                
+            } catch (err) {
+                const error = err as AxiosError;
+                toast.error("Failed to fetch projects")
+                console.error("Failed to fetch projects:", error);
+
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        setProgressProject(
+            allProjects.reduce((acc, prg) => {
+                return prg.status === "in-progress" ? acc + 1 : acc;
+            }, 0)
+        );
+        setCompleteProject(
+            allProjects.reduce((acc, prg) => {
+                return prg.status === "completed" ? acc + 1 : acc;
+            }, 0)
+        );
+        setPostedProject(
+            allProjects.reduce((acc, prg) => {
+                return prg.status === "posted" ? acc + 1 : acc;
+            }, 0)
+        );
+    }, [allProjects])
+
+
 
 
     const handlePasswordChange = (passwords: {
@@ -124,12 +173,12 @@ export default function ClientProfile() {
                             <h2 className="text-xl font-semibold text-gray-800">
                                 {user?.fullName}
                                 <p className={`text-sm font-medium mt-1 px-2 py-1 rounded-full inline-block ml-2 ${user?.isVerification === 'verified'
-                                        ? 'bg-green-100 text-green-800 border border-green-200'
-                                        : user?.isVerification === 'pending'
-                                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                                            : user?.isVerification === 'rejected'
-                                                ? 'bg-red-100 text-red-800 border border-red-200'
-                                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                                    ? 'bg-green-100 text-green-800 border border-green-200'
+                                    : user?.isVerification === 'pending'
+                                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                        : user?.isVerification === 'rejected'
+                                            ? 'bg-red-100 text-red-800 border border-red-200'
+                                            : 'bg-gray-100 text-gray-800 border border-gray-200'
                                     }`}>
                                     {user?.isVerification}
                                 </p>
@@ -243,21 +292,29 @@ export default function ClientProfile() {
                         </div>
 
                         <div className="w-full md:w-2/3">
-                            <div className="grid grid-cols-2 gap-4 mb-6 ">
+                            <div className="grid grid-cols-3 gap-4 mb-6 ">
                                 <div className=" p-4 rounded-md text-center shadow-sm bg-color-light border border-color">
                                     <h3 className="text-green-800 font-medium">
                                         Completed Projects
                                     </h3>
                                     <p className="text-2xl font-bold mt-1">
-                                        {projectStats.completed}
+                                        {completeProject}
                                     </p>
                                 </div>
                                 <div className=" p-4 rounded-md text-center shadow-sm bg-color-light border border-color">
                                     <h3 className="text-green-800 font-medium">
-                                        Pending Projects
+                                        In-Progress Projects
                                     </h3>
                                     <p className="text-2xl font-bold mt-1">
-                                        {projectStats.pending}
+                                        {pendingProject}
+                                    </p>
+                                </div>
+                                <div className=" p-4 rounded-md text-center shadow-sm bg-color-light border border-color">
+                                    <h3 className="text-green-800 font-medium">
+                                        Poseted Projects
+                                    </h3>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {postedProject}
                                     </p>
                                 </div>
                             </div>
@@ -265,7 +322,9 @@ export default function ClientProfile() {
                             <div className="mt-6">
                                 <h3 className="text-lg font-medium mb-4">Recent Projects</h3>
 
-                                <RecentProject />
+
+                                <RecentProject
+                                    allProject={allProjects} />
                             </div>
                         </div>
                     </div>
