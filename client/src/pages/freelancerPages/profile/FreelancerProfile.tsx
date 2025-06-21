@@ -7,7 +7,7 @@ import type { AppDispatch, RootState } from "../../../app/store";
 import RecentProject from "../../../components/client/profile/RecentProject";
 import { getFreelancerProfile } from "../../../features/freelancerFeatures/profile/freelancerProfileSlice";
 import { PasswordChangeModal } from "../../../components/changePass/PasswordChangeModal";
-import { changeEmail, changeEmailOtp, changePass } from "../../../features/auth/authSlice";
+import { changeEmail, changeEmailOtp, changePass, getUserDetails } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
 
@@ -24,7 +24,17 @@ export default function FreelancerProfile() {
             .catch((error) => {
                 console.error(error?.message);
             });
+            
+        dispatch(getUserDetails())
+            .unwrap()
+            .then(() => {
+            })
+            .catch((error) => {
+                console.error(error?.message);
+            });
     }, [dispatch]);
+
+   
 
     const [projectStats] = useState({
         completed: 10,
@@ -112,8 +122,18 @@ export default function FreelancerProfile() {
                         <div className="w-full md:w-1/3">
                             <h2 className="text-xl font-semibold text-gray-800">
                                 {user?.fullName}
+                                <p className={`text-sm font-medium mt-1 px-2 py-1 rounded-full inline-block ml-2 ${user?.isVerification === 'verified'
+                                    ? 'bg-green-100 text-green-800 border border-green-200'
+                                    : user?.isVerification === 'pending'
+                                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                        : user?.isVerification === 'rejected'
+                                            ? 'bg-red-100 text-red-800 border border-red-200'
+                                            : 'bg-gray-100 text-gray-800 border border-gray-200'
+                                    }`}>
+                                    {user?.isVerification}
+                                </p>
                             </h2>
-                            {/* <p className="text-gray-600 mt-1">{freelancer?.role?freelancer?.role:"freelancer"}</p> */}
+                            <p className="text-gray-600 mt-1">{user?.role ? user?.role : "freelancer"}</p>
 
                             <div className="mt-4 space-y-2">
                                 <div className="flex items-center text-gray-600">

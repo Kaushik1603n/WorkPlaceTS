@@ -38,6 +38,7 @@ export interface LoginResponse {
     email: string;
     role: string;
     fullName: string;
+    isVerification?: string;
     createdAt?: string;
   };
 }
