@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
 import { verifyAccessToken } from "../shared/utils/jwt";
-// import UserModel from "../domain/models/User";
-
+import UserModel from "../domain/models/User";
 
 interface DecodedToken {
   userId: string;
@@ -20,21 +19,20 @@ const authenticate: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    console.log("auth");
-    
     const decoded = verifyAccessToken(accessToken) as DecodedToken;
     req.user = decoded;
 
-    // const userData = await UserModel.findById(decoded.userId);
+    const userData = await UserModel.findById(decoded.userId);
 
-    // if (!userData) {
-    //   console.log("not user");
-      
-    //   res.status(401).json({ success: false, message: "User not found" });
-    //   return;
-    // }
-    
-  
+    if (userData?.status === "block") {
+      res
+        .status(403)
+        .json({
+          success: false,
+          message: "Your account has been blocked. Please contact support.",
+        });
+      return;
+    }
 
     next();
   } catch (error: any) {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface Milestone {
   _id: string;
@@ -41,7 +42,12 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
 
 
   const handleLinkChange = (index: number, value: string) => {
+    if(deliverables.links.includes(value)){
+      toast.error("not duplicate links allowed")
+      return "not duplicate links allowed"
+    }
     const newLinks = [...deliverables.links];
+
     newLinks[index] = value;
     setDeliverables({ ...deliverables, links: newLinks });
   };

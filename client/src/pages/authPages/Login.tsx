@@ -19,6 +19,26 @@ export default function LoginPage() {
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
     // const [load, setLoad] = useState<boolean>(false);
 
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('blocked') === 'true') {
+        const message = params.get('message');
+        if (message) {
+            toast.error(message);
+        }
+
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+    if (params.get('unauth') === 'true') {
+        const message = params.get('message');
+        if (message) {
+            toast.error(message);
+        }
+
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const { loading } = useSelector((state: RootState) => state.auth);
@@ -46,9 +66,13 @@ export default function LoginPage() {
 
         dispatch(loginUser({ email, password }))
             .unwrap()
-            .then(() => {
+            .then((res) => {
                 toast.success("Login successful");
-                navigate("/home");
+                if (res.user.role === "admin") {
+                    navigate("/admin-dashboard");
+                } else {
+                    navigate("/home");
+                }
             })
             .catch((error) => {
                 toast.error(error || "Login failed");
@@ -57,7 +81,6 @@ export default function LoginPage() {
     const handleGoogleLogin = (): void => {
         setIsDisabled(true)
         try {
-            //   setLoad(true);
             const googleLoginUrl: string = `${apiUrl}/auth/google`;
             window.location.href = googleLoginUrl;
 

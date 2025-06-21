@@ -204,7 +204,7 @@ export class AuthControllers {
   changePassword: RequestHandler = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     try {
-      if (!req.user) {        
+      if (!req.user) {
         res.status(401).json({ message: "user not authenticated" });
         return;
       }
@@ -247,7 +247,7 @@ export class AuthControllers {
           ? 404
           : error.message === "New password must be different"
           ? 409
-          : 400;          
+          : 400;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   };
@@ -346,9 +346,23 @@ export class AuthControllers {
     try {
       const checkRefreshToken = req.cookies?.refreshToken;
       if (!checkRefreshToken) {
+        res.clearCookie("accessToken", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+        res.clearCookie("refreshToken", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
         res
           .status(401)
-          .json({ success: false, message: "Refresh token required" });
+          .json({
+            success: false,
+            message: "Your session has expired. Please login again.",
+            shouldLogout: true,
+          });
         return;
       }
 

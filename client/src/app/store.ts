@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
-import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice"
-import freelancerProfileSlice from "../features/freelancerFeatures/profile/freelancerProfileSlice"
-import usersProfileDataSlice from "../features/admin/users/usersSlice"
-import marketPlaceSlice from "../features/marketPlace/marketPlaceSlice"
+import clientProfileReducer from "../features/clientFeatures/profile/clientProfileSlice";
+import freelancerProfileSlice from "../features/freelancerFeatures/profile/freelancerProfileSlice";
+import usersProfileDataSlice from "../features/admin/users/usersSlice";
+import marketPlaceSlice from "../features/marketPlace/marketPlaceSlice";
 import {
   persistStore,
   persistReducer,
@@ -14,7 +14,7 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage  from "redux-persist/lib/storage";
+import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
 
 const rootReducer = combineReducers({
@@ -30,11 +30,10 @@ const rootReducer = combineReducers({
 //   },
 // });
 
-
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth","clientProfile","freelancerProfile"],
+  whitelist: ["auth", "clientProfile", "freelancerProfile"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -48,6 +47,20 @@ export const store = configureStore({
     }),
 });
 
+if (typeof window !== "undefined") {
+  window.addEventListener("logout", () => {
+    store.dispatch({ type: "auth/resetAuthState" });
+  });
+}
+window.addEventListener("auth-blocked", () => {
+  store.dispatch({ type: "auth/resetAuthState" });
+
+  // Show blocked user modal
+  // modal.show(
+  //   "Account Blocked",
+  //   event.detail?.message || "Your account has been restricted"
+  // );
+});
 export const persistor = persistStore(store);
 
 // Export types for use in components

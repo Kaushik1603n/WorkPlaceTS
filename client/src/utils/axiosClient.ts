@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
@@ -7,7 +7,6 @@ import type {
   AxiosRequestHeaders,
 } from "axios";
 
-// Define your API response type
 type ApiResponse<T = unknown> = {
   data: T;
   message?: string;
@@ -15,14 +14,13 @@ type ApiResponse<T = unknown> = {
 };
 
 const axiosClient: AxiosInstance = axios.create({
-  baseURL:  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   } as AxiosRequestHeaders,
   withCredentials: true,
 });
 
-// Request interceptor
 axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("accessToken");
@@ -39,7 +37,6 @@ axiosClient.interceptors.request.use(
 // Response interceptor
 axiosClient.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
-    // Return the full AxiosResponse object
     return response;
   },
   async (error: AxiosError) => {
@@ -48,6 +45,16 @@ axiosClient.interceptors.response.use(
     };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (originalRequest.url?.includes("/auth/refresh")) {
+        console.error("Refresh token failed - logging out");
+        localStorage.removeItem("access_token");
+        window.dispatchEvent(new CustomEvent("logout"));
+        window.location.href = `/login?unauth=true&message=${encodeURIComponent(
+          "Your session has expired."
+        )}`;
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
 
       try {
@@ -71,9 +78,37 @@ axiosClient.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
-        window.location.href = "/login";
+        if (isAxiosError(refreshError) && refreshError.response?.data?.shouldLogout) {
+          window.dispatchEvent(new CustomEvent("logout"));
+          window.location.href = `/login?unauth=true&message=${encodeURIComponent(
+            "Your session has expired."
+          )}`;
+        }
+        localStorage.removeItem("access_token");
         return Promise.reject(refreshError);
       }
+    }
+
+    if (error.response?.status === 403) {
+      const errorMessage = "Your account has been blocked.";
+
+      if (errorMessage.includes("blocked")) {
+        localStorage.removeItem("access_token");
+
+        window.dispatchEvent(
+          new CustomEvent("auth-blocked", {
+            detail: { message: errorMessage },
+          })
+        );
+
+        window.location.href = `/login?blocked=true&message=${encodeURIComponent(
+          errorMessage
+        )}`;
+
+        return Promise.reject(new Error("USER_BLOCKED"));
+      }
+
+      return Promise.reject(error);
     }
 
     if (error.response) {
