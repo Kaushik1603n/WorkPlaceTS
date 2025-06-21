@@ -7,14 +7,16 @@ import { getClientProfile } from "../../../features/clientFeatures/profile/clien
 import type { AppDispatch, RootState } from "../../../app/store";
 import RecentProject from "../../../components/client/profile/RecentProject";
 import { PasswordChangeModal } from "../../../components/changePass/PasswordChangeModal";
-import { changePass } from "../../../features/auth/authSlice";
+import { changeEmail, changeEmailOtp, changePass } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
+import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
 
 export default function ClientProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { client } = useSelector((state: RootState) => state.clientProfile);
     const { user } = useSelector((state: RootState) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
 
     useEffect(() => {
         dispatch(getClientProfile())
@@ -49,6 +51,39 @@ export default function ClientProfile() {
 
             });
     }
+
+
+    const handleEmailVerification = (email: string, otp: string) => {
+        dispatch(changeEmailOtp({ email, otp }))
+            .unwrap()
+            .then(() => {
+                toast.success("Email Change successfully!");
+            }).catch((error) => {
+                const errorMessage = typeof error === 'string'
+                    ? error
+                    : error?.message || "Failed to change Email";
+                toast.error(errorMessage);
+
+            });
+    };
+
+    const onOtpVerify = async (email: string) => {
+        dispatch(changeEmail({ email }))
+            .unwrap()
+            .then(() => {
+                toast.success("Otp sent successfully!");
+            }).catch((error) => {
+                const errorMessage = typeof error === 'string'
+                    ? error
+                    : error?.message || "Failed to Verify Email";
+                toast.error(errorMessage);
+                setIsEmailVerificationOpen(false)
+            });
+
+
+    };
+
+
 
 
 
@@ -151,28 +186,41 @@ export default function ClientProfile() {
 
 
                             <div className="mt-6">
-                                <button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-2 px-4 rounded-md font-medium">
+                                <button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-2 px-4 rounded-md font-medium transition-colors">
                                     Create new Job
                                 </button>
                                 <button
-                                    onClick={() => setIsModalOpen(true)}
-                                    className="w-full mt-3 bg-[#EFFFF6] border border-[#2ECC71] hover:bg-[#2ECC71] text-[#2ECC71] hover:text-[#fff] py-2 px-4 rounded-md font-medium transition-colors"
+                                    onClick={() => setIsEmailVerificationOpen(true)}
+                                    className="w-full mt-3 border border-[#2ECC71] text-[#2ECC71] hover:bg-[#EFFFF6] hover:text-[#27AE60] py-2 px-4 rounded-md font-medium transition-colors duration-200"
+                                >
+                                    Change Email
+                                </button>
+                                    <button
+                                        onClick={() => setIsModalOpen(true)}
+                                    className="w-full mt-3 border border-[#2ECC71] text-[#2ECC71] hover:bg-[#EFFFF6] hover:text-[#27AE60] py-2 px-4 rounded-md font-medium transition-colors  duration-200"
+                                
                                 >
                                     Change Password
                                 </button>
+                                <Link
+                                    to="edit"
+                                    className="block w-full mt-3 border border-[#2ECC71] text-[#2ECC71] hover:bg-[#EFFFF6] hover:text-[#27AE60] py-2 px-4 rounded-md font-medium transition-colors text-center duration-200"
+                                >
+                                    Edit Profile
+                                </Link>
 
+                                <EmailVerificationModal
+                                    isOpen={isEmailVerificationOpen}
+                                    onClose={() => setIsEmailVerificationOpen(false)}
+                                    onSubmit={handleEmailVerification}
+                                    onOtpVerify={onOtpVerify}
+                                />
                                 <PasswordChangeModal
                                     isOpen={isModalOpen}
                                     onClose={() => setIsModalOpen(false)}
                                     onSubmit={handlePasswordChange}
                                 />
 
-                                <Link
-                                    to="edit"
-                                    className="block w-full mt-3 border border-[#2ECC71] text-[#2ECC71] hover:bg-[#EFFFF6] hover:text-[#27ae60] py-2 px-4 rounded-md font-medium text-center transition duration-200"
-                                >
-                                    Edit Profile
-                                </Link>
                             </div>
                         </div>
 

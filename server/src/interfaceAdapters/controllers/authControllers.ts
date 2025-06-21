@@ -252,6 +252,58 @@ export class AuthControllers {
     }
   };
 
+  changeEmail: RequestHandler = async (req, res) => {
+    console.log("jdbdbsbjsdbj");
+
+    const { email } = req.body;
+    try {
+      if (!email) {
+        throw new Error("Email is required");
+      }
+
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(400).json({ message: "User ID not found" });
+        return;
+      }
+
+      const result = await useCase.changeEmailUseCase(userId, email);
+      res.status(200).json({
+        success: true,
+        message: "New OTP sent to your email",
+        userId: result.userId,
+      });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+
+  emailVerificationOtp: RequestHandler = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(400).json({ message: "User ID not found" });
+        return;
+      }
+
+      if (!otp || !email) {
+        throw new Error("Email and OTP are required");
+      }
+
+      const result = await useCase.changeEmailOtpUseCase(userId, email, otp);
+      res.status(200).json({
+        success: true,
+        message: "Email Change successfully",
+        user: result,
+      });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+
   googleCallback: RequestHandler = async (req, res) => {
     const user = req.user as any;
 
@@ -356,13 +408,11 @@ export class AuthControllers {
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
-        res
-          .status(401)
-          .json({
-            success: false,
-            message: "Your session has expired. Please login again.",
-            shouldLogout: true,
-          });
+        res.status(401).json({
+          success: false,
+          message: "Your session has expired. Please login again.",
+          shouldLogout: true,
+        });
         return;
       }
 

@@ -18,6 +18,9 @@ authouter.post("/verify-reset-otp", auth.resetPassVerifyOtp);
 authouter.post("/reset-password", auth.resetPassword);
 authouter.put("/changePass",authenticate, auth.changePassword);
 
+authouter.put("/change-email",authenticate, auth.changeEmail);
+authouter.put("/change-email/otp",authenticate, auth.emailVerificationOtp);
+
 authouter.post("/logout", auth.logout);
 
 authouter.get(

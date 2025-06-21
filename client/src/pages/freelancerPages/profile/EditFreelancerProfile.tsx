@@ -263,14 +263,14 @@ export default function EditFreelancerProfile() {
           placeholder="Enter your full name"
         />
 
-        <FormField
+        {/* <FormField
           label="Email Address"
           name="email"
           value={profileData.email ?? ""}
           onChange={handleChange}
           type="email"
           placeholder="Enter your email"
-        />
+        /> */}
 
         <div>
           <label className="block font-medium text-gray-700 mb-1">

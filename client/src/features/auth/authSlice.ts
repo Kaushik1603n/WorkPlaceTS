@@ -97,6 +97,30 @@ interface ChangePassResponse {
   message: string;
 }
 
+interface changeEmailData {
+  email: string;
+}
+interface ChangeEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+interface changeEmailOtpData {
+  email: string;
+  otp: string;
+}
+interface ChangeEmailOtpResponse {
+  success: boolean;
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    fullName: string;
+    createdAt?: string;
+  };
+}
+
 // export interface AuthResponse {
 //   accessToken: string;
 //   refreshToken?: string;
@@ -270,6 +294,36 @@ export const changePass = createAsyncThunk<
     const error = err as AxiosError<{ message: string }>;
     return rejectWithValue(
       error.response?.data.message || "Password change failed"
+    );
+  }
+});
+export const changeEmail = createAsyncThunk<
+  ChangeEmailResponse,
+  changeEmailData,
+  { rejectValue: string }
+>("auth/change-email", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await authApi.changeEmail(credentials);
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue(
+      error.response?.data.message || "Email change failed"
+    );
+  }
+});
+export const changeEmailOtp = createAsyncThunk<
+  ChangeEmailOtpResponse,
+  changeEmailOtpData,
+  { rejectValue: string }
+>("auth/change-email/otp", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await authApi.changeEmailOtp(credentials);
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue(
+      error.response?.data.message || "Email change otp failed"
     );
   }
 });
@@ -471,6 +525,31 @@ const authSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
 
+      .addCase(changeEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changeEmail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(changeEmail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+
+      .addCase(changeEmailOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changeEmailOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(changeEmailOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
+      })
+
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
@@ -480,5 +559,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError,resetAuthState } = authSlice.actions;
+export const { clearError, resetAuthState } = authSlice.actions;
 export default authSlice.reducer;

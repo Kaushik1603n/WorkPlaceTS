@@ -48,9 +48,30 @@ interface changePasswordData {
   confirmPassword: string;
 }
 interface ChangePassResponse {
-  success: boolean,
+  success: boolean;
   message: string;
-  // any other fields you expect in the response
+}
+interface changeEmailData {
+  email: string;
+}
+interface ChangeEmailResponse {
+  success: boolean;
+  message: string;
+}
+interface changeEmailOtp {
+  email: string;
+  otp: string;
+}
+interface ChangeEmailOtpResponse {
+  success: boolean;
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    fullName: string;
+    createdAt?: string;
+  };
 }
 
 export const authApi = {
@@ -73,7 +94,11 @@ export const authApi = {
   fetchUser: <T = LoginResponse>() => axiosClient.get<T>("/auth/user"),
   getUserDetails: <T = LoginResponse>() =>
     axiosClient.get<T>("/auth/get-user-details"),
-  changepass: <T=ChangePassResponse>(credentials: changePasswordData) =>
+  changepass: <T = ChangePassResponse>(credentials: changePasswordData) =>
     axiosClient.put<T>("/auth/changePass", credentials),
+  changeEmail: <T = ChangeEmailResponse>(credentials: changeEmailData) =>
+    axiosClient.put<T>("/auth/change-email", credentials),
+  changeEmailOtp: <T = ChangeEmailOtpResponse>(credentials: changeEmailOtp) =>
+    axiosClient.put<T>("/auth/change-email/otp", credentials),
   logout: <T>() => axiosClient.post<T>("/auth/logout"),
 };

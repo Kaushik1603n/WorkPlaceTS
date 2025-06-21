@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const sendPasswordResetOtpEmail = async (email: string, name: string, otp: string) => {
+export const sendEmailChangeOtp = async (email: string, name: string, otp: string) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -16,10 +16,10 @@ export const sendPasswordResetOtpEmail = async (email: string, name: string, otp
     const mailOptions = {
       from: `"Work Place" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Password Reset OTP",
+      subject: "Email change Verification",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
-          <h2 style="color: #2c3e50; text-align: center;">Password Reset Request</h2>
+          <h2 style="color: #2c3e50; text-align: center;">Email Change Request</h2>
           <p style="font-size: 16px;">Hello ${name},</p>
           <p style="font-size: 16px;">We received a request to reset your password. Use the following OTP to proceed:</p>
           
@@ -40,9 +40,9 @@ export const sendPasswordResetOtpEmail = async (email: string, name: string, otp
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Password reset OTP email sent successfully");
+    console.log("Email verification OTP email sent successfully");
   } catch (error) {
-    console.error("Error sending password reset OTP email:", error);
+    console.error("Error sending Email verification OTP email:", error);
     throw error;
   }
 };

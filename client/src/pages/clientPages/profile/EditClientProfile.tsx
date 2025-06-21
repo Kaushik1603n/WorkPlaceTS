@@ -136,8 +136,8 @@ export default function ClientProfileEdit() {
       client?.companyName !== companyName ||
       user?.email !== email ||
       client?.location !== location ||
-      website !== website ||
-      description !== description ||
+      client?.website !== website ||
+      client?.description !== description ||
       client?.profilePic !== profilePhoto ||
       client?.coverPic !== coverPhoto;
 
@@ -209,14 +209,14 @@ export default function ClientProfileEdit() {
           placeholder="Enter your company name"
         />
 
-        <FormField
+        {/* <FormField
           label="Email Address"
           name="email"
           value={profileData.email}
           onChange={handleChange}
           type="email"
           placeholder="Enter your email"
-        />
+        /> */}
 
         <FormField
           label="Location"

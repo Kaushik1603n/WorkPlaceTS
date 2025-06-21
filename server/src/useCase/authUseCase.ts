@@ -10,6 +10,7 @@ import {
   UserIdDTO,
 } from "../domain/dto/AuthDTO";
 import { UserDTO } from "../domain/dto/UserDTO";
+import { sendEmailChangeOtp } from "../shared/utils/nodemailer/sendEmailChangeOtp";
 
 export class AuthUseCase {
   constructor(private user: UserRepo) {
@@ -226,6 +227,43 @@ export class AuthUseCase {
     await this.user.updatePassword(userId, hashedPassword);
 
     return { userId: user._id } as UserIdDTO;
+  }
+
+  async changeEmailUseCase(userId: string, email: string) {
+    console.log(email);
+
+    const user = await this.user.findByEmail(email);
+    if (user) throw new Error("User already exist");
+
+    const userData = await this.user.findById(userId);
+    if (!userData) throw new Error("Current user not found");
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    userData.otp = otp;
+    userData.otpExpiry = otpExpiry;
+    await userData.save();
+
+    await sendEmailChangeOtp(email, userData.fullName, otp);
+
+    return { userId: userData._id } as UserIdDTO;
+  }
+
+  async changeEmailOtpUseCase(userId: string, email: string, otp: number) {
+    const user = await this.user.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    const userVerify = await this.user.findByEmail(email);
+    if (userVerify) throw new Error("User already exist");
+
+    if (Number(user.otp) !== Number(otp) || new Date() > user.otpExpiry) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    const userData = await this.user.updateEmail(userId, email);
+
+    return userData as UserDTO;
   }
 
   async refresh(userId: string, checkRefreshToken: string) {
