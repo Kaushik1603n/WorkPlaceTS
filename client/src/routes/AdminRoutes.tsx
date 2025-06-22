@@ -6,13 +6,14 @@ import AllUsers from "../pages/admin/AllUsers";
 import FreelancerVerifyProfile from "../components/admin/userProfile/FreelancerProfile";
 import ClentVerifyProfile from "../components/admin/userProfile/ClentProfile";
 import ProtectedAdmin from "../utils/ProtectedRoutes/ProtectedAdmin";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 
 function AdminRoutes() {
     return (
         <>
             <Route element={<ProtectedAdmin />}>
                 <Route path="/admin-dashboard" element={<AdminLayout />}>
-                    <Route index element={<>dashboard</>} />
+                    <Route index element={<AdminDashboard/>} />
                     <Route path="projects" element={<div>project Page</div>} />
                     <Route path="payments" element={<div>Payment Page</div>} />
                     <Route path="Report-Resolution" element={<>Report-Resolution</>} />

@@ -117,7 +117,53 @@ export class profileCondroller {
       res.status(200).json({
         success: true,
         freelancer: freelancers,
-        pagination
+        pagination,
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get client details" });
+    }
+  };
+
+  HiringProjects: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+      const { result, jobCount } = await clientUseCase.HiringProjectsUseCase(
+        userId
+      );
+
+      res.status(200).json({
+        success: true,
+        result: result,
+        jobCount,
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get client details" });
+    }
+  };
+
+  financialData: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+      const { weeklySpending, avgCostPerProject, totalSpent } =
+        await clientUseCase.FinancialDataUseCase(userId);
+
+      res.status(200).json({
+        success: true,
+        weeklySpending,
+        avgCostPerProject,
+        totalSpent,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);

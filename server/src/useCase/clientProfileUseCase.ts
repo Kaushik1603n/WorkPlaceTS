@@ -104,4 +104,13 @@ export class ClientProfileUserCase {
     const result = await this.client.findFreelancer(page,limit);
     return result;
   }
+  async HiringProjectsUseCase(userId:string) {
+    const result =await this.client.findProjectByUserId(userId);
+    return result;
+  }
+  async FinancialDataUseCase(userId:string) {
+    const result =await this.client.findFinancialByUserId(userId);
+    
+    return result;
+  }
 }

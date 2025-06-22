@@ -6,6 +6,7 @@ import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp } from "lucide-react";
+import FreelancerDashboardA from "../../../components/freelancer/dashboard/FreelancerDashboard";
 
 interface FreelancerProject {
     _id: string;
@@ -155,6 +156,7 @@ export default function FreelancerDashboard() {
                     </div>
                 )}
             </div>
+            <FreelancerDashboardA/>
         </main>
     );
 }

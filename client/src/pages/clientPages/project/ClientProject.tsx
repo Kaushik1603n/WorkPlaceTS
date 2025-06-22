@@ -6,6 +6,7 @@ import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp } from "lucide-react";
+import ClientAnalyticsDashboard from "../../../components/client/dashboard/ClientAnalyticsDashboard";
 
 interface FreelancerProject {
     _id: string;
@@ -80,7 +81,7 @@ export default function ClientProject() {
 
     return (
         <main className="flex-1 p-4">
-            <div className="bg-white rounded-lg border-green-100 mb-6 border border-color">
+            {/* <div className="bg-white rounded-lg border-green-100 mb-6 border border-color">
                 <div className="flex">
                     <div className="p-6 flex-1">
                         <h2 className="text-xl font-medium text-gray-800">Hello, John!</h2>
@@ -96,9 +97,9 @@ export default function ClientProject() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
-            <div className="bg-color-light rounded-lg border border-color p-6">
+            {/* <div className="bg-color-light rounded-lg border border-color p-6">
                 <h3 className="text-lg font-medium text-gray-800 mb-4">
                     Active Projects
                 </h3>
@@ -145,7 +146,8 @@ export default function ClientProject() {
                     </div>
                     </div>
                 )}
-            </div>
+            </div> */}
+            <ClientAnalyticsDashboard/>
         </main>
     );
 }
