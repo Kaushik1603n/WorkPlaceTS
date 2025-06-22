@@ -1,7 +1,11 @@
 import freelancerModal from "../../../../domain/models/FreelancerProfile";
 import { IfreelancerRepo } from "../../../../domain/interfaces/IfreelancerRepo";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import UserModel, { UserRole } from "../../../../domain/models/User";
+import ProjectModel from "../../../../domain/models/Projects";
+import PaymentModel from "../../../../domain/models/PaymentModel";
+import ProposalModel from "../../../../domain/models/Proposal";
+import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 
 export class FreelancerRepo implements IfreelancerRepo {
   async findOneAndUpdate(
@@ -22,13 +26,13 @@ export class FreelancerRepo implements IfreelancerRepo {
     if (!userId || typeof userId !== "string") {
       throw new Error("Invalid user ID format");
     }
-      const userIdObj = new mongoose.Types.ObjectId(userId);
+    const userIdObj = new mongoose.Types.ObjectId(userId);
 
     const result = await freelancerModal.findOneAndUpdate(
-      { userId:userIdObj },
+      { userId: userIdObj },
       {
         availability,
-        experienceLevel:experience,
+        experienceLevel: experience,
         education,
         hourlyRate,
         skills,
@@ -48,47 +52,46 @@ export class FreelancerRepo implements IfreelancerRepo {
   }
 
   async findOne(userId: string | unknown) {
-    const result = await freelancerModal.findOne({ userId });    
+    const result = await freelancerModal.findOne({ userId });
     return result;
   }
 
   async findFreelancer(page: number, limit: number) {
     const skip = (page - 1) * limit;
 
-    const clients: ClientResult[] =
-      await UserModel.aggregate<ClientResult>([
-        {
-          $match: {
-            role: "client",
-          },
+    const clients: ClientResult[] = await UserModel.aggregate<ClientResult>([
+      {
+        $match: {
+          role: "client",
         },
-        {
-          $lookup: {
-            from: "clientprofiles",
-            localField: "_id",
-            foreignField: "userId",
-            as: "profile",
-          },
+      },
+      {
+        $lookup: {
+          from: "clientprofiles",
+          localField: "_id",
+          foreignField: "userId",
+          as: "profile",
         },
-        {
-          $addFields: {
-            profile: { $arrayElemAt: ["$profile", 0] },
-          },
+      },
+      {
+        $addFields: {
+          profile: { $arrayElemAt: ["$profile", 0] },
         },
-        {
-          $project: {
-            fullName: 1,
-            email: 1,
-            role: 1,
-            profilePic: "$profile.profilePic",
-            hourlyRate: "$profile.hourlyRate",
-            location: "$profile.location",
-            description: "$profile.description",
-          },
+      },
+      {
+        $project: {
+          fullName: 1,
+          email: 1,
+          role: 1,
+          profilePic: "$profile.profilePic",
+          hourlyRate: "$profile.hourlyRate",
+          location: "$profile.location",
+          description: "$profile.description",
         },
-        { $skip: skip },
-        { $limit: limit },
-      ]);
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
 
     const totalCount = await UserModel.countDocuments({ role: "client" });
     const totalPages = Math.ceil(totalCount / limit);
@@ -101,6 +104,138 @@ export class FreelancerRepo implements IfreelancerRepo {
         totalCount,
       },
     };
+  }
+
+  async findCounts(userId: string) {
+    const totalJob = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+    });
+    const completedJob = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+      status: "completed",
+    });
+    const activeJob = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+      status: "in-progress",
+    });
+
+    const Earnings = await PaymentModel.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(userId), // Ensure userId is ObjectId
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          avgEarnings: { $avg: "$netAmount" },
+          totalPayments: { $sum: 1 },
+        },
+      },
+    ]);
+    const avgEarnings = Earnings.length > 0 ? Earnings[0].avgEarnings : 0;
+
+    const totalProposal = await ProposalModel.countDocuments({
+      freelancerId: userId,
+    });
+
+    return { totalJob, completedJob, activeJob, avgEarnings, totalProposal };
+  }
+  async findTotalEarnings(userId: string) {
+    const Earnings = await PaymentModel.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(userId), // Ensure userId is ObjectId
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          avgEarnings: { $avg: "$netAmount" },
+          totalPayments: { $sum: "$netAmount" },
+        },
+      },
+    ]);
+    const totalPayments = Earnings.length > 0 ? Earnings[0].totalPayments : 0;
+
+    const pendingEarnings = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(userId),
+          status: "pending",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalPayments: { $sum: "$netAmount" },
+        },
+      },
+    ]);
+    const pendingPayments =
+      pendingEarnings.length > 0 ? Earnings[0].totalPayments : 0;
+
+    const weeklyPayments = await PaymentModel.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(userId),
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            week: { $week: "$createdAt" }, // Only group by week number
+          },
+          earnings: { $sum: "$netAmount" }, // Renamed from totalEarnings
+          projects: { $sum: 1 }, // Renamed from paymentCount
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          week: { $toString: "$_id.week" }, // Convert week number to string
+          earnings: 1,
+          projects: 1,
+        },
+      },
+      {
+        $sort: { week: 1 }, // Sort by week number ascending
+      },
+    ]);
+
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    const monthlyPayments = await PaymentModel.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(userId),
+          status: "completed",
+          createdAt: {
+            $gte: new Date(currentYear, currentMonth - 1, 1),
+            $lt: new Date(currentYear, currentMonth, 1),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalMonthlyEarnings: { $sum: "$netAmount" },
+          paymentCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const monthlyStats = monthlyPayments[0] || {
+      totalMonthlyEarnings: 0,
+      paymentCount: 0,
+    };
+
+    return { totalPayments, pendingPayments, weeklyPayments, monthlyStats };
   }
 }
 

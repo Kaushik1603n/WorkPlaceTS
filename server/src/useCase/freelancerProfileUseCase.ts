@@ -102,4 +102,12 @@ export class FreelancerProfileUseCase {
     const result = await this.freelancer.findFreelancer(page,limit);
     return result;
   }
+    async totalcountUseCase(userId:string) {
+    const result = await this.freelancer.findCounts(userId);
+    return result;
+  }
+    async totalEarningsUseCase(userId:string) {
+    const result = await this.freelancer.findTotalEarnings(userId);
+    return result;
+  }
 }

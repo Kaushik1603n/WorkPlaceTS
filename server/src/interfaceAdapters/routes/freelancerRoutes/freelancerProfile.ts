@@ -10,4 +10,6 @@ freelancerProfileRoute.get("/get-profile",authenticate, profile.profileDetails);
 
 freelancerProfileRoute.get("/client",authenticate, profile.client);
 
+freelancerProfileRoute.get("/totalCount",authenticate, profile.totalcount);
+freelancerProfileRoute.get("/totalearnings",authenticate, profile.totalEarnings);
 export default freelancerProfileRoute;

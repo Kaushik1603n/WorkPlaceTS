@@ -83,7 +83,7 @@ export default function FreelancerDashboard() {
 
     return (
         <main className="flex-1 p-4">
-            <div className="bg-white rounded-lg border-green-100 mb-6 border border-color">
+            {/* <div className="bg-white rounded-lg border-green-100 mb-6 border border-color">
                 <div className="flex">
                     <div className="p-6 flex-1">
                         <h2 className="text-xl font-medium text-gray-800">Hello, John!</h2>
@@ -99,7 +99,7 @@ export default function FreelancerDashboard() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div className="bg-color-light rounded-lg border border-color p-6">
                 {allProjects.length === 0 ? (

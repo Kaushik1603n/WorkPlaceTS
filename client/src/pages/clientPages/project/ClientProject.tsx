@@ -97,9 +97,9 @@ export default function ClientProject() {
                         </div>
                     </div>
                 </div>
-            </div> */}
+            </div>  */}
 
-            {/* <div className="bg-color-light rounded-lg border border-color p-6">
+             <div className="bg-color-light rounded-lg border border-color p-6">
                 <h3 className="text-lg font-medium text-gray-800 mb-4">
                     Active Projects
                 </h3>
@@ -146,7 +146,7 @@ export default function ClientProject() {
                     </div>
                     </div>
                 )}
-            </div> */}
+            </div>
             <ClientAnalyticsDashboard/>
         </main>
     );
