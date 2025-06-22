@@ -14,7 +14,6 @@ import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
 import PendingPaymentListing from "../pages/clientPages/project/PaymentPage";
 import MessagingPage from "../pages/message/MessagingPage";
 import ActiveClinetProject from "../pages/clientPages/project/ActiveClinetProject";
-import ClientSampleAnalyticsDashboard from "../components/client/dashboard/Sample";
 
 
 function ClientRoutes() {
@@ -44,7 +43,7 @@ function ClientRoutes() {
           <Route path="freelancer" element={<FreelancerList/>} />
           <Route
             path="interview"
-            element={<ClientSampleAnalyticsDashboard/>}
+            element={<div>Interview Scheduling Page</div>}
           />
           <Route
             path="dispute"
