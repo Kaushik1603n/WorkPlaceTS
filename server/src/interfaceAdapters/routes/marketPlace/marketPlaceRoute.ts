@@ -7,6 +7,7 @@ const marketPlaceRoute = express.Router();
 
 marketPlaceRoute.get("/get-jobs", project.getAllMarketProjects);
 marketPlaceRoute.get("/active-jobs",authenticate, project.activeClientProject);
+marketPlaceRoute.get("/completed-jobs",authenticate, project.completedClientProject);
 marketPlaceRoute.get("/job-details/:jobId", project.getProjectDetails);
 marketPlaceRoute.post("/apply-job-proposal",authenticate, project.jobProposal);
 marketPlaceRoute.get("/get-proposal-details/:proposalId",authenticate, project.getProposalDetails);

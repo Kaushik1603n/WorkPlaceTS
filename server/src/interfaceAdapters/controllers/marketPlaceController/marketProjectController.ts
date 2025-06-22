@@ -82,6 +82,37 @@ export class MarketPlaceProjectController {
       });
     }
   };
+ completedClientProject: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const result = await marketPlace.getCompletedProjectUseCase(userId);
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      console.error("Job details fetch error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch job details";
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+      });
+    }
+  };
   getProjectDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { jobId } = req.params;

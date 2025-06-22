@@ -30,6 +30,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
                 const response = await axiosClient.get(`/proposal/${jobId}/milestones`);
 
                 setMilestones(response.data.data.milestones)
+                console.log(response.data.data.milestones)
 
             } catch (err) {
                 setError('Failed to load milestones');
@@ -166,7 +167,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
 
             <div className="space-y-6">
                 {milestones.map((milestone) => (
-                    <div key={milestone._id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div key={milestone._id} className="bg-white border border-[#27AE60] rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
                         {/* Header */}
                         <div className="p-6 border-b border-gray-100">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -229,7 +230,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
                                 {/* Links */}
                                 {milestone.deliverables.links.length > 0 && (
                                     <div>
-                                        <h5 className="text-sm font-medium text-gray-900 mb-3">Submission Links:</h5>
+                                        <h5 className="text-sm font-medium  text-gray-900 mb-3">Submission Links:</h5>
                                         <div className="grid gap-2">
                                             {milestone.deliverables.links.map((link, index) => (
                                                 <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
