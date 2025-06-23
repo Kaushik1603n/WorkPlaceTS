@@ -9,7 +9,11 @@ interface RatingFeedbackModalProps {
     ratings: { quality: number; deadlines: number; professionalism: number };
     feedback: string;
     overallRating: number;
-  }) => void;
+  }) => {
+    success: string,
+    error: string,
+    data:object
+  }
 }
 
 interface Ratings {
@@ -47,10 +51,17 @@ const RatingFeedbackModal = ({ isOpen, onClose, onSubmit }: RatingFeedbackModalP
       toast.error('Please rate all categories before submitting');
       return;
     }
+    if (feedback.trim() === "") {
+      toast.error('Please give feedback before submitting');
+      return;
+    }
     try {
       setIsSubmitting(true);
-      await onSubmit({ ratings, feedback, overallRating: Number(overallRating) });
-      setSubmissionSuccess(true);
+      const res = await onSubmit({ ratings, feedback, overallRating: Number(overallRating) });
+      console.log(res);
+
+      if (res.success)
+        setSubmissionSuccess(true);
     } catch {
       toast.error('Failed to submit feedback');
     } finally {
@@ -117,8 +128,8 @@ const RatingFeedbackModal = ({ isOpen, onClose, onSubmit }: RatingFeedbackModalP
                   <Star
                     key={star}
                     className={`w-8 h-8 ${star <= Math.round(overallRating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
+                      ? 'text-yellow-400 fill-current'
+                      : 'text-gray-300'
                       }`}
                   />
                 ))}
@@ -149,8 +160,8 @@ const RatingFeedbackModal = ({ isOpen, onClose, onSubmit }: RatingFeedbackModalP
                       >
                         <Star
                           className={`w-6 h-6 transition-colors ${star <= ratings[key as keyof Ratings]
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300 hover:text-yellow-300'
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300 hover:text-yellow-300'
                             }`}
                         />
                       </button>

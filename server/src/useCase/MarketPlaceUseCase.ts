@@ -293,9 +293,7 @@ export class MarketPlaceUseCase {
         throw new Error("Job not found");
       }
 
-      return {
-        jobDetails: result,
-      };
+      return result;
     } catch (error) {
       console.error("Error submitting feedback:", error);
       throw new Error("Failed to submit feedback");
