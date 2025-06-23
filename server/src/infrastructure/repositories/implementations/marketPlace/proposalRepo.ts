@@ -258,19 +258,36 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
   async proposalMilestones(jobId: string): Promise<IProposalMilestones> {
-    const proposal = await ProposalModel.findOne(
-      { jobId },
-      { _id: 1, freelancerId: 1, milestones: 1 }
-    ).lean<IProposalMilestones>();
+    // const proposal = await ProposalModel.findOne(
+    //   { jobId },
+    //   { _id: 1, freelancerId: 1, milestones: 1 }
+    // ).lean<IProposalMilestones>();
+
+    const proposal = await ProjectModel.findById(jobId, {
+      _id: 1,
+      status:1,
+      hiredFreelancer: 1,
+      hiredProposalId: 1,
+    })
+      .populate<{ hiredProposalId: IProposalMilestones }>({
+        path: "hiredProposalId",
+        select: "_id freelancerId milestones",
+      })
+      .lean();
 
     if (!proposal) {
       throw new Error("Proposal not found");
     }
 
+    if (!proposal.hiredProposalId) {
+      throw new Error("No hired proposal found");
+    }
+
     return {
-      _id: proposal._id,
-      freelancerId: proposal.freelancerId,
-      milestones: proposal.milestones,
+      _id: proposal.hiredProposalId._id,
+      jobStatus: proposal?.status,
+      freelancerId: proposal.hiredProposalId.freelancerId,
+      milestones: proposal.hiredProposalId.milestones,
     };
   }
 

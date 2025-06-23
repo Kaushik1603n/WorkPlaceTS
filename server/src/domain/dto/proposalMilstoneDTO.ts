@@ -18,7 +18,9 @@ interface IMilestone {
 
 export interface IProposalMilestones {
   _id: Types.ObjectId;
-  proposalId?: Types.ObjectId;
+  jobStatus?:string;
+  hiredFreelancer?: Types.ObjectId;
+  hiredProposalId?: Types.ObjectId;
   freelancerId: Types.ObjectId;
   milestones: IMilestone[];
 

@@ -36,7 +36,7 @@ export class MarketPlaceUseCase {
         $gte: parseInt(minPrice as string),
         $lte: parseInt(maxPrice as string),
       };
-      
+
       if (skills) {
         const skillsArray = skills.toLowerCase().split(",");
         andConditions.push({
@@ -66,7 +66,7 @@ export class MarketPlaceUseCase {
 
       if (andConditions.length > 0) {
         query.$and = andConditions;
-      }      
+      }
 
       return await this.market.findAllProjects(query, page, limit);
     } catch (error) {
@@ -94,7 +94,6 @@ export class MarketPlaceUseCase {
   }
 
   async getActiveProjectUseCase(userId: string) {
-   
     try {
       const result = await this.market.findClientActiveProject(userId);
 
@@ -109,7 +108,6 @@ export class MarketPlaceUseCase {
     }
   }
   async getCompletedProjectUseCase(userId: string) {
-   
     try {
       const result = await this.market.findClientCompletedProject(userId);
 
@@ -247,18 +245,28 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
-  async submitMilestoneUseCase(jobId: string, userId: string, milestoneId: string,comments: string,links: string[]) {
+  async submitMilestoneUseCase(
+    jobId: string,
+    userId: string,
+    milestoneId: string,
+    comments: string,
+    links: string[]
+  ) {
     if (!jobId || typeof jobId !== "string") {
       throw new Error("Invalid Job ID");
     }
-    
+
     try {
-      const result = await this.market.submitMilestoneRepo(jobId,userId, milestoneId,comments,links);
+      const result = await this.market.submitMilestoneRepo(
+        jobId,
+        userId,
+        milestoneId,
+        comments,
+        links
+      );
       if (!result) {
         throw new Error("Job not found");
       }
-
-     
 
       return {
         jobDetails: result,
@@ -268,4 +276,42 @@ export class MarketPlaceUseCase {
       throw error;
     }
   }
+  async submitFeedbackCase(feedbackData: Feedback) {
+    const { jobId, freelancerId } = feedbackData;
+
+    if (!jobId || typeof jobId !== "string") {
+      throw new Error("Invalid Job ID");
+    }
+
+    if (!freelancerId || typeof freelancerId !== "string") {
+      throw new Error("Invalid Freelancer ID");
+    }
+
+    try {
+      const result = await this.market.submitFeedbackRepo(feedbackData);
+      if (!result) {
+        throw new Error("Job not found");
+      }
+
+      return {
+        jobDetails: result,
+      };
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      throw new Error("Failed to submit feedback");
+    }
+  }
+}
+
+interface Feedback {
+  ratings: {
+    quality: number;
+    deadlines: number;
+    professionalism: number;
+  };
+  feedback: string;
+  overallRating: number;
+  jobId: string;
+  freelancerId: string;
+  userId: string;
 }

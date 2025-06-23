@@ -19,6 +19,7 @@ import {
   allProjectsInfoDTO,
   ReturnAllProjectsInfoDTO,
 } from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
+import FeedbackModel from "../../../../domain/models/feedbackSchema";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -369,6 +370,20 @@ export class marketPlaceRepo implements IMarketPlace {
     
     return result;
   }
+  async submitFeedbackRepo(
+    {ratings, feedback, overallRating, jobId,freelancerId,userId}:Feedback
+  ) {
+    const result =await FeedbackModel.create({
+      ratings:ratings,
+      feedback,
+      overallRating,
+      jobId,
+      freelancerId,
+      clientId:userId
+    })
+    
+    return result;
+  }
 }
 
 export interface ClientProject {
@@ -390,4 +405,18 @@ export interface freelancerProject {
   status: string;
   title: string;
   description: string;
+}
+
+
+interface Feedback {
+  ratings: {
+    quality: number;
+    deadlines: number;
+    professionalism: number;
+  };
+  feedback: string;
+  overallRating: number;
+  jobId: string;
+  freelancerId: string;
+  userId: string;
 }

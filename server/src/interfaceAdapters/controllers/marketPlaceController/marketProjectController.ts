@@ -51,7 +51,7 @@ export class MarketPlaceProjectController {
     }
   };
 
- activeClientProject: RequestHandler = async (req, res): Promise<void> => {
+  activeClientProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
@@ -82,7 +82,7 @@ export class MarketPlaceProjectController {
       });
     }
   };
- completedClientProject: RequestHandler = async (req, res): Promise<void> => {
+  completedClientProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
@@ -366,6 +366,68 @@ export class MarketPlaceProjectController {
       res.status(500).json({
         success: false,
         error: errorMessage,
+      });
+    }
+  };
+  submitFeedback: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        throw new Error("user not Authenticated");
+      }
+
+      const {
+        ratings,
+        feedback,
+        overallRating,
+        jobId,
+        freelancerId,
+      }: {
+        ratings: {
+          quality: number;
+          deadlines: number;
+          professionalism: number;
+        };
+        feedback: string;
+        overallRating: number;
+        jobId: string;
+        freelancerId: string;
+      } = req.body;
+
+      if (!ratings || !overallRating || !jobId || !freelancerId) {
+        throw new Error("Missing required fields");
+      }
+
+      const feedbackData: {
+        ratings: {
+          quality: number;
+          deadlines: number;
+          professionalism: number;
+        };
+        feedback: string;
+        overallRating: number;
+        jobId: string;
+        freelancerId: string;
+        userId: string;
+      } = {
+        ratings,
+        feedback,
+        overallRating,
+        jobId,
+        freelancerId,
+        userId,
+      };
+
+      const data = await marketPlace.submitFeedbackCase(feedbackData);
+
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Feedback submission error:", error);
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to submit feedback",
       });
     }
   };

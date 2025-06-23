@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
+import RatingFeedbackModal from './RatingFeedbackPage';
 
 interface Deliverable {
     links: string[];
@@ -18,11 +19,33 @@ interface Milestone {
     deliverables?: Deliverable;
 }
 
+interface FeedbackFormData {
+    ratings: {
+        quality: number;
+        deadlines: number;
+        professionalism: number;
+    };
+    feedback: string;
+    overallRating: number;
+}
+
 const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState(true);
+    const [jobStatus, setJobStatus] = useState<string>("");
+    const [freelancerId, setFreelancerId] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const handleSubmitFeedback = async (data: FeedbackFormData) => {
+        try {
+            const res = await axiosClient.post("/jobs/feedback", { ...data, jobId, freelancerId })
+            return res.data;
+        } catch (error) {
+            console.log(error);
+
+        }
+    };
     useEffect(() => {
         const fetchSubmittedMilestones = async () => {
             try {
@@ -30,8 +53,8 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
                 const response = await axiosClient.get(`/proposal/${jobId}/milestones`);
 
                 setMilestones(response.data.data.milestones)
-                console.log(response.data.data.milestones)
-
+                setJobStatus(response.data.data.jobStatus)
+                setFreelancerId(response.data.data.freelancerId)
             } catch (err) {
                 setError('Failed to load milestones');
                 console.error(err);
@@ -44,28 +67,28 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
     }, [jobId]);
 
     const getStatusColor = (status: string) => {
-      switch (status.toLowerCase()) {
-        case 'submitted':
-            return 'bg-blue-50 text-blue-700 border-blue-200';
-        case 'interviewing':
-            return 'bg-amber-50 text-amber-700 border-amber-200';
-        case 'approved':
-        case 'accepted':
-            return 'bg-green-50 text-green-700 border-green-200';
-        case 'rejected':
-            return 'bg-red-50 text-red-700 border-red-200';
-        case 'cancelled':
-            return 'bg-red-50 text-red-700 border-red-200';
-        case 'active':
-            return 'bg-blue-50 text-blue-700 border-blue-200';
-        case 'completed':
-            return 'bg-green-100 text-green-800 border-green-300';
-        case 'paid':
-            return 'bg-emerald-600 text-white border-emerald-600'; // Darker for better contrast
-        case 'pending':
-        default:
-            return 'bg-slate-100 text-slate-700 border-slate-200';
-    }
+        switch (status.toLowerCase()) {
+            case 'submitted':
+                return 'bg-blue-50 text-blue-700 border-blue-200';
+            case 'interviewing':
+                return 'bg-amber-50 text-amber-700 border-amber-200';
+            case 'approved':
+            case 'accepted':
+                return 'bg-green-50 text-green-700 border-green-200';
+            case 'rejected':
+                return 'bg-red-50 text-red-700 border-red-200';
+            case 'cancelled':
+                return 'bg-red-50 text-red-700 border-red-200';
+            case 'active':
+                return 'bg-blue-50 text-blue-700 border-blue-200';
+            case 'completed':
+                return 'bg-green-100 text-green-800 border-green-300';
+            case 'paid':
+                return 'bg-emerald-600 text-white border-emerald-600'; // Darker for better contrast
+            case 'pending':
+            default:
+                return 'bg-slate-100 text-slate-700 border-slate-200';
+        }
 
     };
 
@@ -280,6 +303,23 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
                         )}
                     </div>
                 ))}
+                <div>
+                    {jobStatus === "completed" && (
+                        <div>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="px-4 py-2 bg-green-600 text-white rounded"
+                            >
+                                Add Rating and Feedback
+                            </button>
+                            <RatingFeedbackModal
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                onSubmit={handleSubmitFeedback}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
