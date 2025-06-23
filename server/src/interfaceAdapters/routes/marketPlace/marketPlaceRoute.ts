@@ -18,5 +18,6 @@ marketPlaceRoute.get("/project-details/:jobId",authenticate, project.getProjectA
 marketPlaceRoute.post("/submit-milestone/:jobId",authenticate, project.submitMilestone);
 
 marketPlaceRoute.post("/feedback",authenticate, project.submitFeedback);
+marketPlaceRoute.post("/freelancer/report",authenticate, project.freelacerReport);
 
 export default marketPlaceRoute;

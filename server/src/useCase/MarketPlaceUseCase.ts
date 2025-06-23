@@ -299,6 +299,16 @@ export class MarketPlaceUseCase {
       throw new Error("Failed to submit feedback");
     }
   }
+  async submitFreelacerReportUseCase(reportData: IReportData) {
+    try {
+      const result = await this.market.submitFreelacerReportRepo(reportData);
+
+      return result;
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      throw new Error("Failed to submit feedback");
+    }
+  }
 }
 
 interface Feedback {
@@ -312,4 +322,12 @@ interface Feedback {
   jobId: string;
   freelancerId: string;
   userId: string;
+}
+interface IReportData {
+  clientId: string;
+  clientEmail: string;
+  title: string;
+  description: string;
+  userId: string;
+  jobId: string;
 }

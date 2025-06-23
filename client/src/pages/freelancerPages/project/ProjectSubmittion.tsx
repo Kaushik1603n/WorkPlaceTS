@@ -11,6 +11,7 @@ import { MilestoneSubmissionModal } from '../../../components/freelancer/project
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ReportProblemModal from '../../../components/freelancer/project-submission/ReportProblemModal';
 
 
 interface Milestones {
@@ -106,13 +107,13 @@ const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, pa
         <span className="text-lg font-bold text-gray-900">${proposalDetails * 0.9}</span>
       </div>
 
-      <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+      {/* <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
         Request Milestone Payment
       </button>
 
       <button className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors">
         Download Invoice
-      </button>
+      </button> */}
     </div>
   </div>
 );
@@ -195,6 +196,7 @@ const ProjectDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestones | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -294,6 +296,22 @@ const ProjectDashboard: React.FC = () => {
             {/* <Timeline /> */}
             <TermsConditions />
             {/* <Actions /> */}
+            <div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full border border-orange-300 bg-orange-200 hover:bg-orange-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Report
+              </button>
+
+              <ReportProblemModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                clientId={jobDetails.clientId}
+                clientEmail={jobDetails.clientEmail}
+                jobId={jobDetails.jobId}
+              />
+            </div>
           </div>
         </div>
       </div>

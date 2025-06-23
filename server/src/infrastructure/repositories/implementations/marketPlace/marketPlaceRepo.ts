@@ -20,6 +20,7 @@ import {
   ReturnAllProjectsInfoDTO,
 } from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
 import FeedbackModel from "../../../../domain/models/feedbackSchema";
+import ReportModal from "../../../../domain/models/ReportModel";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -29,7 +30,7 @@ export class marketPlaceRepo implements IMarketPlace {
     const total = await ProjectModel.countDocuments(searchQuery);
     const result = await ProjectModel.find(searchQuery, {
       _id: 1,
-      job_Id:1,
+      job_Id: 1,
       title: 1,
       stack: 1,
       description: 1,
@@ -96,11 +97,9 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 
-   async findClientActiveProject(userId: string): Promise<ClientProject> {
+  async findClientActiveProject(userId: string): Promise<ClientProject> {
     const allProjects = await ProjectModel.find(
-      { clientId: userId,
-        status:"in-progress"
-       },
+      { clientId: userId, status: "in-progress" },
       {
         contractId: 1,
         budget: 1,
@@ -114,11 +113,9 @@ export class marketPlaceRepo implements IMarketPlace {
 
     return allProjects;
   }
-   async findClientCompletedProject(userId: string): Promise<ClientProject> {
+  async findClientCompletedProject(userId: string): Promise<ClientProject> {
     const allProjects = await ProjectModel.find(
-      { clientId: userId,
-        status:"completed"
-       },
+      { clientId: userId, status: "completed" },
       {
         contractId: 1,
         budget: 1,
@@ -353,7 +350,7 @@ export class marketPlaceRepo implements IMarketPlace {
       throw new Error("Proposal not found ");
     }
 
-    const result =await ProposalModel.findOneAndUpdate(
+    const result = await ProposalModel.findOneAndUpdate(
       { jobId, "milestones._id": milestoneId },
       {
         $set: {
@@ -368,22 +365,49 @@ export class marketPlaceRepo implements IMarketPlace {
       { new: true }
     );
     console.log(result);
-    
+
     return result;
   }
-  async submitFeedbackRepo(
-    {ratings, feedback, overallRating, jobId,freelancerId,userId}:Feedback
-  ) {
-    const result =await FeedbackModel.create({
-      ratings:ratings,
+  async submitFeedbackRepo({
+    ratings,
+    feedback,
+    overallRating,
+    jobId,
+    freelancerId,
+    userId,
+  }: Feedback) {
+    const result = await FeedbackModel.create({
+      ratings: ratings,
       feedback,
       overallRating,
       jobId,
       freelancerId,
-      clientId:userId
-    })
-    
+      clientId: userId,
+    });
+
     return result;
+  }
+  async submitFreelacerReportRepo(reportData: IReportData) {
+    try {
+      const { clientId, clientEmail, title, description, userId ,jobId} = reportData;
+
+      const report = await ReportModal.create({
+        client: {
+          id: clientId,
+          email: clientEmail,
+        },
+        title,
+        description,
+        reportedBy: userId,
+        status: "open",
+        jobId
+      });
+
+      return report;
+    } catch (error) {
+      console.error("Error in submitFreelancerReport:", error);
+      throw new Error("Failed to submit report");
+    }
   }
 }
 
@@ -408,7 +432,6 @@ export interface freelancerProject {
   description: string;
 }
 
-
 interface Feedback {
   ratings: {
     quality: number;
@@ -420,4 +443,13 @@ interface Feedback {
   jobId: string;
   freelancerId: string;
   userId: string;
+}
+
+interface IReportData {
+  clientId: string;
+  clientEmail: string;
+  title: string;
+  description: string;
+  userId: string;
+  jobId: string;
 }

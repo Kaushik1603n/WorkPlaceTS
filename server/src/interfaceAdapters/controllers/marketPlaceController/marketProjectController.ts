@@ -431,4 +431,45 @@ export class MarketPlaceProjectController {
       });
     }
   };
+  freelacerReport: RequestHandler = async (req, res): Promise<void> => {
+    console.log("dasdas");
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        throw new Error("user not Authenticated");
+      }
+
+      
+      const { clientId, clientEmail, title, description,jobId } = req.body;
+      const reportData: IReportData = {
+        clientId,
+        clientEmail,
+        title,
+        description,
+        userId,
+        jobId,
+      };
+
+      const data = await marketPlace.submitFreelacerReportUseCase(reportData);
+
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Report submission error:", error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to submit report",
+      });
+    }
+  };
+}
+
+interface IReportData {
+  clientId: string;
+  clientEmail: string;
+  title: string;
+  description: string;
+  userId: string;
+  jobId: string;
 }
