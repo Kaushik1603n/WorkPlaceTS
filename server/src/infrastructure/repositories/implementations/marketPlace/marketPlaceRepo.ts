@@ -306,6 +306,7 @@ export class marketPlaceRepo implements IMarketPlace {
         requiredFeatures: project?.requiredFeatures,
         hiredFreelancer: project?.hiredFreelancer,
         hiredProposalId: project?.hiredProposalId,
+        paymentStatus: project?.paymentStatus,
         budgetType: project?.budgetType,
         budget: project?.budget,
         clientId: client?._id,

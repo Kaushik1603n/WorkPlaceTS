@@ -35,6 +35,7 @@ export interface ReturnAllProjectsInfoDTO {
   hiredProposalId?: string;
   budgetType?: string;
   budget?: string | number;
+  paymentStatus?: "unpaid" | "partially-paid" | "fully-paid";
   clientId?: string;
   clientEmail?: string;
   clientFullName?: string;

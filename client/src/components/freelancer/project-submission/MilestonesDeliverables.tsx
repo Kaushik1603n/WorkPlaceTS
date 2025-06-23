@@ -28,7 +28,6 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
   onSubmitWork
 }) => {
   const getStatusColor = (status: string) => {
-    console.log(status);
 
     switch (status) {
       case 'interviewing': return 'bg-yellow-100 text-yellow-800';

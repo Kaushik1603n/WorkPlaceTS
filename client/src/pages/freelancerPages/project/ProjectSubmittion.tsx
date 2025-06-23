@@ -9,6 +9,8 @@ import { MilestonesDeliverables } from '../../../components/freelancer/project-s
 import { Timeline } from '../../../components/freelancer/project-submission/Timeline';
 import { MilestoneSubmissionModal } from '../../../components/freelancer/project-submission/MilestoneSubmissionModal';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 
 interface Milestones {
@@ -57,14 +59,16 @@ interface JobDetails {
   clientId: string;
   clientEmail: string;
   clientFullName: string;
+  paymentStatus: string;
 }
 
 interface FinancialDetailsProps {
   proposalDetails: number;
+  payment: string;
 }
 
 
-const FinancialDetails: React.FC<FinancialDetailsProps> = ({proposalDetails}) => (
+const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, payment }) => (
   <div className="bg-white border border-gray-200 rounded-lg p-6">
     <h2 className="text-lg font-semibold text-gray-900 mb-4">Financial Details</h2>
 
@@ -76,19 +80,30 @@ const FinancialDetails: React.FC<FinancialDetailsProps> = ({proposalDetails}) =>
 
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Payment Status:</span>
-        <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Payment Pending</span>
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${payment === 'fully-paid'
+          ? 'bg-green-100 text-green-800'
+          : payment === 'partially-paid'
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-red-100 text-red-800'
+          }`}>
+          {payment === 'fully-paid'
+            ? 'fully-paid'
+            : payment === 'partially-paid'
+              ? 'Partially Paid'
+              : 'Pending'}
+        </span>
       </div>
 
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Platform Fee:</span>
-        <span className="text-gray-900">10% (${proposalDetails*0.1})</span>
+        <span className="text-gray-900">10% (${proposalDetails * 0.1})</span>
       </div>
 
       <hr className="border-gray-200" />
 
       <div className="flex justify-between items-center">
         <span className="text-sm font-semibold text-gray-700">You'll Receive:</span>
-        <span className="text-lg font-bold text-gray-900">${proposalDetails*0.9}</span>
+        <span className="text-lg font-bold text-gray-900">${proposalDetails * 0.9}</span>
       </div>
 
       <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -162,6 +177,7 @@ const ProjectDashboard: React.FC = () => {
     clientId: '',
     clientEmail: '',
     clientFullName: '',
+    paymentStatus: '',
   })
   const [proposalDetails, setProposalDetails] = useState<ProposalDetails>({
     _id: "",
@@ -205,12 +221,21 @@ const ProjectDashboard: React.FC = () => {
   }, [jobId])
 
   if (loading) {
-    console.log("");
-
+    return (
+      <main className="flex-1 p-4 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </main>
+    );
   }
   if (error) {
-    console.log("error");
+    return (
+      <main className="flex-1 p-4">
+        <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+      </main>
+    );
   }
+
+
 
   const onSubmitWork = (milestoneId: string) => {
     const milestone = proposalDetails.milestones.find((m) => m._id === milestoneId);
@@ -228,7 +253,6 @@ const ProjectDashboard: React.FC = () => {
         links: deliverables.links
       };
 
-      console.log(submissionData);
 
       await axiosClient.post(`/jobs/submit-milestone/${jobId}`, submissionData,);
 
@@ -266,8 +290,8 @@ const ProjectDashboard: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <FinancialDetails proposalDetails={proposalDetails.bidAmount} />
-            <Timeline />
+            <FinancialDetails proposalDetails={proposalDetails.bidAmount} payment={jobDetails.paymentStatus} />
+            {/* <Timeline /> */}
             <TermsConditions />
             {/* <Actions /> */}
           </div>
