@@ -44,4 +44,10 @@ export class UserUseCase {
   async TicketStatusCommentUseCase(text:string,ticketId:string,userId:string) {
     return this.user.updateTicketComment(text,ticketId,userId);
   }
+  async UserGrowthDataUseCase() {
+    return this.user.findUserGrowthData();
+  }
+  async TopFreelancerUseCase() {
+    return this.user.findTopFreelancer();
+  }
 }

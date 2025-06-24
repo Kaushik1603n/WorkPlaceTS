@@ -3,6 +3,7 @@ import UserModel from "../../../../domain/models/User";
 import clientModal from "../../../../domain/models/ClientProfile";
 import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
 import ReportModal from "../../../../domain/models/ReportModel";
+import FeedbackModel from "../../../../domain/models/feedbackSchema";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
@@ -199,6 +200,199 @@ export class UserDataRepo implements userDataRepoI {
         },
         { new: true }
       );
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
+  }
+  async findUserGrowthData() {
+    try {
+      const result = await UserModel.aggregate([
+        {
+          $project: {
+            role: 1,
+            year: { $year: "$createdAt" },
+            week: { $week: "$createdAt" },
+            createdAt: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: "$year",
+              week: "$week",
+              role: "$role",
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: "$_id.year",
+              week: "$_id.week",
+            },
+            roles: {
+              $push: {
+                role: "$_id.role",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            week: {
+              $concat: [
+                "Week ",
+                { $toString: "$_id.week" },
+                ", ",
+                { $toString: "$_id.year" },
+              ],
+            },
+            freelancers: {
+              $ifNull: [
+                {
+                  $let: {
+                    vars: {
+                      freelancer: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$roles",
+                              as: "r",
+                              cond: { $eq: ["$$r.role", "freelancer"] },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                    in: "$$freelancer.count",
+                  },
+                },
+                0,
+              ],
+            },
+            clients: {
+              $ifNull: [
+                {
+                  $let: {
+                    vars: {
+                      client: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$roles",
+                              as: "r",
+                              cond: { $eq: ["$$r.role", "client"] },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                    in: "$$client.count",
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        },
+        {
+          $sort: { "_id.year": 1, "_id.week": 1 },
+        },
+        {
+          $project: { _id: 0 },
+        },
+      ]);
+      const totalUsers = await UserModel.countDocuments();
+      return { result, totalUsers };
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
+  }
+  async findTopFreelancer() {
+    try {
+      const feedbacks = await FeedbackModel.find();
+
+      // Group feedback by freelancerId and calculate averages
+      const userRatingsMap = new Map<
+        string,
+        {
+          count: number;
+          totalRating: number;
+          quality: number;
+          deadlines: number;
+          professionalism: number;
+        }
+      >();
+
+      feedbacks.forEach((feedback) => {
+        const freelancerId = feedback.freelancerId.toString();
+        const current = userRatingsMap.get(freelancerId) || {
+          count: 0,
+          totalRating: 0,
+          quality: 0,
+          deadlines: 0,
+          professionalism: 0,
+        };
+
+        userRatingsMap.set(freelancerId, {
+          count: current.count + 1,
+          totalRating: current.totalRating + feedback.overallRating,
+          quality: current.quality + feedback.ratings.quality,
+          deadlines: current.deadlines + feedback.ratings.deadlines,
+          professionalism:
+            current.professionalism + feedback.ratings.professionalism,
+        });
+      });
+
+      // Convert map to array of user rating summaries
+      const userRatingSummaries = Array.from(userRatingsMap.entries()).map(
+        ([freelancerId, stats]) => ({
+          freelancerId,
+          averageRating: stats.totalRating / stats.count,
+          averageQuality: stats.quality / stats.count,
+          averageDeadlines: stats.deadlines / stats.count,
+          averageProfessionalism: stats.professionalism / stats.count,
+          feedbackCount: stats.count,
+        })
+      );
+
+      // Sort by average rating (descending)
+      userRatingSummaries.sort((a, b) => b.averageRating - a.averageRating);
+
+      // Get top 3 users
+      const topUserIds = userRatingSummaries
+        .slice(0, 5)
+        .map((user) => user.freelancerId);
+
+      const topUsers = await UserModel.find({
+        _id: { $in: topUserIds },
+        role:"freelancer"
+      });
+
+      // Combine user details with their rating stats
+      const result = topUserIds.map((freelancerId) => {
+        const user = topUsers.find((u) => u._id.toString() === freelancerId);
+        const ratingSummary = userRatingSummaries.find(
+          (r) => r.freelancerId === freelancerId
+        );
+
+        return {
+          userId: freelancerId,
+          fullName: user?.fullName || "Unknown",
+          email: user?.email || "",
+          averageRating: ratingSummary?.averageRating || 0,
+          averageQuality: ratingSummary?.averageQuality || 0,
+          averageDeadlines: ratingSummary?.averageDeadlines || 0,
+          averageProfessionalism: ratingSummary?.averageProfessionalism || 0,
+          feedbackCount: ratingSummary?.feedbackCount || 0,
+        };
+      });
+
+      return result;
     } catch (error) {
       throw new Error("Failed to update ticket");
     }
