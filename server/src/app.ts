@@ -19,6 +19,7 @@ import paymentRoutes from "./interfaceAdapters/routes/marketPlace/paymentRoute";
 import messageRoute from "./interfaceAdapters/routes/messageRoute";
 import { MessageRepo } from "./infrastructure/repositories/implementations/messageRepo";
 import { MessageUseCase } from "./useCase/messageUseCase";
+import adminProjectRoute from "./interfaceAdapters/routes/adminRoutes/adminProjectRoute";
 
 export class App {
   private app: Application;
@@ -65,6 +66,7 @@ export class App {
     this.app.use("/api/payments", paymentRoutes);
     this.app.use("/api/message", messageRoute);
     this.app.use("/api/admin", userRoutes);
+    this.app.use("/api/admin/project", adminProjectRoute);
   }
 
   private setupSocketIO() {

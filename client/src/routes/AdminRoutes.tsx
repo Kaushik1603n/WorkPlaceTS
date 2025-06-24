@@ -9,6 +9,8 @@ import ProtectedAdmin from "../utils/ProtectedRoutes/ProtectedAdmin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminTicketDashboard from "../pages/admin/AdminTicketDashboard";
 import PaymentLising from "../pages/admin/PaymentLising";
+import AllProjectListing from "../pages/admin/AllProject";
+import AdminProjectDetails from "../pages/admin/ProjectDetails";
 
 function AdminRoutes() {
     return (
@@ -16,7 +18,8 @@ function AdminRoutes() {
             <Route element={<ProtectedAdmin />}>
                 <Route path="/admin-dashboard" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard/>} />
-                    <Route path="projects" element={<div>project Page</div>} />
+                    <Route path="projects" element={<AllProjectListing/>} />
+                    <Route path="projects/:jobId" element={<AdminProjectDetails/>} />
                     <Route path="payments" element={<PaymentLising/>} />
                     <Route path="Report-Resolution" element={<AdminTicketDashboard/>} />
                     <Route path="analytics-dashboard" element={<>analytics-dashboard</>} />

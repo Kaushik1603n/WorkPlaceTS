@@ -16,7 +16,6 @@ import type {
   TopFreelancer, JobData
 } from '../../components/admin/dashboard/types';
 import axiosClient from '../../utils/axiosClient';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
 
 const AdminDashboard: React.FC = () => {
@@ -84,7 +83,14 @@ const AdminDashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading Payments...</p>
+        </div>
+      </div>
+    );
   }
   if (error) {
 
