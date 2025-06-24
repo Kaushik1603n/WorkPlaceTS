@@ -67,11 +67,14 @@ export class ProjectController {
   getAllProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { userId } = req.user as { userId: string; email: string };
-      const project= await projectUserCase.getProjectUseCase(userId);
+      const project = await projectUserCase.getProjectUseCase(userId);
       res
         .status(200)
-        .json({ success: true, message: "Project get successfully" ,data:project });
-      
+        .json({
+          success: true,
+          message: "Project get successfully",
+          data: project,
+        });
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ message: error.message });
@@ -80,4 +83,50 @@ export class ProjectController {
       }
     }
   };
+  getAllTickets: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { userId } = req.user as { userId: string; email: string };
+      if (!userId) {
+        throw new Error("User Not Authenticated");
+      }
+      const tickets = await projectUserCase.getAllTicketUseCase(userId);
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Project get successfully",
+          data: tickets,
+        });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "User Verification faild" });
+      }
+    }
+  };
+  TicketComment: RequestHandler = async (req, res): Promise<any> => {
+      try {
+        
+        const user = req.user as { userId: string; email: string };
+        const userId = user.userId;
+        if (!userId) {
+          res.status(401).json({ success: false, error: "Unauthorized" });
+          return;
+        }
+        const ticketId = req.params.ticketId;
+        const { text } = req.body;
+  
+        const report = await projectUserCase.TicketStatusCommentUseCase(text,ticketId,userId);
+  
+        res.status(200).json({ data: report || [] });
+      } catch (error) {
+        console.error(error);
+        if (error instanceof Error) {
+          res.status(400).json({ message: error.message });
+        } else {
+          res.status(500).json({ message: "Internal server error" });
+        }
+      }
+    };
 }

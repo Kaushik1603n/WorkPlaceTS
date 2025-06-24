@@ -14,6 +14,7 @@ import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
 import PendingPaymentListing from "../pages/clientPages/project/PaymentPage";
 import MessagingPage from "../pages/message/MessagingPage";
 import ActiveClinetProject from "../pages/clientPages/project/ActiveClinetProject";
+import ClientTicketDashboard from "../pages/clientPages/ticket/ClientTicketDashboard";
 
 
 function ClientRoutes() {
@@ -47,7 +48,7 @@ function ClientRoutes() {
           />
           <Route
             path="dispute"
-            element={<div>Dispute Resolution Page</div>}
+            element={<ClientTicketDashboard/>}
           />
         </Route>
       </Route>

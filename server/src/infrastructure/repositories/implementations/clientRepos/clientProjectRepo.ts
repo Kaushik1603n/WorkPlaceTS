@@ -1,5 +1,6 @@
 import { IProjectRepo } from "../../../../domain/interfaces/IProjectRepo";
 import ProjectModel from "../../../../domain/models/Projects";
+import ReportModel from "../../../../domain/models/ReportModel";
 
 export class ProjectRepo implements IProjectRepo {
   async creteNewProject(
@@ -17,10 +18,9 @@ export class ProjectRepo implements IProjectRepo {
     reference: string
   ) {
     try {
-      
       await ProjectModel.create({
         clientId: userId,
-        job_Id:job_Id,
+        job_Id: job_Id,
         title: jobTitle,
         description,
         requiredFeatures,
@@ -37,14 +37,45 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async findProjects(
-    userId: string,
-  ) {
+  async findProjects(userId: string) {
     try {
-      return await ProjectModel.find({clientId:userId}).sort({createdAt:-1})
+      return await ProjectModel.find({ clientId: userId }).sort({
+        createdAt: -1,
+      });
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");
+    }
+  }
+  async findAllTicket(userId: string) {
+    try {
+      return await ReportModel.find({ "client.id": userId }).sort({
+        createdAt: -1,
+      });
+    } catch (error) {
+      console.error("Repository error:", error);
+      throw new Error("Failed to create project in database");
+    }
+  }
+  async updateTicketComment(text: string, ticketId: string, userId: string) {
+    try {
+      return await ReportModel.findByIdAndUpdate(
+        ticketId,
+        {
+          $push: {
+            comments: {
+              text,
+              user: "freelancer",
+              changedAt: new Date(),
+              createdBy: userId,
+            },
+          },
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error("Failed to update ticket");
     }
   }
 }
