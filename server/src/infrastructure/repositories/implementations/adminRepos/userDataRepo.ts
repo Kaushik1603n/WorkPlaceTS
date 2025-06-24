@@ -2,6 +2,7 @@ import { userDataRepoI } from "../../../../domain/interfaces/admin/userDataRepoI
 import UserModel from "../../../../domain/models/User";
 import clientModal from "../../../../domain/models/ClientProfile";
 import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
+import ReportModal from "../../../../domain/models/ReportModel";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
@@ -156,5 +157,50 @@ export class UserDataRepo implements userDataRepoI {
 
   async findByIdAndUserVerification(userId: string, status: string) {
     await UserModel.findByIdAndUpdate(userId, { isVerification: status });
+  }
+  async findReport() {
+    return await ReportModal.find().sort({ createdAt: -1 });
+  }
+  async updateTicketStatus(status: string, ticketId: string, userId: string) {
+    try {
+      return await ReportModal.findByIdAndUpdate(
+        ticketId,
+        {
+          status,
+          $push: {
+            statusHistory: {
+              status,
+              changedAt: new Date(),
+              changedBy: userId,
+            },
+          },
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
+  }
+  async updateTicketComment(text: string, ticketId: string, userId: string) {
+    try {
+      return await ReportModal.findByIdAndUpdate(
+        ticketId,
+        {
+          $push: {
+            comments: {
+              text,
+              user: "admin",
+              changedAt: new Date(),
+              createdBy: userId,
+            },
+          },
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
   }
 }

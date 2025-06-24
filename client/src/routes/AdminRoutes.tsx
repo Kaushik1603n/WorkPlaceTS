@@ -7,6 +7,7 @@ import FreelancerVerifyProfile from "../components/admin/userProfile/FreelancerP
 import ClentVerifyProfile from "../components/admin/userProfile/ClentProfile";
 import ProtectedAdmin from "../utils/ProtectedRoutes/ProtectedAdmin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminTicketDashboard from "../pages/admin/AdminTicketDashboard";
 
 function AdminRoutes() {
     return (
@@ -16,7 +17,7 @@ function AdminRoutes() {
                     <Route index element={<AdminDashboard/>} />
                     <Route path="projects" element={<div>project Page</div>} />
                     <Route path="payments" element={<div>Payment Page</div>} />
-                    <Route path="Report-Resolution" element={<>Report-Resolution</>} />
+                    <Route path="Report-Resolution" element={<AdminTicketDashboard/>} />
                     <Route path="analytics-dashboard" element={<>analytics-dashboard</>} />
                     <Route path="notification" element={<div>Notification Page</div>} />
                     <Route path="freelancer" element={<Freelancer />} />

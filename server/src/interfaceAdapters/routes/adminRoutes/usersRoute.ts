@@ -13,5 +13,10 @@ userRoutes.get("/get-client-details/:userId",authenticate, userData.clientDetail
 userRoutes.get("/get-freelancer-details/:userId",authenticate, userData.freelancerDetails);
 userRoutes.put("/user-verification/:userId",authenticate, userData.userVerification);
 
+userRoutes.get("/tickets",authenticate, userData.AllReport);
+userRoutes.patch("/tickets/:ticketId",authenticate, userData.TicketStatus);
+userRoutes.post("/tickets/:ticketId/comments",authenticate, userData.TicketStatusComment);
+
+
 
 export default userRoutes;

@@ -110,8 +110,8 @@ export class UserDataController {
   userVerification: RequestHandler = async (req, res): Promise<any> => {
     try {
       const userId = req.params.userId;
-      const {status} = req.body;
-      
+      const { status } = req.body;
+
       if (!userId) {
         throw new Error("UserId not Found");
       }
@@ -119,17 +119,91 @@ export class UserDataController {
         throw new Error("Status not Found");
       }
 
-      await userData.userVerification(userId,status);
+      await userData.userVerification(userId, status);
 
       res
         .status(200)
-        .json({ success: true, message: "Update Verification Status",status });
+        .json({ success: true, message: "Update Verification Status", status });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
         res.status(400).json({ message: error.message });
       } else {
         res.status(500).json({ message: "User Verification faild" });
+      }
+    }
+  };
+
+  AllReport: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+
+      const report = await userData.AllReportUseCase();
+
+      res.status(200).json({ data: report || [] });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
+  TicketStatus: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+      const ticketId = req.params.ticketId;
+
+      const { status } = req.body;
+
+      const report = await userData.TicketStatusUseCase(
+        status,
+        ticketId,
+        userId
+      );
+
+      res.status(200).json({ data: report || [] });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
+  TicketStatusComment: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+      const ticketId = req.params.ticketId;
+      const { text } = req.body;
+
+      const report = await userData.TicketStatusCommentUseCase(text,ticketId,userId);
+
+      res.status(200).json({ data: report || [] });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
       }
     }
   };

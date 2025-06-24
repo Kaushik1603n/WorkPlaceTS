@@ -35,4 +35,13 @@ export class UserUseCase {
   async userVerification(userId: string,status:string) {
     this.user.findByIdAndUserVerification(userId,status);
   }
+  async AllReportUseCase() {
+    return this.user.findReport();
+  }
+  async TicketStatusUseCase(status:string,ticketId:string,userId:string) {
+    return this.user.updateTicketStatus(status,ticketId,userId);
+  }
+  async TicketStatusCommentUseCase(text:string,ticketId:string,userId:string) {
+    return this.user.updateTicketComment(text,ticketId,userId);
+  }
 }
