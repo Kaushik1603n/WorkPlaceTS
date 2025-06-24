@@ -12,7 +12,6 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, setActiveTab }
     { id: 'users', label: 'Users' },
     { id: 'projects', label: 'Projects' },
     { id: 'finance', label: 'Finance' },
-    { id: 'performance', label: 'Performance' }
   ];
 
   return (

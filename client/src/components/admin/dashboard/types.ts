@@ -1,7 +1,7 @@
 export interface MetricCardProps {
   title: string;
   value: number;
-  change: number;
+  // change: number;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   format?: "number" | "currency" | "percentage";
 }
@@ -20,6 +20,11 @@ export interface UserGrowthData {
   clients: number;
   activeFreelancers?: number;
   repeatClients?: number;
+}
+export interface JobData {
+  month?: string;
+  jobsPosted: number;
+  hiresMade: number;
 }
 
 export interface JobCategoryData {

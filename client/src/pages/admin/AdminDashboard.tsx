@@ -12,8 +12,8 @@ import MetricCard from '../../components/admin/dashboard/MetricCard';
 import DashboardHeader from '../../components/admin/dashboard/DashboardHeader';
 import TabNavigation from '../../components/admin/dashboard/TabNavigation';
 import type {
-  UserGrowthData, RevenueData, TrafficData,
-  TopFreelancer, OverviewMetrics, ConversionFunnelStage
+  UserGrowthData, RevenueData, 
+  TopFreelancer, OverviewMetrics,  JobData
 } from '../../components/admin/dashboard/types';
 import axiosClient from '../../utils/axiosClient';
 
@@ -22,7 +22,15 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([]);
   const [topFreelancers, setTopFreelancer] = useState<TopFreelancer[]>([]);
+  const [jobData, setJobData] = useState<JobData[]>([]);
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [jobDetails, setJobDetails] = useState({
+    successRate: 100,
+    avgBudget: 0,
+    completedJob: 0,
+    totalJob: 0,
+    activeJob: 0
+  });
 
   // Mock data for demonstration
   const overviewMetrics: OverviewMetrics = {
@@ -34,14 +42,14 @@ const AdminDashboard: React.FC = () => {
     completedProjects: 2963
   };
 
-  const userGrowthDatas: UserGrowthData[] = [
-    { month: 'Jan', freelancers: 1200, clients: 800 },
-    { month: 'Feb', freelancers: 1450, clients: 920, },
-    { month: 'Mar', freelancers: 1680, clients: 1100, },
-    { month: 'Apr', freelancers: 1920, clients: 1280, },
-    { month: 'May', freelancers: 2150, clients: 1450, },
-    { month: 'Jun', freelancers: 2400, clients: 1620, }
-  ];
+  // const userGrowthDatas: UserGrowthData[] = [
+  //   { month: 'Jan', freelancers: 1200, clients: 800 },
+  //   { month: 'Feb', freelancers: 1450, clients: 920, },
+  //   { month: 'Mar', freelancers: 1680, clients: 1100, },
+  //   { month: 'Apr', freelancers: 1920, clients: 1280, },
+  //   { month: 'May', freelancers: 2150, clients: 1450, },
+  //   { month: 'Jun', freelancers: 2400, clients: 1620, }
+  // ];
 
   const fetchUserGrowthData = async () => {
     const res = await axiosClient.get("/admin/usergrothdata")
@@ -52,6 +60,18 @@ const AdminDashboard: React.FC = () => {
   const fetchTopFreelancer = async () => {
     const res = await axiosClient.get("/admin/topfreelancer")
     setTopFreelancer(res.data.data);
+
+  }
+  const fetchJobGrowth = async () => {
+    const res = await axiosClient.get("/admin/alljobcount")
+    setJobData(res.data.data);
+    console.log(res.data.data);
+
+  }
+  const fetchJobDetails = async () => {
+    const res = await axiosClient.get("/admin/alljobdetails")
+    setJobDetails(res.data.data);
+    console.log(res.data.data);
 
   }
 
@@ -73,13 +93,13 @@ const AdminDashboard: React.FC = () => {
     { month: 'Jun', commission: 34500, subscription: 6400, disputes: -590 }
   ];
 
-  const trafficData: TrafficData[] = [
-    { source: 'Direct', visitors: 12450, conversions: 890 },
-    { source: 'SEO', visitors: 8930, conversions: 1250 },
-    { source: 'Paid Ads', visitors: 6780, conversions: 780 },
-    { source: 'Social Media', visitors: 4520, conversions: 320 },
-    { source: 'Referrals', visitors: 3210, conversions: 280 }
-  ];
+  // const trafficData: TrafficData[] = [
+  //   { source: 'Direct', visitors: 12450, conversions: 890 },
+  //   { source: 'SEO', visitors: 8930, conversions: 1250 },
+  //   { source: 'Paid Ads', visitors: 6780, conversions: 780 },
+  //   { source: 'Social Media', visitors: 4520, conversions: 320 },
+  //   { source: 'Referrals', visitors: 3210, conversions: 280 }
+  // ];
 
   // const topFreelancers: TopFreelancer[] = [
   //   { name: 'Sarah Chen', earnings: 12500, rating: 4.9, projects: 34 },
@@ -96,17 +116,19 @@ const AdminDashboard: React.FC = () => {
   //   { method: 'Credit Card', percentage: 8, amount: 22000 }
   // ];
 
-  const conversionFunnel: ConversionFunnelStage[] = [
-    { stage: 'Website Visitors', count: 35890, percentage: 100 },
-    { stage: 'Account Signups', count: 4587, percentage: 12.8 },
-    { stage: 'Profile Completed', count: 3251, percentage: 70.9 },
-    { stage: 'First Job Posted/Bid', count: 1876, percentage: 57.7 },
-    { stage: 'First Transaction', count: 892, percentage: 47.5 }
-  ];
+  // const conversionFunnel: ConversionFunnelStage[] = [
+  //   { stage: 'Website Visitors', count: 35890, percentage: 100 },
+  //   { stage: 'Account Signups', count: 4587, percentage: 12.8 },
+  //   { stage: 'Profile Completed', count: 3251, percentage: 70.9 },
+  //   { stage: 'First Job Posted/Bid', count: 1876, percentage: 57.7 },
+  //   { stage: 'First Transaction', count: 892, percentage: 47.5 }
+  // ];
 
   useEffect(() => {
     fetchUserGrowthData();
-    fetchTopFreelancer()
+    fetchTopFreelancer();
+    fetchJobGrowth()
+    fetchJobDetails()
   }, [])
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -118,30 +140,21 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <MetricCard
                 title="Total Users"
                 value={totalUsers}
-                change={12.5}
                 icon={Users}
               />
               <MetricCard
                 title="Active Projects"
-                value={overviewMetrics.activeProjects}
-                change={8.3}
+                value={jobDetails.activeJob}
                 icon={Briefcase}
               />
-              <MetricCard
-                title="Total Revenue"
-                value={overviewMetrics.totalRevenue}
-                change={15.7}
-                icon={DollarSign}
-                format="currency"
-              />
+    
               <MetricCard
                 title="Dispute Rate"
                 value={overviewMetrics.disputeRate}
-                change={-2.1}
                 icon={AlertTriangle}
                 format="percentage"
               />
@@ -242,26 +255,27 @@ const AdminDashboard: React.FC = () => {
         {/* Projects Tab */}
         {activeTab === 'projects' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <MetricCard
                 title="Success Rate"
-                value={86.6}
-                change={4.2}
+                value={jobDetails.successRate}
                 icon={Briefcase}
                 format="percentage"
               />
               <MetricCard
-                title="Avg. Project Duration"
-                value={14}
-                change={-8.5}
+                title="Completed Project"
+                value={jobDetails.completedJob}
+                icon={Briefcase}
+              />
+              <MetricCard
+                title="Total Project"
+                value={jobDetails.totalJob}
                 icon={Clock}
               />
               <MetricCard
-                title="Avg. Bid vs Budget"
-                value={92.3}
-                change={2.1}
+                title="Avg Budget"
+                value={jobDetails.avgBudget}
                 icon={DollarSign}
-                format="percentage"
               />
             </div>
 
@@ -269,18 +283,14 @@ const AdminDashboard: React.FC = () => {
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Projects Posted vs Completed</h3>
                 <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={userGrowthData.map(d => ({
-                    week: d.week,
-                    posted: Math.floor(d.freelancers * 0.8),
-                    completed: Math.floor(d.freelancers * 0.65)
-                  }))}>
+                  <BarChart data={jobData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="posted" fill="#8884d8" />
-                    <Bar dataKey="completed" fill="#82ca9d" />
+                    <Bar dataKey="jobsPosted" fill="#8884d8" />
+                    <Bar dataKey="hiresMade" fill="#82ca9d" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -318,27 +328,25 @@ const AdminDashboard: React.FC = () => {
               <MetricCard
                 title="Monthly Revenue"
                 value={34500}
-                change={12.3}
                 icon={DollarSign}
                 format="currency"
               />
               <MetricCard
                 title="Commission Rate"
                 value={8.5}
-                change={0}
                 icon={TrendingUp}
                 format="percentage"
               />
               <MetricCard
                 title="Pending Withdrawals"
                 value={28}
-                change={-15.2}
+
                 icon={Clock}
               />
               <MetricCard
                 title="Dispute Costs"
                 value={590}
-                change={-18.5}
+
                 icon={AlertTriangle}
                 format="currency"
               />
@@ -382,27 +390,24 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Performance Tab */}
-        {activeTab === 'performance' && (
+        {/* {activeTab === 'performance' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <MetricCard
                 title="Conversion Rate"
                 value={12.8}
-                change={5.2}
                 icon={TrendingUp}
                 format="percentage"
               />
               <MetricCard
                 title="User Churn Rate"
                 value={3.2}
-                change={-8.7}
                 icon={Users}
                 format="percentage"
               />
               <MetricCard
                 title="Avg. Session Duration"
                 value={24}
-                change={18.3}
                 icon={Clock}
               />
             </div>
@@ -447,7 +452,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -50,4 +50,10 @@ export class UserUseCase {
   async TopFreelancerUseCase() {
     return this.user.findTopFreelancer();
   }
+  async AllJobcountUseCase() {
+    return this.user.findAllJobcountUseCase();
+  }
+  async AllJobDetailsUseCase() {
+    return this.user.findAllJobDetailsUseCase();
+  }
 }

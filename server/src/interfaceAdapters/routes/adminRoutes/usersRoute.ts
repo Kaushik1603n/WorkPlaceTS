@@ -19,6 +19,8 @@ userRoutes.post("/tickets/:ticketId/comments",authenticate, userData.TicketStatu
 
 userRoutes.get("/usergrothdata",authenticate, userData.UserGrowthData);
 userRoutes.get("/topfreelancer",authenticate, userData.TopFreelancer);
+userRoutes.get("/alljobcount",authenticate, userData.AllJobcount);
+userRoutes.get("/alljobdetails",authenticate, userData.AllJobDetails);
 
 
 export default userRoutes;

@@ -4,6 +4,7 @@ import clientModal from "../../../../domain/models/ClientProfile";
 import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
 import ReportModal from "../../../../domain/models/ReportModel";
 import FeedbackModel from "../../../../domain/models/feedbackSchema";
+import ProjectModel from "../../../../domain/models/Projects";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
@@ -370,7 +371,7 @@ export class UserDataRepo implements userDataRepoI {
 
       const topUsers = await UserModel.find({
         _id: { $in: topUserIds },
-        role:"freelancer"
+        role: "freelancer",
       });
 
       // Combine user details with their rating stats
@@ -393,6 +394,92 @@ export class UserDataRepo implements userDataRepoI {
       });
 
       return result;
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
+  }
+  async findAllJobcountUseCase() {
+    try {
+      const result = await ProjectModel.aggregate([
+        {
+          $group: {
+            _id: {
+              month: { $month: "$createdAt" },
+            },
+            jobsPosted: { $sum: 1 },
+            hiresMade: {
+              $sum: {
+                $cond: [{ $ifNull: ["$hiredFreelancer", false] }, 1, 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            month: {
+              $arrayElemAt: [
+                [
+                  "",
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ],
+                "$_id.month",
+              ],
+            },
+            jobsPosted: 1,
+            hiresMade: 1,
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            month: 1,
+          },
+        },
+      ]);
+
+      console.log(result);
+
+      return result;
+    } catch (error) {
+      throw new Error("Failed to update ticket");
+    }
+  }
+  async findAllJobDetailsUseCase() {
+    try {
+      const totalJobs = await ProjectModel.countDocuments();
+      const completedJobs = await ProjectModel.countDocuments({
+        status: "completed",
+      });
+      const successRate = (completedJobs / totalJobs) * 100;
+
+      const avgBudget = await ProjectModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            avgBudget: { $avg: "$budget" },
+          },
+        },
+      ]);
+
+      const activeJob =await ProjectModel.countDocuments({status:"in-progress"})
+      return {
+        successRate: successRate.toFixed(2  ),
+        avgBudget: avgBudget[0].avgBudget*80 || 0,
+        completedJob: completedJobs,
+        totalJob: totalJobs,
+        activeJob
+      };
     } catch (error) {
       throw new Error("Failed to update ticket");
     }
