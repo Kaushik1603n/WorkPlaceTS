@@ -432,7 +432,6 @@ export class MarketPlaceProjectController {
     }
   };
   freelacerReport: RequestHandler = async (req, res): Promise<void> => {
-    console.log("dasdas");
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;

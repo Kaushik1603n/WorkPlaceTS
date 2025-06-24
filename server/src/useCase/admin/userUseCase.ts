@@ -63,4 +63,7 @@ export class UserUseCase {
   async RevenueDataUseCase() {
     return this.user.findRevenueData();
   }
+  async PaymentsUseCase(page:number,limit:number) {
+    return this.user.getAllPayments(page,limit);
+  }
 }

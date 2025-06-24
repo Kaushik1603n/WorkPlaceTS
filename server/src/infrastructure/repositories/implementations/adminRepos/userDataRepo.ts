@@ -603,4 +603,14 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
+  async getAllPayments(page: number, limit: number) {
+    try {
+      return await PaymentModel.find()
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+    } catch (error) {
+      throw new Error("Failed to Load DB Data");
+    }
+  }
 }

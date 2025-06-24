@@ -43,4 +43,6 @@ userRoutes.get("/alljobcount", authenticate, userData.AllJobcount);
 userRoutes.get("/alljobdetails", authenticate, userData.AllJobDetails);
 userRoutes.get("/revenuedata", authenticate, userData.RevenueData);
 
+userRoutes.get("/payments", authenticate, userData.Payments);
+
 export default userRoutes;

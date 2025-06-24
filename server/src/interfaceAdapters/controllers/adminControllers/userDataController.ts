@@ -319,4 +319,29 @@ export class UserDataController {
       }
     }
   };
+  Payments: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+       const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const payment = await userData.PaymentsUseCase(page,limit);
+
+      res
+        .status(200)
+        .json({ success: true, payment:payment||[] });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
 }
