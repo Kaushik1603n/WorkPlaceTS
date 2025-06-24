@@ -32,17 +32,21 @@ export class UserUseCase {
     const freelancer = this.user.findfreelancerDetails(userId);
     return freelancer;
   }
-  async userVerification(userId: string,status:string) {
-    this.user.findByIdAndUserVerification(userId,status);
+  async userVerification(userId: string, status: string) {
+    this.user.findByIdAndUserVerification(userId, status);
   }
   async AllReportUseCase() {
     return this.user.findReport();
   }
-  async TicketStatusUseCase(status:string,ticketId:string,userId:string) {
-    return this.user.updateTicketStatus(status,ticketId,userId);
+  async TicketStatusUseCase(status: string, ticketId: string, userId: string) {
+    return this.user.updateTicketStatus(status, ticketId, userId);
   }
-  async TicketStatusCommentUseCase(text:string,ticketId:string,userId:string) {
-    return this.user.updateTicketComment(text,ticketId,userId);
+  async TicketStatusCommentUseCase(
+    text: string,
+    ticketId: string,
+    userId: string
+  ) {
+    return this.user.updateTicketComment(text, ticketId, userId);
   }
   async UserGrowthDataUseCase() {
     return this.user.findUserGrowthData();
@@ -54,6 +58,9 @@ export class UserUseCase {
     return this.user.findAllJobcountUseCase();
   }
   async AllJobDetailsUseCase() {
-    return this.user.findAllJobDetailsUseCase();
+    return this.user.findAllJobDetails();
+  }
+  async RevenueDataUseCase() {
+    return this.user.findRevenueData();
   }
 }

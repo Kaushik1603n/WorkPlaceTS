@@ -5,6 +5,9 @@ import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
 import ReportModal from "../../../../domain/models/ReportModel";
 import FeedbackModel from "../../../../domain/models/feedbackSchema";
 import ProjectModel from "../../../../domain/models/Projects";
+import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
+import PaymentModel from "../../../../domain/models/PaymentModel";
+import WalletModel from "../../../../domain/models/Wallet";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
@@ -310,7 +313,7 @@ export class UserDataRepo implements userDataRepoI {
       const totalUsers = await UserModel.countDocuments();
       return { result, totalUsers };
     } catch (error) {
-      throw new Error("Failed to update ticket");
+      throw new Error("Failed to Load DB Data");
     }
   }
   async findTopFreelancer() {
@@ -395,7 +398,7 @@ export class UserDataRepo implements userDataRepoI {
 
       return result;
     } catch (error) {
-      throw new Error("Failed to update ticket");
+      throw new Error("Failed to Load DB Data");
     }
   }
   async findAllJobcountUseCase() {
@@ -448,14 +451,12 @@ export class UserDataRepo implements userDataRepoI {
         },
       ]);
 
-      console.log(result);
-
       return result;
     } catch (error) {
-      throw new Error("Failed to update ticket");
+      throw new Error("Failed to Load DB Data");
     }
   }
-  async findAllJobDetailsUseCase() {
+  async findAllJobDetails() {
     try {
       const totalJobs = await ProjectModel.countDocuments();
       const completedJobs = await ProjectModel.countDocuments({
@@ -472,16 +473,134 @@ export class UserDataRepo implements userDataRepoI {
         },
       ]);
 
-      const activeJob =await ProjectModel.countDocuments({status:"in-progress"})
+      const activeJob = await ProjectModel.countDocuments({
+        status: "in-progress",
+      });
       return {
-        successRate: successRate.toFixed(2  ),
-        avgBudget: avgBudget[0].avgBudget*80 || 0,
+        successRate: successRate.toFixed(2),
+        avgBudget: avgBudget[0].avgBudget * 80 || 0,
         completedJob: completedJobs,
         totalJob: totalJobs,
-        activeJob
+        activeJob,
       };
     } catch (error) {
-      throw new Error("Failed to update ticket");
+      throw new Error("Failed to Load DB Data");
+    }
+  }
+  async findRevenueData() {
+    try {
+      const revenueData = await PaymentRequestModel.aggregate([
+        {
+          $match: {
+            status: "paid",
+          },
+        },
+        {
+          $project: {
+            year: { $isoWeekYear: "$createdAt" }, // ISO year (better for weeks)
+            week: { $isoWeek: "$createdAt" }, // ISO week (1-53)
+            platformFee: 1,
+            createdAt: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: "$year",
+              week: "$week",
+            },
+            platformFee: { $sum: "$platformFee" },
+            // Get the first date in this week for display
+            startDate: { $min: "$createdAt" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            // Format as "Week YYYY-WW" (e.g., "Week 2025-25")
+            week: {
+              $concat: [
+                "Week ",
+                ",",
+                {
+                  $toString: {
+                    $cond: [
+                      { $lt: ["$_id.week", 10] },
+                      { $concat: ["0", { $toString: "$_id.week" }] },
+                      { $toString: "$_id.week" },
+                    ],
+                  },
+                },
+                ",",
+                { $toString: "$_id.year" },
+              ],
+            },
+            platformFee: 1,
+            dateRange: {
+              $concat: [
+                { $dateToString: { format: "%Y-%m-%d", date: "$startDate" } },
+                " to ",
+                {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: {
+                      $dateAdd: {
+                        startDate: "$startDate",
+                        unit: "day",
+                        amount: 6,
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            "_id.year": 1,
+            "_id.week": 1,
+          },
+        },
+      ]);
+
+      const revenue = await PaymentModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            revenue: { $sum: "$platformFee" },
+          },
+        },
+      ]);
+      const pending = await PaymentRequestModel.aggregate([
+        {
+          $match: {
+            status: "pending",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            pending: { $sum: "$platformFee" },
+          },
+        },
+      ]);
+
+      const wallet = await WalletModel.findOne(
+        { userId: "admin" },
+        { balance: 1 }
+      );
+
+      return {
+        revenueData,
+        revenueDetails: {
+          revenue: revenue[0]?.revenue,
+          pending: pending[0]?.pending | 0,
+          wallet: wallet?.balance,
+        },
+      };
+    } catch (error) {
+      throw new Error("Failed to Load DB Data");
     }
   }
 }

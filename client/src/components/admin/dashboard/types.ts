@@ -34,10 +34,9 @@ export interface JobCategoryData {
 }
 
 export interface RevenueData {
-  month: string;
-  commission: number;
-  subscription: number;
-  disputes: number;
+  week: string;
+  platformFee: number;
+  dateRange: string;
 }
 
 export interface TrafficData {

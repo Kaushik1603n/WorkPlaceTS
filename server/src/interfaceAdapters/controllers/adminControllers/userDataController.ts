@@ -185,7 +185,6 @@ export class UserDataController {
   };
   TicketStatusComment: RequestHandler = async (req, res): Promise<any> => {
     try {
-      
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
@@ -195,7 +194,11 @@ export class UserDataController {
       const ticketId = req.params.ticketId;
       const { text } = req.body;
 
-      const report = await userData.TicketStatusCommentUseCase(text,ticketId,userId);
+      const report = await userData.TicketStatusCommentUseCase(
+        text,
+        ticketId,
+        userId
+      );
 
       res.status(200).json({ data: report || [] });
     } catch (error) {
@@ -210,18 +213,16 @@ export class UserDataController {
 
   UserGrowthData: RequestHandler = async (req, res): Promise<any> => {
     try {
-      
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-    
 
-      const {result,totalUsers} = await userData.UserGrowthDataUseCase();
+      const { result, totalUsers } = await userData.UserGrowthDataUseCase();
 
-      res.status(200).json({success:true, data: result || [] ,totalUsers});
+      res.status(200).json({ success: true, data: result || [], totalUsers });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -233,18 +234,16 @@ export class UserDataController {
   };
   TopFreelancer: RequestHandler = async (req, res): Promise<any> => {
     try {
-      
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-    
 
       const result = await userData.TopFreelancerUseCase();
 
-      res.status(200).json({success:true, data: result || [] });
+      res.status(200).json({ success: true, data: result || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -256,18 +255,16 @@ export class UserDataController {
   };
   AllJobcount: RequestHandler = async (req, res): Promise<any> => {
     try {
-      
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-    
 
       const result = await userData.AllJobcountUseCase();
 
-      res.status(200).json({success:true, data: result || [] });
+      res.status(200).json({ success: true, data: result || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -279,18 +276,40 @@ export class UserDataController {
   };
   AllJobDetails: RequestHandler = async (req, res): Promise<any> => {
     try {
-      
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-    
 
       const result = await userData.AllJobDetailsUseCase();
 
-      res.status(200).json({success:true, data: result || [] });
+      res.status(200).json({ success: true, data: result || [] });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  };
+  RevenueData: RequestHandler = async (req, res): Promise<any> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+
+      const { revenueData, revenueDetails } =
+        await userData.RevenueDataUseCase();
+
+      res
+        .status(200)
+        .json({ success: true, data: revenueData || [], revenueDetails });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
