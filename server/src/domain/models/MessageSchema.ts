@@ -11,13 +11,12 @@ interface IMessage extends Document {
   updatedAt: Date;
 }
 
-// Message Schema
 const MessageSchema: Schema = new Schema({
   id: { type: String, required: true, unique: true },
   text: { type: String, required: true },
   senderId: { type: String, required: true },
   contactId: { type: String, required: true },
-  timestamp: { type: String, required: true },
+  timestamp: { type: String,default: Date.now },
   isRead: { type: Boolean, default: false },
 }, { timestamps: true });
 

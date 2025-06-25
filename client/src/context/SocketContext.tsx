@@ -19,6 +19,7 @@ interface SocketContextType {
   notifications: INotification[];
   markAllNotificationsRead: () => void;
   clearNotifications: () => void;
+  markMessageRead: (messageId: string, contactId: string) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -66,17 +67,22 @@ export const SocketProvider: React.FC<{ children: React.ReactNode; userId: strin
   }, [userId]);
 
   const markAllNotificationsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, isRead: true }))
-    );
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   };
 
   const clearNotifications = () => {
     setNotifications([]);
   };
 
+  const markMessageRead = (messageId: string, contactId: string) => {
+    if (socket) {
+      socket.emit("markMessageRead", { messageId, userId, contactId });
+      // Optionally update local messages if needed
+    }
+  };
+
   return (
-    <SocketContext.Provider value={{ socket, notifications, markAllNotificationsRead, clearNotifications }}>
+    <SocketContext.Provider value={{ socket, notifications, markAllNotificationsRead, clearNotifications, markMessageRead, }}>
       {children}
     </SocketContext.Provider>
   );

@@ -1,5 +1,5 @@
-import React from 'react';
-import type { Contact } from './MessagingTypes';
+import React from "react";
+import type { Contact } from "./MessagingTypes";
 
 interface ContactListProps {
   contacts: Contact[];
@@ -10,13 +10,10 @@ interface ContactListProps {
 const ContactList: React.FC<ContactListProps> = ({ contacts, selectedContact, onSelectContact }) => {
   return (
     <div className="w-80 bg-white rounded-lg shadow-sm border border-[#27AE60] flex flex-col">
-      {/* Contacts Header */}
       <div className="p-4 border-b border-[#27AE60] bg-[#EFFFF6] rounded-t-lg">
         <h2 className="font-semibold text-gray-900">Conversations</h2>
         <p className="text-sm text-gray-500">{contacts.length} active chats</p>
       </div>
-
-      {/* Contacts List */}
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-1 p-2">
           {contacts.map((contact) => (
@@ -25,8 +22,8 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, selectedContact, on
               onClick={() => onSelectContact(contact)}
               className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                 selectedContact?.id === contact.id
-                  ? 'bg-[#adffd0] border border-[#27AE60] shadow-sm'
-                  : 'hover:bg-gray-100 border border-[#27AE60]'
+                  ? "bg-[#adffd0] border border-[#27AE60] shadow-sm"
+                  : "hover:bg-gray-100 border border-[#27AE60]"
               }`}
             >
               <div className="flex items-center space-x-3">
@@ -39,12 +36,22 @@ const ContactList: React.FC<ContactListProps> = ({ contacts, selectedContact, on
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
-                    {contact.fullName}
-                  </p>
-                  <p className="text-xs text-gray-600 truncate">
-                    {contact.role}
-                  </p>
+                  <div className="flex justify-between">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {contact.fullName}
+                    </p>
+                    {contact.unreadCount > 0 && (
+                      <span className="text-xs bg-red-500 text-white rounded-full px-2 py-1">
+                        {contact.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-600 truncate">{contact.role}</p>
+                  {contact.latestMessage && (
+                    <p className="text-xs text-gray-500 truncate">
+                      {contact.latestMessage.text}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

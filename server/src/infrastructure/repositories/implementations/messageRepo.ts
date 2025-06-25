@@ -23,47 +23,92 @@ export class MessageRepo {
     }).sort({ timestamp: -1 });
   }
 
-  async getLatestMessagedUsers(userId: string): Promise<any> {
-    // Get all users the authenticated user has messaged
-    const messages = await MessageModel.aggregate([
-      {
-        $match: {
-          $or: [{ senderId: userId }, { contactId: userId }],
-        },
-      },
-      {
-        $sort: { timestamp: -1 },
-      },
-      {
-        $group: {
-          _id: {
-            $cond: [{ $eq: ["$senderId", userId] }, "$contactId", "$senderId"],
-          },
-          latestMessage: { $first: "$$ROOT" },
-        },
-      },
-    ]);
-    // Fetch user details and unread message count
-    const result = await Promise.all(
-      messages.map(async (msg) => {
-        const otherUserId = msg._id;
-        const user = await UserModel.findById(otherUserId).select("fullName ");
-        const unreadCount = await MessageModel.countDocuments({
-          senderId: otherUserId,
-          contactId: userId,
-          isRead: false,
-        });
-
-        return {
-          user: user || { _id: otherUserId, name: "Unknown User" },
-          latestMessage: msg.latestMessage || null,
-          unreadCount,
-        };
-      })
+  async markMessagesRead(userId: string, contactId: string): Promise<void> {
+    await MessageModel.updateMany(
+      { senderId: contactId, contactId: userId, isRead: false },
+      { $set: { isRead: true } }
     );
-
-    return result;
   }
+
+  async getLatestMessagedUsers(userId: string): Promise<any> {
+    try {
+      const messages = await MessageModel.aggregate([
+        {
+          $match: {
+            $or: [{ senderId: userId }, { contactId: userId }],
+          },
+        },
+        {
+          $sort: { timestamp: -1 },
+        },
+        {
+          $group: {
+            _id: {
+              $cond: [
+                { $eq: ["$senderId", userId] },
+                "$contactId",
+                "$senderId",
+              ],
+            },
+            latestMessage: { $first: "$$ROOT" },
+          },
+        },
+      ]);
+
+      const allUsers = await UserModel.find({ _id: { $ne: userId },role: { $ne: "admin" } }).select(
+        "fullName role"
+      );
+
+      const result = await Promise.all(
+        allUsers.map(async (user) => {
+          const otherUserId = user._id.toString();
+          const messageData = messages.find((msg) => msg._id === otherUserId);
+
+          const unreadCount = await MessageModel.countDocuments({
+            senderId: otherUserId,
+            contactId: userId,
+            isRead: false,
+          });
+
+          let sortTimestamp: Date;
+          if (
+            messageData?.latestMessage?.timestamp &&
+            !isNaN(new Date(messageData.latestMessage.timestamp).getTime())
+          ) {
+            sortTimestamp = new Date(messageData.latestMessage.timestamp);
+          } else {
+            sortTimestamp = new Date(0); 
+          }
+
+          return {
+            user: {
+              _id: otherUserId,
+              fullName: user.fullName || "Unknown User",
+              role: user.role || "unknown",
+            },
+            latestMessage: messageData?.latestMessage || null,
+            unreadCount,
+            sortTimestamp,
+          };
+        })
+      );
+
+      result.sort((a, b) => {
+        return b.sortTimestamp.getTime() - a.sortTimestamp.getTime();
+      });
+
+      return result.map(({ user, latestMessage, unreadCount }) => ({
+        user,
+        latestMessage,
+        unreadCount,
+      }));
+    } catch (error) {
+      console.log(error);
+
+      throw new Error("Failed to fetch latest messaged users");
+    }
+  }
+
   async getUsers(userId: string): Promise<any> {
     return await UserModel.find(
       {
@@ -78,12 +123,6 @@ export class MessageRepo {
       }
     );
   }
-}
-
-export interface IUser extends Document {
-  _id: string;
-  name: string;
-  profilePicture?: string;
 }
 
 interface IMessage {

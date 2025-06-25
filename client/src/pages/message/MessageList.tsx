@@ -24,7 +24,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId }) => {
                     <div key={message.id} className="flex flex-col">
                         {(index === 0 || messages[index - 1].sender !== message.sender) && (
                             <div className="text-xs text-gray-500 text-center bg-white px-3 py-1 rounded-full w-fit mx-auto shadow-sm">
-                                {message.timestamp}
+                                {new Date(message.timestamp).toLocaleString()}
                             </div>
                         )}
                         <div

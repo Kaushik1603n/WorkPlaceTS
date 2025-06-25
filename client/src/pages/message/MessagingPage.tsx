@@ -1,143 +1,249 @@
-import React, { useEffect, useState } from 'react';
-import { useSocket } from '../../context/SocketContext';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../app/store';
-import axiosClient from '../../utils/axiosClient';
-import ContactList from './ContactList';
-import ChatHeader from './ChatHeader';
-import MessageList from './MessageList';
-import MessageInput from './MessageInput';
-import type { Contact, Message, IMessage } from './MessagingTypes';
-import SelectChat from './NoChat';
+import React, { useEffect, useState } from "react";
+import { useSocket } from "../../context/SocketContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import axiosClient from "../../utils/axiosClient";
+import ContactList from "./ContactList";
+import ChatHeader from "./ChatHeader";
+import MessageList from "./MessageList";
+import MessageInput from "./MessageInput";
+import type { Contact, Message, IMessage, GetLatestMessagesResponse } from "./MessagingTypes";
+import SelectChat from "./NoChat";
 
 const MessagingPage = () => {
-    const { socket } = useSocket();
-    const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-    const [messageInput, setMessageInput] = useState('');
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [contacts, setContact] = useState<Contact[]>([]);
+  const { socket, markMessageRead } = useSocket();
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [messageInput, setMessageInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
-    const { user } = useSelector((state: RootState) => state.auth);
-    const userId = user?.id;
+  const { user } = useSelector((state: RootState) => state.auth);
+  const userId = user?.id;
 
-    const getUserLatestMessage = async () => {
-        try {
-            const response = await axiosClient.get('/message/getlatest');
-            setContact(response.data.data.user);
-        } catch (error) {
-            console.error('Error fetching User:', error);
-        }
+  const getUserLatestMessage = async () => {
+    try {
+      const response = await axiosClient.get("/message/getlatest");
+      setContacts(
+        (response.data.data as GetLatestMessagesResponse).latestMessagedUsers.map((item) => ({
+          id: item.user._id,
+          fullName: item.user.fullName,
+          role: item.user.role,
+          isOnline: false,
+          latestMessage: item.latestMessage
+            ? {
+                id: item.latestMessage.id,
+                text: item.latestMessage.text,
+                senderId: item.latestMessage.senderId,
+                contactId: item.latestMessage.contactId,
+                timestamp: item.latestMessage.timestamp,
+                isRead: item.latestMessage.isRead,
+                sender: item.latestMessage.senderId === userId ? "user" : "contact",
+              }
+            : null,
+          unreadCount: item.unreadCount || 0,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching User:", error);
+    }
+  };
+
+  useEffect(() => {
+    getUserLatestMessage();
+  }, []);
+
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    const fetchMessages = async () => {
+      if (!selectedContact) return;
+      try {
+        const response = await axiosClient.post("/message/getMessage", {
+          senderId: userId,
+          contactId: selectedContact.id,
+        });
+        const fetchedMessages = response.data.data.map((msg: IMessage) => ({
+          ...msg,
+          sender: msg.senderId === userId ? "user" : "contact",
+        }));
+        setMessages(fetchedMessages);
+
+        fetchedMessages.forEach((msg: Message) => {
+          if (msg.sender === "contact" && !msg.isRead) {
+            markMessageRead(msg.id, selectedContact.id);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
     };
 
-    useEffect(() => {
-        getUserLatestMessage();
-    }, []);
+    fetchMessages();
 
-    useEffect(() => {
-        if (!socket || !userId || !selectedContact) return;
-
-        const fetchMessages = async () => {
-            try {
-                const response = await axiosClient.post('/message/getMessage', {
-                    senderId: userId,
-                    contactId: selectedContact.id,
-                });
-                setMessages(
-                    response.data.data.map((msg: IMessage) => ({
-                        ...msg,
-                        sender: msg.senderId === userId ? 'user' : 'contact',
-                    }))
-                );
-            } catch (error) {
-                console.error('Error fetching messages:', error);
-            }
-        };
-        fetchMessages();
-
-        socket.on('message', (message: Message) => {
-            if (selectedContact && (message.contactId === String(selectedContact.id) || message.senderId === String(selectedContact.id))) {
-                setMessages((prevMessages) => {
-                    if (prevMessages.some((msg) => msg.id === message.id)) {
-                        return prevMessages.map((msg) =>
-                            msg.id === message.id ? { ...msg } : msg
-                        );
-                    }
-                    if (message.senderId !== userId) {
-                        return [...prevMessages, {
-                            ...message,
-                            sender: 'contact',
-                            timestamp: message.timestamp || new Date().toISOString(),
-                        }];
-                    }
-                    return prevMessages;
-                });
-            }
+    socket.on("message", (message: Message) => {
+      if (
+        selectedContact &&
+        (message.contactId === String(selectedContact.id) ||
+          message.senderId === String(selectedContact.id))
+      ) {
+        setMessages((prevMessages) => {
+          if (prevMessages.some((msg) => msg.id === message.id)) {
+            return prevMessages;
+          }
+          const newMessage:Message = {
+            ...message,
+            sender: message.senderId === userId ? "user" : "contact",
+            timestamp: message.timestamp || new Date().toISOString(),
+          };
+          return [...prevMessages, newMessage];
         });
 
-        return () => {
-            socket.off('message');
-        };
-    }, [socket, selectedContact, userId]);
+        setContacts((prevContacts) =>
+          prevContacts.map((contact) =>
+            contact.id === message.senderId || contact.id === message.contactId
+              ? {
+                  ...contact,
+                  latestMessage: {
+                    ...message,
+                    sender: message.senderId === userId ? "user" : "contact",
+                  },
+                  unreadCount:
+                    contact.id === message.senderId && message.senderId !== userId
+                      ? (contact.unreadCount || 0) + 1
+                      : contact.unreadCount,
+                }
+              : contact
+          )
+        );
+      } else if (message.senderId !== userId) {
+        setContacts((prevContacts) => {
+          const contactExists = prevContacts.find((c) => c.id === message.senderId);
+          if (contactExists) {
+            return prevContacts.map((contact) =>
+              contact.id === message.senderId
+                ? {
+                    ...contact,
+                    latestMessage: {
+                      ...message,
+                      sender: "contact",
+                    },
+                    unreadCount: (contact.unreadCount || 0) + 1,
+                  }
+                : contact
+            );
+          }
+          return prevContacts;
+        });
+      }
+    });
 
-    const handleSendMessage = () => {
-        if (!userId) {
-            console.error('User ID is undefined');
-            return;
-        }
-        if (messageInput.trim() && selectedContact && socket) {
-            const newMessage: Message = {
-                id: Date.now().toString(),
-                text: messageInput,
-                senderId: userId,
-                sender: 'user',
-                contactId: String(selectedContact.id),
-                timestamp: new Date().toLocaleTimeString(),
-                isRead: false
-            };
+    socket.on("messagesRead", ({ contactId }: { contactId: string }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.senderId === contactId && !msg.isRead ? { ...msg, isRead: true } : msg
+        )
+      );
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === contactId
+            ? {
+                ...contact,
+                unreadCount: 0,
+              }
+            : contact
+        )
+      );
+    });
 
-            socket.emit('sendMessage', newMessage);
-            setMessages([...messages, newMessage]);
-            setMessageInput('');
-        }
+    return () => {
+      socket.off("message");
+      socket.off("messagesRead");
     };
+  }, [socket, selectedContact, userId, markMessageRead]);
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
+  const handleSendMessage = () => {
+    if (!userId) {
+      console.error("User ID is undefined");
+      return;
+    }
+    if (messageInput.trim() && selectedContact && socket) {
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        text: messageInput,
+        senderId: userId,
+        sender: "user",
+        contactId: String(selectedContact.id),
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      };
 
-    console.log(selectedContact);
+      socket.emit("sendMessage", newMessage);
+      setMessages((prev) => [...prev, newMessage]);
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === selectedContact.id
+            ? {
+                ...contact,
+                latestMessage: newMessage,
+              }
+            : contact
+        )
+      );
+      setMessageInput("");
+    }
+  };
 
-    return (
-        <div className="flex h-full gap-4">
-            {/* Chat Area */}
-            <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-[#27AE60]">
-                {selectedContact ? (
-                    <>
-                        <ChatHeader contact={selectedContact} />
-                        <MessageList messages={messages} userId={userId} />
-                        <MessageInput
-                            messageInput={messageInput}
-                            setMessageInput={setMessageInput}
-                            handleSendMessage={handleSendMessage}
-                            handleKeyPress={handleKeyPress}
-                        />
-                    </>
-                ) :
-                    (
-                        <SelectChat contacts={contacts} setSelectedContact={setSelectedContact} />
-                    )}
-            </div>
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
-            <ContactList
-                contacts={contacts}
-                selectedContact={selectedContact}
-                onSelectContact={setSelectedContact}
+  const handleSelectContact = (contact: Contact) => {
+    setSelectedContact(contact);
+    if (socket && userId && contact.unreadCount > 0) {
+      socket.emit("markMessagesRead", { userId, contactId: contact.id });
+      setContacts((prevContacts) =>
+        prevContacts.map((c) =>
+          c.id === contact.id ? { ...c, unreadCount: 0 } : c
+        )
+      );
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.senderId === contact.id && !msg.isRead
+            ? { ...msg, isRead: true }
+            : msg
+        )
+      );
+    }
+  };
+
+  return (
+    <div className="flex h-full gap-4">
+      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-[#27AE60]">
+        {selectedContact ? (
+          <>
+            <ChatHeader contact={selectedContact} />
+            <MessageList messages={messages} userId={userId} />
+            <MessageInput
+              messageInput={messageInput}
+              setMessageInput={setMessageInput}
+              handleSendMessage={handleSendMessage}
+              handleKeyPress={handleKeyPress}
             />
-        </div>
-    );
+          </>
+        ) : (
+          <SelectChat contacts={contacts} setSelectedContact={handleSelectContact} />
+        )}
+      </div>
+      <ContactList
+        contacts={contacts}
+        selectedContact={selectedContact}
+        onSelectContact={handleSelectContact}
+      />
+    </div>
+  );
 };
 
 export default MessagingPage;

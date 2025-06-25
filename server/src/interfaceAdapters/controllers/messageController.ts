@@ -4,6 +4,7 @@ import { MessageRepo } from "../../infrastructure/repositories/implementations/m
 
 const message = new MessageRepo();
 const messageCase = new MessageUseCase(message);
+
 export class MessageController {
   sendMessage: RequestHandler = async (req, res): Promise<void> => {
     try {
@@ -30,7 +31,6 @@ export class MessageController {
         data: savedMessage,
       });
 
-      // Emit message via Socket.IO
       const io = req.app.get("io");
       const connectedUsers = req.app.get("connectedUsers");
       const recipientSocketId = connectedUsers[contactId];
@@ -75,6 +75,7 @@ export class MessageController {
       });
     }
   };
+
   getLatestMessages: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -85,19 +86,14 @@ export class MessageController {
       }
 
       const unreadMessages = await messageCase.getUnreadMessagesUseCase(userId);
-
-      const getUser = await messageCase.getUserUseCase(userId);
-      
       const latestMessagedUsers =
-      await messageCase.getLatestMessagedUsersUseCase(userId);
-    
+        await messageCase.getLatestMessagedUsersUseCase(userId);
 
       res.status(200).json({
         message: "Latest messages and users retrieved successfully",
         data: {
           unreadMessages,
           latestMessagedUsers,
-          user:getUser
         },
       });
     } catch (error) {
@@ -108,6 +104,43 @@ export class MessageController {
           error instanceof Error
             ? error.message
             : "Failed to retrieve latest messages",
+      });
+    }
+  };
+
+  markMessagesRead: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { userId, contactId } = req.body;
+      if (!userId || !contactId) {
+        res
+          .status(400)
+          .json({ success: false, error: "Invalid request format" });
+        return;
+      }
+
+      await messageCase.markMessagesReadUseCase(userId, contactId);
+      res.status(200).json({
+        message: "Messages marked as read successfully",
+      });
+
+      const io = req.app.get("io");
+      const connectedUsers = req.app.get("connectedUsers");
+      const recipientSocketId = connectedUsers[userId];
+      const senderSocketId = connectedUsers[contactId];
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("messagesRead", { contactId });
+      }
+      if (senderSocketId) {
+        io.to(senderSocketId).emit("messagesRead", { contactId: userId });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to mark messages as read",
       });
     }
   };

@@ -135,6 +135,22 @@ export class App {
         }
       );
 
+      socket.on("markMessagesRead", async ({ userId, contactId }: { userId: string; contactId: string }) => {
+      try {
+        await messageUseCase.markMessagesReadUseCase(userId, contactId);
+        const recipientSocketId = connectedUsers[userId];
+        const senderSocketId = connectedUsers[contactId];
+        if (recipientSocketId) {
+          this.io.to(recipientSocketId).emit("messagesRead", { contactId });
+        }
+        if (senderSocketId) {
+          this.io.to(senderSocketId).emit("messagesRead", { contactId: userId });
+        }
+      } catch (error) {
+        console.error("Error marking messages as read:", error);
+      }
+    });
+
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
         for (const userId in connectedUsers) {
