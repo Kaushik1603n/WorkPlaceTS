@@ -5,11 +5,11 @@ import ProjectModel from "../../../../domain/models/Projects";
 import UserModel from "../../../../domain/models/User";
 
 export class AdminProjectRepo implements IAdminProjectRepo {
-  private async findProjectsByStatus(
+   async findProjectsByStatus(
     status: string,
     page: number,
     limit: number
-  ) {
+  ): Promise<any> {
     try {
       const result = await ProjectModel.find({ status })
         .skip((page - 1) * limit)
@@ -26,18 +26,18 @@ export class AdminProjectRepo implements IAdminProjectRepo {
     }
   }
 
-  async findActiveProject(page: number, limit: number) {
+  async findActiveProject(page: number, limit: number) : Promise<any>{
     return this.findProjectsByStatus("in-progress", page, limit);
   }
 
-  async findPostedProject(page: number, limit: number) {
+  async findPostedProject(page: number, limit: number): Promise<any> {
     return this.findProjectsByStatus("posted", page, limit);
   }
 
-  async findCompletedProject(page: number, limit: number) {
+  async findCompletedProject(page: number, limit: number): Promise<any> {
     return this.findProjectsByStatus("completed", page, limit);
   }
-  async findProjectDetails(jobId: string) {
+  async findProjectDetails(jobId: string): Promise<any> {
     if (!isValidObjectId(jobId)) {
       throw new Error("Invalid Job ID format");
     }

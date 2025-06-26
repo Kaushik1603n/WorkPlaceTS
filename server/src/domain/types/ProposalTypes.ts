@@ -51,7 +51,7 @@ interface Milestone {
   status?: string;
 }
 
-export interface ProposalResponse {
+export interface ProposalResponseTypes {
   _id?: Types.ObjectId;
   freelancerId?: Freelancer;
   jobId?: Job;

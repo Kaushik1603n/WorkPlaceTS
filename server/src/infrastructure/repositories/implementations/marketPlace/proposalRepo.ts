@@ -8,9 +8,10 @@ import ProjectModel from "../../../../domain/models/Projects";
 import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 import { IProposalMilestones } from "../../../../domain/dto/proposalMilstoneDTO";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
+import { IProposalMilestonesType } from "../../../../domain/types/proposalMilstoneTypes";
 
 export class ProposalRepo implements IProposalRepo {
-  async findProposalAndUpdateStatus(proposalId: string, contractId: string) {
+  async findProposalAndUpdateStatus(proposalId: string, contractId: string): Promise<any> {
     try {
       return await ProposalModel.findByIdAndUpdate(
         proposalId,
@@ -25,7 +26,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async findProposalById(proposalId: string) {
+  async findProposalById(proposalId: string) : Promise<any>{
     try {
       const getProposal = await ProposalModel.findById(proposalId)
         .select(
@@ -62,7 +63,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async createProposalContract(contract: object) {
+  async createProposalContract(contract: object): Promise<any> {
     try {
       return await ContractModel.create(contract);
     } catch (error) {
@@ -71,7 +72,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getProposalbyId(userId: string) {
+  async getProposalbyId(userId: string) : Promise<any>{
     try {
       const proposals = await ProposalModel.find({ freelancerId: userId })
         .populate({
@@ -88,7 +89,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getProjectProposalbyId(jobId: string) {
+  async getProjectProposalbyId(jobId: string): Promise<any> {
     try {
       const allProposals = await ProposalModel.find(
         { jobId: jobId },
@@ -130,7 +131,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getContractDetails(contractId: string) {
+  async getContractDetails(contractId: string): Promise<any> {
     try {
       const contractDetails = await ContractModel.findById(
         contractId
@@ -143,7 +144,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getJobStatus(jobId: string) {
+  async getJobStatus(jobId: string): Promise<any> {
     try {
       const status = await ProjectModel.findById(jobId, { status: 1 }).lean<{
         status: string;
@@ -162,7 +163,7 @@ export class ProposalRepo implements IProposalRepo {
     jobId: string,
     proposal_id: string,
     contractId: string
-  ) {
+  ) : Promise<any>{
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -217,7 +218,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async rejectProposalContract(proposal_id: string, contractId: string) {
+  async rejectProposalContract(proposal_id: string, contractId: string): Promise<any> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -257,7 +258,8 @@ export class ProposalRepo implements IProposalRepo {
       session.endSession();
     }
   }
-  async proposalMilestones(jobId: string): Promise<IProposalMilestones> {
+
+  async proposalMilestones(jobId: string): Promise<IProposalMilestonesType> {
     // const proposal = await ProposalModel.findOne(
     //   { jobId },
     //   { _id: 1, freelancerId: 1, milestones: 1 }
@@ -294,7 +296,7 @@ export class ProposalRepo implements IProposalRepo {
   async proposalMilestonesApprove(
     milestoneId: string,
     session: mongoose.ClientSession
-  ) {
+  ): Promise<any> {
     return await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.status": "approved" } },
@@ -302,7 +304,7 @@ export class ProposalRepo implements IProposalRepo {
     ).lean();
   }
 
-  async findProposal(milestoneId: string, session: mongoose.ClientSession) {
+  async findProposal(milestoneId: string, session: mongoose.ClientSession): Promise<any> {
     const proposal = await ProposalModel.findOne(
       { "milestones._id": milestoneId },
       {
@@ -345,7 +347,7 @@ export class ProposalRepo implements IProposalRepo {
     platformFee: number,
     netAmount: number,
     session: mongoose.ClientSession
-  ) {
+  ): Promise<any> {
     return await PaymentRequestModel.create(
       [
         {
@@ -363,11 +365,12 @@ export class ProposalRepo implements IProposalRepo {
       { session }
     );
   }
+
   async updatePaymentID(
     milestoneId: string,
     paymentRequestId: any,
     session: mongoose.ClientSession
-  ) {
+  ) : Promise<any>{
     await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.paymentRequestId": paymentRequestId } },
@@ -375,7 +378,7 @@ export class ProposalRepo implements IProposalRepo {
     );
   }
 
-  async proposalMilestonesReject(milestoneId: string) {
+  async proposalMilestonesReject(milestoneId: string): Promise<any> {
     const proposal = await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.status": "rejected" } },
@@ -384,6 +387,7 @@ export class ProposalRepo implements IProposalRepo {
 
     return proposal;
   }
+
   async findPayment(userId: string): Promise<IPaymentRequest> {
     const data = await PaymentRequestModel.find({
       clientId: userId,

@@ -58,9 +58,9 @@ export class App {
   private setupRoutes() {
     this.app.use("/api/auth", authouter);
     this.app.use("/api/client", profileRoute);
-    this.app.use("/api/client/project", clientProject);
     this.app.use("/api/freelancer", freelancerProfileRoute);
     this.app.use("/api", notificationRout);
+    this.app.use("/api/client/project", clientProject);
     this.app.use("/api/jobs", marketPlaceRoute);
     this.app.use("/api/proposal", proposalRout);
     this.app.use("/api/payments", paymentRoutes);

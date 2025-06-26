@@ -7,7 +7,7 @@ import ProjectModel from "../../../../domain/models/Projects";
 import WalletModel from "../../../../domain/models/Wallet";
 
 export class PaymentRepo implements IpamentRepo {
-  async findProposal(milestoneId: string) {
+  async findProposal(milestoneId: string): Promise<any> {
     const proposal = await ProposalModel.findOne(
       { "milestones._id": milestoneId },
       {
@@ -19,7 +19,7 @@ export class PaymentRepo implements IpamentRepo {
     ).lean();
     return proposal;
   }
-  async findPaymentRequest(paymentRequestId: string, clientId: string) {
+  async findPaymentRequest(paymentRequestId: string, clientId: string): Promise<any> {
     const paymentRequest = await PaymentRequestModel.findOne({
       _id: paymentRequestId,
       clientId,
@@ -29,13 +29,13 @@ export class PaymentRepo implements IpamentRepo {
       .lean();
     return paymentRequest;
   }
-  async createPayment(paymentData: object) {
+  async createPayment(paymentData: object): Promise<any> {
     const pay = await PaymentModel.create(paymentData);
 
     return pay;
   }
 
-  async findPayment(razorpay_order_id: string) {
+  async findPayment(razorpay_order_id: string) : Promise<any>{
     const payment = await PaymentModel.findOne({
       paymentGatewayId: razorpay_order_id,
     });
@@ -46,7 +46,7 @@ export class PaymentRepo implements IpamentRepo {
     id: string,
     status: string,
     session: ClientSession
-  ) {
+  ): Promise<any> {
     const payment = await PaymentModel.findByIdAndUpdate(
       id,
       {
@@ -61,7 +61,7 @@ export class PaymentRepo implements IpamentRepo {
     milestoneId: Types.ObjectId,
     proposalId: Types.ObjectId,
     session: ClientSession
-  ) {
+  ) : Promise<any>{
     const paymentRequest = await PaymentRequestModel.findOneAndUpdate(
       {
         milestoneId: milestoneId,
@@ -101,12 +101,12 @@ export class PaymentRepo implements IpamentRepo {
     return proposal;
   }
 
-  async findJobById(jobId: Types.ObjectId, session: ClientSession) {
+  async findJobById(jobId: Types.ObjectId, session: ClientSession) : Promise<any>{
     const job = await ProjectModel.findById(jobId).session(session);
     return job;
   }
 
-  async totalPaidPayment(jobId: string, session: ClientSession) {
+  async totalPaidPayment(jobId: string, session: ClientSession): Promise<any> {
     const totalPaid = await PaymentModel.aggregate([
       { $match: { jobId: jobId, status: "completed" } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -120,7 +120,7 @@ export class PaymentRepo implements IpamentRepo {
     paymentStatus: string,
     status:string,
     session: ClientSession
-  ) {
+  ): Promise<any> {
     const job = await ProjectModel.findByIdAndUpdate(
       jobId,
       {
@@ -138,7 +138,7 @@ export class PaymentRepo implements IpamentRepo {
     paymentId: string,
     title: string,
     session: ClientSession
-  ) {
+  ): Promise<any> {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: freelancerId },
       {
@@ -161,7 +161,7 @@ export class PaymentRepo implements IpamentRepo {
     paymentId: string,
     title: string,
     session: ClientSession
-  ) {
+  ): Promise<any> {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: "admin" },
       {
@@ -180,15 +180,13 @@ export class PaymentRepo implements IpamentRepo {
     return freelancerWallet;
   }
 
-  async findPaymentByUserId(userId: string) {
+  async findPaymentByUserId(userId: string): Promise<any> {
     const wallet = await WalletModel.findOne({
       userId: new Types.ObjectId(userId),
     }).lean<IWallet | null>();
     const payment = await PaymentRequestModel.find({
       freelancerId: new Types.ObjectId(userId),
     }).sort({createdAt:-1}).lean();
-
-    
 
     return {wallet,payment};
   }

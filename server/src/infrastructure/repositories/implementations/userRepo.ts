@@ -18,11 +18,11 @@ export class UserRepo implements userRepoI {
     await UserModel.findByIdAndUpdate(userId, { refreshToken: null });
   }
 
-  async createUser(userData: any) {
+  async createUser(userData: any): Promise<any> {
     return await UserModel.create(userData);
   }
 
-  async updatePassword(userId: string, hashedPassword: string) {
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, {
       password: hashedPassword,
       otp: undefined,
@@ -30,14 +30,10 @@ export class UserRepo implements userRepoI {
     });
   }
 
-  async updateRole(userId: string, role: string) {
+  async updateRole(userId: string, role: string): Promise<any> {
     return await UserModel.findByIdAndUpdate(userId, { role }, { new: true });
   }
 
-  // async updateNameAndEmail(fullName: string, email: string) {
-  //   const user = this.findByEmail(email);
-  //   console.log(user, fullName);
-  // }
   async updateEmail(userId: string | unknown, email: string): Promise<any> {
     const result = await UserModel.findByIdAndUpdate(
       userId,

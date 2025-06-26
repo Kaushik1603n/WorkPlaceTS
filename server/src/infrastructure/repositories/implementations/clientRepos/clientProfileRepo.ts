@@ -1,10 +1,11 @@
 // import UserModel from "../../../../domain/models/User";
 import clientModal from "../../../../domain/models/ClientProfile";
 import { clientRepoI } from "../../../../domain/interfaces/IclientRepo";
-import UserModel, { UserRole } from "../../../../domain/models/User";
-import mongoose, { Types } from "mongoose";
+import UserModel from "../../../../domain/models/User";
+import { Types } from "mongoose";
 import ProjectModel from "../../../../domain/models/Projects";
 import PaymentModel from "../../../../domain/models/PaymentModel";
+import { FreelancerResultType } from "../../../../domain/types/ClientProfile";
 
 export class ClientRepo implements clientRepoI {
   async findOneAndUpdate(
@@ -34,15 +35,15 @@ export class ClientRepo implements clientRepoI {
     return result;
   }
 
-  async findOne(userId: string | unknown) {
+  async findOne(userId: string | unknown): Promise<any> {
     const result = await clientModal.findOne({ userId });
     return result;
   }
-  async findFreelancer(page: number, limit: number) {
+  async findFreelancer(page: number, limit: number): Promise<any> {
     const skip = (page - 1) * limit;
 
-    const freelancers: FreelancerResult[] =
-      await UserModel.aggregate<FreelancerResult>([
+    const freelancers: FreelancerResultType[] =
+      await UserModel.aggregate<FreelancerResultType>([
         {
           $match: {
             role: "freelancer",
@@ -88,7 +89,8 @@ export class ClientRepo implements clientRepoI {
       },
     };
   }
-  async findProjectByUserId(userId: string) {
+
+  async findProjectByUserId(userId: string): Promise<any> {
     const result = await ProjectModel.aggregate([
       {
         $match: {
@@ -165,7 +167,8 @@ export class ClientRepo implements clientRepoI {
 
     return { result, jobCount };
   }
-  async findFinancialByUserId(userId: string) {
+
+  async findFinancialByUserId(userId: string): Promise<any> {
     const weeklySpending = await PaymentModel.aggregate([
       {
         $match: {
@@ -178,7 +181,7 @@ export class ClientRepo implements clientRepoI {
           _id: {
             year: { $year: "$createdAt" },
             month: { $month: "$createdAt" },
-            week: { $week: "$createdAt" }, 
+            week: { $week: "$createdAt" },
           },
           spent: { $sum: "$amount" },
           paymentCount: { $sum: 1 },
@@ -233,7 +236,7 @@ export class ClientRepo implements clientRepoI {
       {
         $match: {
           clientId: new Types.ObjectId(userId),
-          status: "completed", 
+          status: "completed",
         },
       },
       {
@@ -275,15 +278,4 @@ export class ClientRepo implements clientRepoI {
 
     return { weeklySpending, avgCostPerProject, totalSpent };
   }
-}
-
-interface FreelancerResult {
-  _id: mongoose.Types.ObjectId;
-  fullName: string;
-  email: string;
-  role: UserRole.FREELANCER;
-  profilePic?: string;
-  bio?: string;
-  location?: string;
-  hourlyRate?: number;
 }

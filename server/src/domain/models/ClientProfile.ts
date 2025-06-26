@@ -1,14 +1,5 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 
-// export interface IUser extends Document {
-//   // Add your User model properties here
-//   // Example:
-//   email: string;
-//   password: string;
-//   role: string;
-//   // ... other fields
-// }
-
 export interface IClientProfile extends Document {
   userId: mongoose.Types.ObjectId;
   profilePic?: string;
@@ -23,7 +14,6 @@ export interface IClientProfile extends Document {
   updatedAt: Date;
 }
 
-// ClientProfile Schema
 const ClientProfileSchema: Schema = new mongoose.Schema(
   {
     userId: {

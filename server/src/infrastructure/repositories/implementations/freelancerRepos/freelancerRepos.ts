@@ -1,11 +1,15 @@
 import freelancerModal from "../../../../domain/models/FreelancerProfile";
 import { IfreelancerRepo } from "../../../../domain/interfaces/IfreelancerRepo";
 import mongoose, { Types } from "mongoose";
-import UserModel, { UserRole } from "../../../../domain/models/User";
+import UserModel from "../../../../domain/models/User";
 import ProjectModel from "../../../../domain/models/Projects";
 import PaymentModel from "../../../../domain/models/PaymentModel";
 import ProposalModel from "../../../../domain/models/Proposal";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
+import {
+  ClientResultType,
+  PaginatedClientResult,
+} from "../../../../domain/types/FreelancerProfileTypes";
 
 export class FreelancerRepo implements IfreelancerRepo {
   async findOneAndUpdate(
@@ -21,8 +25,6 @@ export class FreelancerRepo implements IfreelancerRepo {
     coverResult: { secure_url: string },
     profileResult: { secure_url: string }
   ): Promise<any> {
-    // const data= await freelancerModal.find();
-
     if (!userId || typeof userId !== "string") {
       throw new Error("Invalid user ID format");
     }
@@ -51,47 +53,51 @@ export class FreelancerRepo implements IfreelancerRepo {
     return result;
   }
 
-  async findOne(userId: string | unknown) {
+  async findOne(userId: string | unknown): Promise<any> {
     const result = await freelancerModal.findOne({ userId });
     return result;
   }
 
-  async findFreelancer(page: number, limit: number) {
+  async findFreelancer(
+    page: number,
+    limit: number
+  ): Promise<PaginatedClientResult> {
     const skip = (page - 1) * limit;
 
-    const clients: ClientResult[] = await UserModel.aggregate<ClientResult>([
-      {
-        $match: {
-          role: "client",
+    const clients: ClientResultType[] =
+      await UserModel.aggregate<ClientResultType>([
+        {
+          $match: {
+            role: "client",
+          },
         },
-      },
-      {
-        $lookup: {
-          from: "clientprofiles",
-          localField: "_id",
-          foreignField: "userId",
-          as: "profile",
+        {
+          $lookup: {
+            from: "clientprofiles",
+            localField: "_id",
+            foreignField: "userId",
+            as: "profile",
+          },
         },
-      },
-      {
-        $addFields: {
-          profile: { $arrayElemAt: ["$profile", 0] },
+        {
+          $addFields: {
+            profile: { $arrayElemAt: ["$profile", 0] },
+          },
         },
-      },
-      {
-        $project: {
-          fullName: 1,
-          email: 1,
-          role: 1,
-          profilePic: "$profile.profilePic",
-          hourlyRate: "$profile.hourlyRate",
-          location: "$profile.location",
-          description: "$profile.description",
+        {
+          $project: {
+            fullName: 1,
+            email: 1,
+            role: 1,
+            profilePic: "$profile.profilePic",
+            hourlyRate: "$profile.hourlyRate",
+            location: "$profile.location",
+            description: "$profile.description",
+          },
         },
-      },
-      { $skip: skip },
-      { $limit: limit },
-    ]);
+        { $skip: skip },
+        { $limit: limit },
+      ]);
 
     const totalCount = await UserModel.countDocuments({ role: "client" });
     const totalPages = Math.ceil(totalCount / limit);
@@ -106,7 +112,7 @@ export class FreelancerRepo implements IfreelancerRepo {
     };
   }
 
-  async findCounts(userId: string) {
+  async findCounts(userId: string):Promise<any> {
     const totalJob = await ProjectModel.countDocuments({
       hiredFreelancer: userId,
     });
@@ -142,7 +148,8 @@ export class FreelancerRepo implements IfreelancerRepo {
 
     return { totalJob, completedJob, activeJob, avgEarnings, totalProposal };
   }
-  async findTotalEarnings(userId: string) {
+
+  async findTotalEarnings(userId: string):Promise<any> {
     const Earnings = await PaymentModel.aggregate([
       {
         $match: {
@@ -239,13 +246,13 @@ export class FreelancerRepo implements IfreelancerRepo {
   }
 }
 
-interface ClientResult {
-  _id: mongoose.Types.ObjectId;
-  fullName: string;
-  email: string;
-  role: UserRole.CLIENT;
-  profilePic?: string;
-  description?: string;
-  location?: string;
-  hourlyRate?: number;
-}
+// interface ClientResult {
+//   _id: mongoose.Types.ObjectId;
+//   fullName: string;
+//   email: string;
+//   role: UserRole.CLIENT;
+//   profilePic?: string;
+//   description?: string;
+//   location?: string;
+//   hourlyRate?: number;
+// }

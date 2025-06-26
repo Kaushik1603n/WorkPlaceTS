@@ -1,32 +1,33 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import {
-  PaginatedJobResponseDTO,
-  ProjectDetails,
-} from "../../../../domain/dto/projectDTO/marketPlaceDTO";
 import { Job } from "../../../../domain/interfaces/entities/Job";
 import { IMarketPlace } from "../../../../domain/interfaces/IMarketPlaceRepo";
 import ProjectModel from "../../../../domain/models/Projects";
 import UserModel from "../../../../domain/models/User";
-import {
-  BidRequest,
-  JobProposalResponse,
-} from "../../../../domain/dto/projectDTO/jobProposalDTO";
+import { BidRequest } from "../../../../domain/dto/projectDTO/jobProposalDTO";
 import ProposalModel from "../../../../domain/models/Proposal";
 import NotificationModel from "../../../../domain/models/Notification";
 import FreelancerProfile from "../../../../domain/models/FreelancerProfile";
-import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
-import {
-  allProjectsInfoDTO,
-  ReturnAllProjectsInfoDTO,
-} from "../../../../domain/dto/projectDTO/getProjectAllInformationDTO";
 import FeedbackModel from "../../../../domain/models/feedbackSchema";
 import ReportModal from "../../../../domain/models/ReportModel";
+import {
+  freelancerProjectType,
+  MarketPlaceClientProjectTypes,
+  PaginatedJobResponseTypes,
+  ProjectDetailsTypes,
+} from "../../../../domain/types/MarketPlaceTypes";
+import { JobProposalResponseTypes } from "../../../../domain/types/JobProposalTypes";
+import { ProposalResponseTypes } from "../../../../domain/types/ProposalTypes";
+import {
+  allProjectsInfoTypes,
+  ReturnAllProjectsInfoTypes,
+} from "../../../../domain/types/getProjectAllInformationTypes";
+import { FeedbackArguments, FeedbackTypes, ReportDataArgument } from "../../../../domain/types/FeedbackTypes";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
     page: number,
     limit: number
-  ): Promise<PaginatedJobResponseDTO> {
+  ): Promise<PaginatedJobResponseTypes> {
     const total = await ProjectModel.countDocuments(searchQuery);
     const result = await ProjectModel.find(searchQuery, {
       _id: 1,
@@ -65,7 +66,7 @@ export class marketPlaceRepo implements IMarketPlace {
     };
   }
 
-  async findProjectDetails(jobId: string): Promise<ProjectDetails> {
+  async findProjectDetails(jobId: string): Promise<ProjectDetailsTypes> {
     if (!isValidObjectId(jobId)) {
       // From mongoose or custom check
       throw new Error("Invalid Job ID format");
@@ -75,7 +76,7 @@ export class marketPlaceRepo implements IMarketPlace {
       const project = await ProjectModel.findById(jobId);
       const client = await UserModel.findById(project?.clientId);
 
-      const result: ProjectDetails = {
+      const result: ProjectDetailsTypes = {
         title: project?.title,
         description: project?.description,
         stack: project?.stack,
@@ -97,7 +98,9 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 
-  async findClientActiveProject(userId: string): Promise<ClientProject> {
+  async findClientActiveProject(
+    userId: string
+  ): Promise<MarketPlaceClientProjectTypes> {
     const allProjects = await ProjectModel.find(
       { clientId: userId, status: "in-progress" },
       {
@@ -109,11 +112,13 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<ClientProject>();
+    ).lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
-  async findClientCompletedProject(userId: string): Promise<ClientProject> {
+  async findClientCompletedProject(
+    userId: string
+  ): Promise<MarketPlaceClientProjectTypes> {
     const allProjects = await ProjectModel.find(
       { clientId: userId, status: "completed" },
       {
@@ -125,7 +130,7 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<ClientProject>();
+    ).lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -133,7 +138,7 @@ export class marketPlaceRepo implements IMarketPlace {
   async createNewJobProposal(
     proposalData: BidRequest,
     userId: string
-  ): Promise<JobProposalResponse> {
+  ): Promise<JobProposalResponseTypes> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -209,17 +214,17 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 
-  async findProposalDetails(jobId: string) {
+  async findProposalDetails(jobId: string): Promise<any> {
     const proposal = await ProjectModel.findById(jobId);
     return proposal;
   }
 
-  async findFreelancerData(userId: string) {
+  async findFreelancerData(userId: string): Promise<any> {
     const freelancer = await UserModel.findById(userId);
     return freelancer;
   }
 
-  async findProposalById(proposalId: string) {
+  async findProposalById(proposalId: string): Promise<any> {
     const proposalDetails = await ProposalModel.findById(proposalId)
       .select(
         "status estimatedTime bidAmount budgetType coverLetter milestones freelancerId jobId createdAt"
@@ -231,7 +236,7 @@ export class marketPlaceRepo implements IMarketPlace {
       .populate({
         path: "jobId",
       })
-      .lean<ProposalResponse | null>();
+      .lean<ProposalResponseTypes | null>();
 
     return {
       proposal_id: proposalDetails?._id,
@@ -250,7 +255,7 @@ export class marketPlaceRepo implements IMarketPlace {
     };
   }
 
-  async findFreelancerById(userId: any) {
+  async findFreelancerById(userId: any): Promise<any> {
     const freelancerDetails = await FreelancerProfile.findOne(
       {
         userId: userId,
@@ -260,7 +265,7 @@ export class marketPlaceRepo implements IMarketPlace {
     return freelancerDetails;
   }
 
-  async findActiveProject(userId: string): Promise<freelancerProject> {
+  async findActiveProject(userId: string): Promise<freelancerProjectType> {
     const allProjects = await ProjectModel.find(
       { hiredFreelancer: userId },
       {
@@ -272,14 +277,14 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<freelancerProject>();
+    ).lean<freelancerProjectType>();
 
     return allProjects;
   }
 
   async getProjectAllInformation(
     jobId: string
-  ): Promise<ReturnAllProjectsInfoDTO> {
+  ): Promise<ReturnAllProjectsInfoTypes> {
     if (!isValidObjectId(jobId)) {
       throw new Error("Invalid Job ID format");
     }
@@ -287,13 +292,13 @@ export class marketPlaceRepo implements IMarketPlace {
     try {
       const project = await ProjectModel.findById(
         jobId
-      ).lean<allProjectsInfoDTO>();
+      ).lean<allProjectsInfoTypes>();
       const client = await UserModel.findById(project?.clientId, {
         fullName: 1,
         email: 1,
       }).lean<{ _id: string; fullName: string; email: string }>();
 
-      const result: ReturnAllProjectsInfoDTO = {
+      const result: ReturnAllProjectsInfoTypes = {
         jobId: project?._id,
         title: project?.title,
         description: project?.description,
@@ -317,7 +322,7 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 
-  async ProposalAllInfo(proposal_id: string) {
+  async ProposalAllInfo(proposal_id: string): Promise<any> {
     const proposal = await ProposalModel.findById(proposal_id, {
       _id: 1,
       coverLetter: 1,
@@ -333,13 +338,14 @@ export class marketPlaceRepo implements IMarketPlace {
     });
     return proposal;
   }
+
   async submitMilestoneRepo(
     jobId: string,
     userId: string,
     milestoneId: string,
     comments: string,
     links: string[]
-  ) {
+  ): Promise<any> {
     console.log(jobId, userId, milestoneId, comments, links);
     const proposal = await ProposalModel.findOne({
       jobId,
@@ -364,7 +370,6 @@ export class marketPlaceRepo implements IMarketPlace {
       },
       { new: true }
     );
-    console.log(result);
 
     return result;
   }
@@ -375,7 +380,7 @@ export class marketPlaceRepo implements IMarketPlace {
     jobId,
     freelancerId,
     userId,
-  }: Feedback) {
+  }: FeedbackArguments):Promise<FeedbackTypes> {
     const result = await FeedbackModel.create({
       ratings: ratings,
       feedback,
@@ -387,9 +392,10 @@ export class marketPlaceRepo implements IMarketPlace {
 
     return result;
   }
-  async submitFreelacerReportRepo(reportData: IReportData) {
+  async submitFreelacerReportRepo(reportData: ReportDataArgument) {
     try {
-      const { clientId, clientEmail, title, description, userId ,jobId} = reportData;
+      const { clientId, clientEmail, title, description, userId, jobId } =
+        reportData;
 
       const report = await ReportModal.create({
         client: {
@@ -400,7 +406,7 @@ export class marketPlaceRepo implements IMarketPlace {
         description,
         reportedBy: userId,
         status: "open",
-        jobId
+        jobId,
       });
 
       return report;
@@ -411,45 +417,6 @@ export class marketPlaceRepo implements IMarketPlace {
   }
 }
 
-export interface ClientProject {
-  _id: string;
-  contractId: string;
-  budget: number;
-  budgetType: string;
-  time: string;
-  status: string;
-  title: string;
-  description: string;
-}
-export interface freelancerProject {
-  _id: string;
-  contractId: string;
-  budget: number;
-  budgetType: string;
-  time: string;
-  status: string;
-  title: string;
-  description: string;
-}
 
-interface Feedback {
-  ratings: {
-    quality: number;
-    deadlines: number;
-    professionalism: number;
-  };
-  feedback: string;
-  overallRating: number;
-  jobId: string;
-  freelancerId: string;
-  userId: string;
-}
 
-interface IReportData {
-  clientId: string;
-  clientEmail: string;
-  title: string;
-  description: string;
-  userId: string;
-  jobId: string;
-}
+

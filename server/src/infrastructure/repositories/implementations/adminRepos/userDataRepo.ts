@@ -91,11 +91,11 @@ export class UserDataRepo implements userDataRepoI {
     };
   }
 
-  async findOneByIdAndUpdate(userId: string, status: string) {
+  async findOneByIdAndUpdate(userId: string, status: string): Promise<any> {
     const result = await UserModel.findByIdAndUpdate(userId, { status });
     return result;
   }
-  async findClientDetails(userId: string) {
+  async findClientDetails(userId: string): Promise<any> {
     const client = await UserModel.findById(userId, {
       fullName: 1,
       email: 1,
@@ -125,7 +125,7 @@ export class UserDataRepo implements userDataRepoI {
 
     return result;
   }
-  async findfreelancerDetails(userId: string) {
+  async findfreelancerDetails(userId: string): Promise<any> {
     const freelancer = await UserModel.findById(userId, {
       fullName: 1,
       email: 1,
@@ -160,13 +160,20 @@ export class UserDataRepo implements userDataRepoI {
     return result;
   }
 
-  async findByIdAndUserVerification(userId: string, status: string) {
+  async findByIdAndUserVerification(
+    userId: string,
+    status: string
+  ): Promise<any> {
     await UserModel.findByIdAndUpdate(userId, { isVerification: status });
   }
-  async findReport() {
+  async findReport(): Promise<any> {
     return await ReportModal.find().sort({ createdAt: -1 });
   }
-  async updateTicketStatus(status: string, ticketId: string, userId: string) {
+  async updateTicketStatus(
+    status: string,
+    ticketId: string,
+    userId: string
+  ): Promise<any> {
     try {
       return await ReportModal.findByIdAndUpdate(
         ticketId,
@@ -187,7 +194,11 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to update ticket");
     }
   }
-  async updateTicketComment(text: string, ticketId: string, userId: string) {
+  async updateTicketComment(
+    text: string,
+    ticketId: string,
+    userId: string
+  ): Promise<any> {
     try {
       return await ReportModal.findByIdAndUpdate(
         ticketId,
@@ -208,7 +219,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to update ticket");
     }
   }
-  async findUserGrowthData() {
+  async findUserGrowthData(): Promise<any> {
     try {
       const result = await UserModel.aggregate([
         {
@@ -316,7 +327,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findTopFreelancer() {
+  async findTopFreelancer(): Promise<any> {
     try {
       const feedbacks = await FeedbackModel.find();
 
@@ -401,7 +412,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findAllJobcountUseCase() {
+  async findAllJobcountUseCase(): Promise<any> {
     try {
       const result = await ProjectModel.aggregate([
         {
@@ -456,7 +467,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findAllJobDetails() {
+  async findAllJobDetails(): Promise<any> {
     try {
       const totalJobs = await ProjectModel.countDocuments();
       const completedJobs = await ProjectModel.countDocuments({
@@ -487,7 +498,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findRevenueData() {
+  async findRevenueData(): Promise<any> {
     try {
       const revenueData = await PaymentRequestModel.aggregate([
         {
@@ -603,7 +614,7 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async getAllPayments(page: number, limit: number) {
+  async getAllPayments(page: number, limit: number): Promise<any> {
     try {
       return await PaymentModel.find()
         .skip((page - 1) * limit)

@@ -1,6 +1,7 @@
 import { IProjectRepo } from "../../../../domain/interfaces/IProjectRepo";
 import ProjectModel from "../../../../domain/models/Projects";
 import ReportModel from "../../../../domain/models/ReportModel";
+import { ClientProjectType, TicketType } from "../../../../domain/types/ClientJobType";
 
 export class ProjectRepo implements IProjectRepo {
   async creteNewProject(
@@ -37,7 +38,7 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async findProjects(userId: string) {
+  async findProjects(userId: string) :Promise<ClientProjectType[]>{
     try {
       return await ProjectModel.find({ clientId: userId }).sort({
         createdAt: -1,
@@ -47,7 +48,8 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async findAllTicket(userId: string) {
+
+  async findAllTicket(userId: string):Promise<TicketType[]> {
     try {
       return await ReportModel.find({ "client.id": userId }).sort({
         createdAt: -1,
@@ -57,7 +59,7 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async updateTicketComment(text: string, ticketId: string, userId: string) {
+  async updateTicketComment(text: string, ticketId: string, userId: string):Promise<any> {
     try {
       return await ReportModel.findByIdAndUpdate(
         ticketId,

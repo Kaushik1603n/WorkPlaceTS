@@ -1,7 +1,8 @@
+import { IMessageRepo } from "../../../domain/interfaces/IMessageRepo";
 import { MessageModel } from "../../../domain/models/MessageSchema";
 import UserModel from "../../../domain/models/User";
 
-export class MessageRepo {
+export class MessageRepo implements IMessageRepo {
   async saveMessage(message: IMessage): Promise<IMessage> {
     const newMessage = new MessageModel(message);
     return await newMessage.save();

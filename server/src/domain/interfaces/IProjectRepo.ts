@@ -1,3 +1,5 @@
+import { ClientProjectType, TicketType } from "../types/ClientJobType";
+
 export interface IProjectRepo {
   creteNewProject(
     userId: string,
@@ -13,5 +15,7 @@ export interface IProjectRepo {
     experienceLevel: "entry" | "intermediate" | "expert",
     reference: string
   ): Promise<any>;
-  findProjects(userId: string): Promise<any>;
+  findProjects(userId: string): Promise<ClientProjectType[]>;
+  findAllTicket(userId: string): Promise<TicketType[]>;
+  updateTicketComment(text: string, ticketId: string, userId: string):Promise<any>
 }
