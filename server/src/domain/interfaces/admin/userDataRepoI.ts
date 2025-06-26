@@ -6,7 +6,7 @@ export interface userDataRepoI {
   findClientDetails(userId: string): Promise<any>;
   findfreelancerDetails(userId: string): Promise<any>;
   findByIdAndUserVerification(userId: string, status: string): Promise<any>;
-  findReport(): Promise<any>;
+  findReport(page: number, limit: number): Promise<any>;
   updateTicketStatus(
     status: string,
     ticketId: string,

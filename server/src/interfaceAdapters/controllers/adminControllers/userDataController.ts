@@ -143,9 +143,12 @@ export class UserDataController {
         return;
       }
 
-      const report = await userData.AllReportUseCase();
+       const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
 
-      res.status(200).json({ data: report || [] });
+      const {result,totalPages} = await userData.AllReportUseCase(page,limit);
+
+      res.status(200).json({ data: result || [] ,totalPages});
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {

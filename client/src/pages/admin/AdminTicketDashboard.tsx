@@ -4,11 +4,14 @@ import TicketsTable from '../../components/admin/report/TicketsTable';
 import TicketDetailsModal from '../../components/admin/report/TicketDetailsModal';
 import type { Status, Ticket } from '../../components/admin/report/types';
 import axiosClient from '../../utils/axiosClient';
+import Pagination from '../../components/Pagination';
 
 
 const AdminTicketDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
     const [tickets, setTicket] = useState<Ticket[]>([
         {
             _id: "",
@@ -29,8 +32,11 @@ const AdminTicketDashboard = () => {
     useEffect(() => {
         const fetchReport = async () => {
             try {
-                const res = await axiosClient.get("/admin/tickets");
+                const res = await axiosClient.get("/admin/tickets", {
+                    params: { page: currentPage, limit: 5 }
+                });
                 setTicket(res.data.data);
+                setTotalPage(res.data.totalPages);
             } catch (error) {
                 console.error('Failed to fetch tickets:', error);
             } finally {
@@ -38,7 +44,7 @@ const AdminTicketDashboard = () => {
             }
         }
         fetchReport()
-    }, [])
+    }, [currentPage])
 
 
     const handleViewTicket = (ticket: Ticket) => {
@@ -85,6 +91,15 @@ const AdminTicketDashboard = () => {
                         onStatusUpdate={handleStatusUpdate}
                     />
                 )}
+            </div>
+            <div className="flex justify-center mt-2">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPage}
+                    onPageChange={(page) => {
+                        setCurrentPage(page);
+                    }}
+                />
             </div>
         </div>
     );

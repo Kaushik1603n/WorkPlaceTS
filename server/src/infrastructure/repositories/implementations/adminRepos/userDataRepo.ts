@@ -166,8 +166,16 @@ export class UserDataRepo implements userDataRepoI {
   ): Promise<any> {
     await UserModel.findByIdAndUpdate(userId, { isVerification: status });
   }
-  async findReport(): Promise<any> {
-    return await ReportModal.find().sort({ createdAt: -1 });
+  async findReport(page: number, limit: number): Promise<any> {
+    const result = await ReportModal.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    const totalCount = await ReportModal.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {result,totalPages};
   }
   async updateTicketStatus(
     status: string,
