@@ -7,7 +7,7 @@ import EditClientProfile from "../pages/clientPages/profile/EditClientProfile";
 import JobPostingForm from "../pages/clientPages/jobPosting/JobPostingForm";
 import NotificationList from "../pages/clientPages/Notification";
 import ProposalDetails from "../pages/clientPages/Proposal/ProposalDetails";
-import ClientProject from "../pages/clientPages/project/ClientProject";
+import ClientDashBoard from "../pages/clientPages/project/ClientDashBoard";
 import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
 import FreelancerList from "../pages/clientPages/freelancerListing/FreelancerList";
 import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
@@ -15,6 +15,7 @@ import PendingPaymentListing from "../pages/clientPages/project/PaymentPage";
 import MessagingPage from "../pages/message/MessagingPage";
 import ActiveClinetProject from "../pages/clientPages/project/ActiveClinetProject";
 import ClientTicketDashboard from "../pages/clientPages/ticket/ClientTicketDashboard";
+import AllClientProject from "../pages/clientPages/project/AllProject";
 
 
 function ClientRoutes() {
@@ -23,12 +24,12 @@ function ClientRoutes() {
     <>
       <Route element={<ProtectedClientRoute />}>
         <Route path="/client-dashboard" element={<ClientLayout />}>
-          <Route index element={<ClientProject/>} />
-          <Route path="job-details/:jobId" element={<ClientJobWithProposals/>} />
+          <Route index element={<ClientDashBoard/>} />
           <Route
-            path="job-details/:jobId/all-proposal"
-            element={<>job-proposal</>}
+            path="project"
+            element={<AllClientProject/>}
           />
+          <Route path="job-details/:jobId" element={<ClientJobWithProposals/>} />
           <Route
             path="jobs/:proposalId/proposals"
             element={<ProposalDetails/>}

@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
-import {  TrendingUp } from "lucide-react";
+import { TrendingUp, CheckCircle, Clock } from "lucide-react";
 
 interface ClientProject {
     _id: string;
@@ -20,56 +20,44 @@ interface ClientProject {
 
 function ActiveClinetProject() {
     const [allActiveProject, setAllActiveProject] = useState<ClientProject[]>([]);
+    const [allPendingProject, setAllPendingProject] = useState<ClientProject[]>([]);
     const [allCompletedProject, setAllCompletedProject] = useState<ClientProject[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProjects = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await axiosClient.get("jobs/active-jobs");
-                setAllActiveProject(res.data.data);
+                
+                // Fetch all data in parallel
+                const [activeRes, pendingRes, completedRes] = await Promise.all([
+                    axiosClient.get("jobs/active-jobs"),
+                    axiosClient.get("jobs/completed-jobs"),
+                    axiosClient.get("jobs/completed-jobs")
+                ]);
+                
+                setAllActiveProject(activeRes.data.data);
+                setAllPendingProject(pendingRes.data.data);
+                setAllCompletedProject(completedRes.data.data);
             } catch (err) {
                 const error = err as AxiosError;
                 console.error("Failed to fetch projects:", error);
-                setError(
-                    "Failed to load projects. Please try again later."
-                );
+                setError("Failed to load projects. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProjects();
-    }, []);
-    useEffect(() => {
-        const fetchCompletedProjects = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const res = await axiosClient.get("jobs/completed-jobs");
-                setAllCompletedProject(res.data.data);
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch complete projects:", error);
-                setError(
-                    "Failed to load projects. Please try again later."
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCompletedProjects();
+        fetchData();
     }, []);
 
     const handleViewContract = async (projectId: string) => {
         try {
-            navigate(`${projectId}`)
+            navigate(`${projectId}`);
         } catch (err) {
             console.error("Failed to view project:", err);
         }
@@ -77,7 +65,7 @@ function ActiveClinetProject() {
 
     if (loading) {
         return (
-            <main className="flex-1 p-4 flex items-center justify-center">
+            <main className="flex-1 p-4 flex items-center justify-center min-h-[300px]">
                 <LoadingSpinner size="lg" />
             </main>
         );
@@ -90,38 +78,31 @@ function ActiveClinetProject() {
             </main>
         );
     }
-    return (
-        <div className="flex-1 p-4">
-            {allActiveProject.length === 0 ? (
-                <div className="text-center py-8">
-                    <p className="text-gray-500">No active projects found</p>
-                </div>
-            ) : (
-                <div>
-                    <div className="bg-[#EFFFF6] shadow-sm border-b border-[#27AE60] mb-5">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="py-8">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="flex items-center space-x-3 mb-4 sm:mb-0">
-                                        <div className="w-10 h-10 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl flex items-center justify-center">
-                                            <TrendingUp className="w-5 h-5 text-white" />
-                                        </div>
-                                        <div>
-                                            <h1 className="text-3xl font-bold text-gray-900">Active Projects</h1>
-                                            <p className="text-gray-600 mt-1">Manage and track your ongoing projects</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <span className="px-3 py-2 bg-[#e3ffef] text-[#2ECC71] rounded-lg text-sm font-medium">
-                                            {allActiveProject.length} Projects
-                                        </span>
 
-                                    </div>
-                                </div>
-                            </div>
+    return (
+        <div className="flex-1 p-4 md:p-6 max-w-7xl mx-auto space-y-12">
+            {/* Active Projects Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-green-100 rounded-lg">
+                            <TrendingUp className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800">Active Projects</h2>
+                            <p className="text-gray-500">Manage and track your ongoing projects</p>
                         </div>
                     </div>
+                    <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        {allActiveProject.length} {allActiveProject.length === 1 ? "Project" : "Projects"}
+                    </span>
+                </div>
 
+                {allActiveProject.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                        <p className="text-gray-500">No active projects found</p>
+                    </div>
+                ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {allActiveProject.map((project) => (
                             <ProjectCard
@@ -131,39 +112,65 @@ function ActiveClinetProject() {
                             />
                         ))}
                     </div>
-                </div>
-            )}
+                )}
+            </section>
 
-            {allCompletedProject.length === 0 ? (
-                <div className="text-center mt-10 py-8">
-                    <p className="text-gray-500">No Completed projects found</p>
-                </div>
-            ) : (
-                <div>
-                    <div className="bg-[#EFFFF6] shadow-md border-b my-6 border-[#27AE60] mb-5">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="py-8">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="flex items-center space-x-3 mb-4 sm:mb-0">
-                                        <div className="w-10 h-10 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl flex items-center justify-center">
-                                            <TrendingUp className="w-5 h-5 text-white" />
-                                        </div>
-                                        <div>
-                                            <h1 className="text-3xl font-bold text-gray-900">Completed Projects</h1>
-                                            <p className="text-gray-600 mt-1">Manage and track your Completed projects</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <span className="px-3 py-2 bg-[#e3ffef] text-[#2ECC71] rounded-lg text-sm font-medium">
-                                            {allCompletedProject.length} Projects
-                                        </span>
-
-                                    </div>
-                                </div>
-                            </div>
+            {/* Pending Projects Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-yellow-100 rounded-lg">
+                            <Clock className="w-6 h-6 text-yellow-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800">Pending Projects</h2>
+                            <p className="text-gray-500">Projects awaiting your approval</p>
                         </div>
                     </div>
+                    <span className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                        {allPendingProject.length} {allPendingProject.length === 1 ? "Project" : "Projects"}
+                    </span>
+                </div>
 
+                {allPendingProject.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                        <p className="text-gray-500">No pending projects found</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {allPendingProject.map((project) => (
+                            <ProjectCard
+                                key={project._id}
+                                project={project}
+                                onViewContract={handleViewContract}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* Completed Projects Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-blue-100 rounded-lg">
+                            <CheckCircle className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800">Completed Projects</h2>
+                            <p className="text-gray-500">Review your successfully delivered projects</p>
+                        </div>
+                    </div>
+                    <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                        {allCompletedProject.length} {allCompletedProject.length === 1 ? "Project" : "Projects"}
+                    </span>
+                </div>
+
+                {allCompletedProject.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                        <p className="text-gray-500">No completed projects found</p>
+                    </div>
+                ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {allCompletedProject.map((project) => (
                             <ProjectCard
@@ -173,10 +180,10 @@ function ActiveClinetProject() {
                             />
                         ))}
                     </div>
-                </div>
-            )}
+                )}
+            </section>
         </div>
-    )
+    );
 }
 
-export default ActiveClinetProject
+export default ActiveClinetProject;

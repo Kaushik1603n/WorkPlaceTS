@@ -1,7 +1,10 @@
 import { IProjectRepo } from "../../../../domain/interfaces/IProjectRepo";
 import ProjectModel from "../../../../domain/models/Projects";
 import ReportModel from "../../../../domain/models/ReportModel";
-import { ClientProjectType, TicketType } from "../../../../domain/types/ClientJobType";
+import {
+  ClientProjectWithPaginationType,
+  TicketType,
+} from "../../../../domain/types/ClientJobType";
 
 export class ProjectRepo implements IProjectRepo {
   async creteNewProject(
@@ -38,18 +41,30 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async findProjects(userId: string) :Promise<ClientProjectType[]>{
+  async findProjects(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<ClientProjectWithPaginationType> {
     try {
-      return await ProjectModel.find({ clientId: userId }).sort({
-        createdAt: -1,
+      const project = await ProjectModel.find({ clientId: userId })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+      const totalCount = await ProjectModel.countDocuments({
+        clientId: userId,
       });
+      const totalPage = Math.ceil(totalCount / limit);
+
+      return { project, totalPage,totalCount };
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");
     }
   }
 
-  async findAllTicket(userId: string):Promise<TicketType[]> {
+  async findAllTicket(userId: string): Promise<TicketType[]> {
     try {
       return await ReportModel.find({ "client.id": userId }).sort({
         createdAt: -1,
@@ -59,7 +74,11 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
-  async updateTicketComment(text: string, ticketId: string, userId: string):Promise<any> {
+  async updateTicketComment(
+    text: string,
+    ticketId: string,
+    userId: string
+  ): Promise<any> {
     try {
       return await ReportModel.findByIdAndUpdate(
         ticketId,

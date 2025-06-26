@@ -25,6 +25,11 @@ export interface ClientProjectType {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface ClientProjectWithPaginationType {
+  project:ClientProjectType[],
+  totalPage:number
+  totalCount:number
+}
 export interface TicketType {
   title: string;
   description: string;
