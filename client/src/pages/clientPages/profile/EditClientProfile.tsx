@@ -150,7 +150,7 @@ export default function ClientProfileEdit() {
     if (client?.profilePic !== profilePhoto && profilePhoto) {
       profilePhotoBase64 = await blobToBase64(profilePhoto);
       setProfilePhoto(profilePhotoBase64);
-    }
+    } 
 
     const formData: ClientProfile = {
       companyName: profileData.companyName,
@@ -159,8 +159,8 @@ export default function ClientProfileEdit() {
       fullName: profileData.fullName,
       location: profileData.location,
       website: profileData.website,
-      coverPic: coverPhoto, // string | null
-      profilePic: profilePhotoBase64 || profilePhoto, // string | null
+      coverPic: coverPhoto, 
+      profilePic: profilePhotoBase64 || profilePhoto, 
     };
     console.log(formData.coverPic);
 

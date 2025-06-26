@@ -11,7 +11,7 @@ interface CoverModalProps {
 const CoverModal = ({ updateCover, closeModal }: CoverModalProps) => {
   return (
     <div
-      className="relative z-10"
+      className="relative z-100"
       aria-labelledby="crop-image-dialog"
       role="dialog"
       aria-modal="true"

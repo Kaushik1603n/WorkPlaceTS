@@ -214,8 +214,8 @@ export default function EditFreelancerProfile() {
       location: profileData.location,
       reference: profileData.reference,
       bio: profileData.bio,
-      coverPic: coverPhoto, // string | null
-      profilePic: profilePhotoBase64 || profilePhoto, // string | null
+      coverPic: coverPhoto, 
+      profilePic: profilePhotoBase64 || profilePhoto, 
     };
     console.log(formData.coverPic);
 

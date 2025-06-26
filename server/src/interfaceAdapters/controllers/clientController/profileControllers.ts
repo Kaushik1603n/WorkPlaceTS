@@ -31,7 +31,7 @@ export class profileCondroller {
         fullName,
         location,
         website,
-        CoverPic,
+        coverPic,
         profilePic,
       } = req.body;
 
@@ -57,9 +57,11 @@ export class profileCondroller {
         description,
         location,
         website,
-        CoverPic,
+        coverPic,
         profilePic
       );
+      // console.log(updatedClient);
+      
 
       res.status(200).json({
         message: "Profile updated successfully",
