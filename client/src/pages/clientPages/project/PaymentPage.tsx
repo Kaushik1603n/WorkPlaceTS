@@ -191,7 +191,7 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                ${payments.reduce((sum, p) => sum + (p.amount || 0), 0)}
+                {payments.reduce((sum, p) => sum + (p.amount || 0), 0)*80}
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Net Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                ${payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)}
+                {payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)*80}
               </p>
             </div>
           </div>
@@ -274,17 +274,17 @@ const PaymentsTable = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900">
-                      ${payment.amount}
+                      {payment.amount*80}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-red-600">
-                      -${payment.platformFee ? payment.platformFee : 0}
+                      -{payment.platformFee ? payment.platformFee*80 : 0}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-green-600">
-                      ${payment.netAmount}
+                      {payment.netAmount*80}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

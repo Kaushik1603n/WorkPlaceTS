@@ -85,7 +85,7 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-green-600 font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold text-green-800">${paymentData.amount}</p>
+                  <p className="text-2xl font-bold text-green-800">{paymentData.amount*80}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-green-600" />
               </div>
@@ -95,7 +95,7 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-red-600 font-medium">Platform Fee</p>
-                  <p className="text-2xl font-bold text-red-800">${paymentData.platformFee}</p>
+                  <p className="text-2xl font-bold text-red-800">{paymentData.platformFee*80}</p>
                 </div>
                 <div className="text-red-600 font-semibold">-</div>
               </div>
@@ -105,7 +105,7 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-blue-600 font-medium">Net Amount</p>
-                  <p className="text-2xl font-bold text-blue-800">${paymentData.netAmount}</p>
+                  <p className="text-2xl font-bold text-blue-800">{paymentData.netAmount*80}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-600" />
               </div>
@@ -194,16 +194,16 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Gross Amount:</span>
-                      <span className="font-semibold">${paymentData.amount}</span>
+                      <span className="font-semibold">{paymentData.amount*80}</span>
                     </div>
                     <div className="flex justify-between text-red-600">
                       <span>Platform Fee ({((paymentData.platformFee / paymentData.amount) * 100).toFixed(0)}%):</span>
-                      <span>-${paymentData.platformFee}</span>
+                      <span>-{paymentData.platformFee*80}</span>
                     </div>
                     <div className="border-t border-gray-300 pt-2 mt-2">
                       <div className="flex justify-between font-bold text-lg">
                         <span>Net Amount:</span>
-                        <span className="text-green-600">${paymentData.netAmount}</span>
+                        <span className="text-green-600">{paymentData.netAmount*80}</span>
                       </div>
                     </div>
                   </div>

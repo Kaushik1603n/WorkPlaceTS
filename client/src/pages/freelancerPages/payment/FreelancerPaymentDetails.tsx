@@ -201,7 +201,7 @@ const FreelancerPaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentL
                       <span className="font-semibold">{paymentData.amount*80}</span>
                     </div>
                     <div className="flex justify-between text-red-600">
-                      <span>Platform Fee ({((paymentData.platformFee / paymentData.amount*80) * 100).toFixed(0)}%):</span>
+                      <span>Platform Fee ({((paymentData.platformFee / paymentData.amount) * 100).toFixed(0)}%):</span>
                       <span>-{paymentData.platformFee}</span>
                     </div>
                     <div className="border-t border-gray-300 pt-2 mt-2">
