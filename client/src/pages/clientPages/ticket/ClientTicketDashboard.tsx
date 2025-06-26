@@ -4,17 +4,22 @@ import ClientTicketDetailsModal from '../../../components/client/ticket/ClientTi
 import type { Ticket } from '../../../components/client/ticket/types';
 import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
+import Pagination from '../../../components/Pagination';
 
 const ClientTicketDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [tickets, setTickets] = useState<Ticket[]>([]);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const res = await axiosClient.get("/client/project/tickets");
+                const res = await axiosClient.get("/client/project/tickets", {
+                    params: { page: currentPage, limit: 5 }
+                });
                 setTickets(res.data.data);
+                setTotalPage(res.data.totalPages);
             } catch (error) {
                 console.error('Failed to fetch tickets:', error);
             } finally {
@@ -22,7 +27,7 @@ const ClientTicketDashboard = () => {
             }
         };
         fetchTickets();
-    }, []);
+    }, [currentPage]);
 
     const handleViewTicket = (ticket: Ticket) => {
         setSelectedTicket(ticket);
@@ -56,9 +61,9 @@ const ClientTicketDashboard = () => {
                     <p className="text-gray-600">Review and respond to tickets raised by freelancers</p>
                 </div>
 
-                <ClientTicketsTable 
-                    tickets={tickets} 
-                    onViewTicket={handleViewTicket} 
+                <ClientTicketsTable
+                    tickets={tickets}
+                    onViewTicket={handleViewTicket}
                 />
 
                 {selectedTicket && (
@@ -68,6 +73,15 @@ const ClientTicketDashboard = () => {
                         onAddComment={handleAddComment}
                     />
                 )}
+            </div>
+            <div className="flex justify-center mt-2">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPage}
+                    onPageChange={(page) => {
+                        setCurrentPage(page);
+                    }}
+                />
             </div>
         </div>
     );

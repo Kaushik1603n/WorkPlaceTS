@@ -19,7 +19,6 @@ function FreelcancerTicket() {
                 });
                 setTickets(res.data.data);
                 setTotalPage(res.data.totalPages);
-                console.log(res.data);
             } catch (error) {
                 console.error('Failed to fetch tickets:', error);
             } finally {

@@ -3,7 +3,7 @@ import ProjectModel from "../../../../domain/models/Projects";
 import ReportModel from "../../../../domain/models/ReportModel";
 import {
   ClientProjectWithPaginationType,
-  TicketType,
+  TicketWithPageinationType,
 } from "../../../../domain/types/ClientJobType";
 
 export class ProjectRepo implements IProjectRepo {
@@ -57,18 +57,29 @@ export class ProjectRepo implements IProjectRepo {
       });
       const totalPage = Math.ceil(totalCount / limit);
 
-      return { project, totalPage,totalCount };
+      return { project, totalPage, totalCount };
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");
     }
   }
 
-  async findAllTicket(userId: string): Promise<TicketType[]> {
+  async findAllTicket(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<TicketWithPageinationType> {
     try {
-      return await ReportModel.find({ "client.id": userId }).sort({
-        createdAt: -1,
+      const result = await ReportModel.find({ "client.id": userId })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+      const totalCount = await ReportModel.countDocuments({
+       "client.id": userId
       });
+      const totalPages = Math.ceil(totalCount / limit);
+      
+      return { result, totalPages };
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");

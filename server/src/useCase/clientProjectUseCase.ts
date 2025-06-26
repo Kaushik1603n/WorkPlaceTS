@@ -50,9 +50,9 @@ export class ClientProjectUserCase {
       throw error;
     }
   }
-  async getAllTicketUseCase(userId: string) {
+  async getAllTicketUseCase(userId:string,page: number, limit: number) {
     try {
-      const result = await this.project.findAllTicket(userId);
+      const result = await this.project.findAllTicket(userId, page, limit);
       return result;
     } catch (error) {
       console.error("Use case error:", error);

@@ -92,11 +92,19 @@ export class ProjectController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
-      const tickets = await projectUserCase.getAllTicketUseCase(userId);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const { result, totalPages } = await projectUserCase.getAllTicketUseCase(
+        userId,
+        page,
+        limit
+      );
       res.status(200).json({
         success: true,
         message: "Project get successfully",
-        data: tickets,
+        data: result,
+        totalPages,
       });
     } catch (error) {
       if (error instanceof Error) {

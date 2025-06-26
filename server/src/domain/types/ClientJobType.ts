@@ -30,6 +30,10 @@ export interface ClientProjectWithPaginationType {
   totalPage:number
   totalCount:number
 }
+export interface TicketWithPageinationType {
+  result:TicketType[],
+  totalPages:number
+}
 export interface TicketType {
   title: string;
   description: string;
