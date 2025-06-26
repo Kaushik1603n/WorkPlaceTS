@@ -11,7 +11,10 @@ import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import { IProposalMilestonesType } from "../../../../domain/types/proposalMilstoneTypes";
 
 export class ProposalRepo implements IProposalRepo {
-  async findProposalAndUpdateStatus(proposalId: string, contractId: string): Promise<any> {
+  async findProposalAndUpdateStatus(
+    proposalId: string,
+    contractId: string
+  ): Promise<any> {
     try {
       return await ProposalModel.findByIdAndUpdate(
         proposalId,
@@ -26,7 +29,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async findProposalById(proposalId: string) : Promise<any>{
+  async findProposalById(proposalId: string): Promise<any> {
     try {
       const getProposal = await ProposalModel.findById(proposalId)
         .select(
@@ -72,7 +75,7 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getProposalbyId(userId: string) : Promise<any>{
+  async getProposalbyId(userId: string): Promise<any> {
     try {
       const proposals = await ProposalModel.find({ freelancerId: userId })
         .populate({
@@ -163,7 +166,7 @@ export class ProposalRepo implements IProposalRepo {
     jobId: string,
     proposal_id: string,
     contractId: string
-  ) : Promise<any>{
+  ): Promise<any> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -218,7 +221,10 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async rejectProposalContract(proposal_id: string, contractId: string): Promise<any> {
+  async rejectProposalContract(
+    proposal_id: string,
+    contractId: string
+  ): Promise<any> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -267,7 +273,7 @@ export class ProposalRepo implements IProposalRepo {
 
     const proposal = await ProjectModel.findById(jobId, {
       _id: 1,
-      status:1,
+      status: 1,
       hiredFreelancer: 1,
       hiredProposalId: 1,
     })
@@ -304,7 +310,10 @@ export class ProposalRepo implements IProposalRepo {
     ).lean();
   }
 
-  async findProposal(milestoneId: string, session: mongoose.ClientSession): Promise<any> {
+  async findProposal(
+    milestoneId: string,
+    session: mongoose.ClientSession
+  ): Promise<any> {
     const proposal = await ProposalModel.findOne(
       { "milestones._id": milestoneId },
       {
@@ -370,7 +379,7 @@ export class ProposalRepo implements IProposalRepo {
     milestoneId: string,
     paymentRequestId: any,
     session: mongoose.ClientSession
-  ) : Promise<any>{
+  ): Promise<any> {
     await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.paymentRequestId": paymentRequestId } },
@@ -388,16 +397,33 @@ export class ProposalRepo implements IProposalRepo {
     return proposal;
   }
 
-  async findPayment(userId: string): Promise<IPaymentRequest> {
+  async findPayment(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<IPaymentRequestWithPagination> {
     const data = await PaymentRequestModel.find({
       clientId: userId,
     })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .sort({ createdAt: -1 })
-      .lean<IPaymentRequest>();
+      .lean<IPaymentRequest[]>();
 
-    return data;
+    const totalCount = await PaymentRequestModel.countDocuments({
+      clientId: userId,
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {data,totalPages,totalCount};
   }
 }
+interface IPaymentRequestWithPagination {
+  data:IPaymentRequest[];
+  totalPages:number
+  totalCount:number
+}
+
 interface IPaymentRequest {
   jobId: string;
   proposalId: string;

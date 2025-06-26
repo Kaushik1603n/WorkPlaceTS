@@ -3,6 +3,8 @@ import { Clock, DollarSign, Eye, CreditCard, User, } from 'lucide-react';
 import { loadRazorpay } from '../../../utils/razorpay';
 import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
+import PaymentDetailsModal from './PaymentDetailsModal';
+import Pagination from '../../../components/Pagination';
 
 type PaymentStatus = 'pending' | 'completed' | 'failed';
 
@@ -21,20 +23,24 @@ interface IPaymentRequest {
   updatedAt: string;
 }
 
-// interface OrderResponse {
-//   id: string;
-//   currency: string;
-//   amount: number;
-// }
-const PendingPaymentsTable = () => {
+const PaymentsTable = () => {
   const [payments, setPayments] = useState<IPaymentRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<IPaymentRequest | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(1);
 
   const fetchPendingPayments = async () => {
     setLoading(true)
     try {
-      const res = await axiosClient.get("/proposal/pending-paments")
+      const res = await axiosClient.get("/proposal/pending-paments", {
+        params: { page: currentPage, limit: 5 }
+      });
       setPayments(res.data.data)
+      setTotalPage(res.data.totalPages)
+      setTotalCount(res.data.totalCount)
     } catch (error) {
       console.log(error);
     } finally {
@@ -43,7 +49,7 @@ const PendingPaymentsTable = () => {
   }
   useEffect(() => {
     fetchPendingPayments()
-  }, [])
+  }, [currentPage])
 
 
   const formatDate = (dateString: string) => {
@@ -90,17 +96,6 @@ const PendingPaymentsTable = () => {
     );
   };
 
-  //  const handleProcessPayment = async (paymentRequestId:string,milestoneId: string, amount: number) => {
-
-  //   const { data } = await axiosClient.post("/payments/order", {
-  //     paymentRequestId,
-  //     milestoneId,
-  //     amount,
-  //     receipt: `receipt_${Date.now()}`
-  //   });
-
-  //   loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD");
-  // };
 
   const handleProcessPayment = async (paymentRequestId: string, milestoneId: string, amount: number) => {
     try {
@@ -116,10 +111,10 @@ const PendingPaymentsTable = () => {
       }
 
       loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD",
-          () => {
-        fetchPendingPayments();
-        toast.success("Payment completed successfully!");
-      }
+        () => {
+          fetchPendingPayments();
+          toast.success("Payment completed successfully!");
+        }
       )
 
     } catch (error) {
@@ -129,9 +124,17 @@ const PendingPaymentsTable = () => {
   };
 
   const handleViewDetails = (paymentId: string) => {
-    alert(`Viewing details for payment: ${paymentId}`);
+    const payment = payments.find(p => p._id === paymentId);
+    if (payment) {
+      setSelectedPayment(payment);
+      setIsModalOpen(true);
+    }
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPayment(null);
+  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex justify-center items-center">
@@ -161,7 +164,7 @@ const PendingPaymentsTable = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Payments</p>
-              <p className="text-xl font-semibold text-gray-800">{payments.length}</p>
+              <p className="text-xl font-semibold text-gray-800">{totalCount}</p>
             </div>
           </div>
         </div>
@@ -319,42 +322,26 @@ const PendingPaymentsTable = () => {
             </tbody>
           </table>
         </div>
+        {isModalOpen && selectedPayment && (
+          <div className="fixed inset-0  backdrop-blur-lg rounded-2xl bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+              <PaymentDetailsModal paymentData={selectedPayment} onClose={closeModal} />
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex justify-center mt-6">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+          }}
+        />
       </div>
 
-      {/* Pagination */}
-      {/* <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Previous
-          </button>
-          <button className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Next
-          </button>
-        </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">1</span> to <span className="font-medium">{payments.length}</span> of{' '}
-              <span className="font-medium">{payments.length}</span> results
-            </p>
-          </div>
-          <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-              <button className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                Previous
-              </button>
-              <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
-                1
-              </button>
-              <button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                Next
-              </button>
-            </nav>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };
 
-export default PendingPaymentsTable;
+export default PaymentsTable;

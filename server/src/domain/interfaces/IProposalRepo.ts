@@ -46,9 +46,14 @@ export interface IProposalRepo {
     session: mongoose.ClientSession
   ): Promise<any>;
   proposalMilestonesReject(milestoneId: string): Promise<any>;
-   findPayment(userId: string): Promise<IPaymentRequest>
+   findPayment(userId: string,page:number,limit:number): Promise<IPaymentRequestWithPagination>
 }
 
+interface IPaymentRequestWithPagination {
+  data:IPaymentRequest[];
+  totalPages:number
+  totalCount:number
+}
 export interface Proposal {
   _id: string;
   freelancerName: string;

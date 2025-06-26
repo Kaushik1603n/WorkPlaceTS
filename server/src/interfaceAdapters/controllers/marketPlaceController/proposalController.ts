@@ -278,11 +278,21 @@ export class ProposalController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
-      const data = await proposalCase.pendingPamentsUseCase(userId);
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const { data, totalPages,totalCount } = await proposalCase.pendingPamentsUseCase(
+        userId,
+        page,
+        limit
+      );
 
       res.status(200).json({
         message: "Proposals fetched successfully",
         data: data,
+        totalPages,
+        totalCount
       });
     } catch (error) {
       console.error(error);

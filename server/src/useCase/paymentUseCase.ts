@@ -160,8 +160,8 @@ export class PaymentUseCase {
     }
   }
 
-  async getPaymentsUseCase(userId: string) {
-    const paymentList = await this.payment.findPaymentByUserId(userId);
+  async getPaymentsUseCase(userId: string,page:number,limit:number) {
+    const paymentList = await this.payment.findPaymentByUserId(userId,page,limit);
     return paymentList;
   }
 }

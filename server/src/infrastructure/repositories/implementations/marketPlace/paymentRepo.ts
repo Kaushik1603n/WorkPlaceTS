@@ -19,7 +19,10 @@ export class PaymentRepo implements IpamentRepo {
     ).lean();
     return proposal;
   }
-  async findPaymentRequest(paymentRequestId: string, clientId: string): Promise<any> {
+  async findPaymentRequest(
+    paymentRequestId: string,
+    clientId: string
+  ): Promise<any> {
     const paymentRequest = await PaymentRequestModel.findOne({
       _id: paymentRequestId,
       clientId,
@@ -35,7 +38,7 @@ export class PaymentRepo implements IpamentRepo {
     return pay;
   }
 
-  async findPayment(razorpay_order_id: string) : Promise<any>{
+  async findPayment(razorpay_order_id: string): Promise<any> {
     const payment = await PaymentModel.findOne({
       paymentGatewayId: razorpay_order_id,
     });
@@ -61,7 +64,7 @@ export class PaymentRepo implements IpamentRepo {
     milestoneId: Types.ObjectId,
     proposalId: Types.ObjectId,
     session: ClientSession
-  ) : Promise<any>{
+  ): Promise<any> {
     const paymentRequest = await PaymentRequestModel.findOneAndUpdate(
       {
         milestoneId: milestoneId,
@@ -101,7 +104,10 @@ export class PaymentRepo implements IpamentRepo {
     return proposal;
   }
 
-  async findJobById(jobId: Types.ObjectId, session: ClientSession) : Promise<any>{
+  async findJobById(
+    jobId: Types.ObjectId,
+    session: ClientSession
+  ): Promise<any> {
     const job = await ProjectModel.findById(jobId).session(session);
     return job;
   }
@@ -118,7 +124,7 @@ export class PaymentRepo implements IpamentRepo {
   async updatePaymentStatus(
     jobId: string,
     paymentStatus: string,
-    status:string,
+    status: string,
     session: ClientSession
   ): Promise<any> {
     const job = await ProjectModel.findByIdAndUpdate(
@@ -180,32 +186,45 @@ export class PaymentRepo implements IpamentRepo {
     return freelancerWallet;
   }
 
-  async findPaymentByUserId(userId: string): Promise<any> {
+  async findPaymentByUserId(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<any> {
     const wallet = await WalletModel.findOne({
       userId: new Types.ObjectId(userId),
     }).lean<IWallet | null>();
     const payment = await PaymentRequestModel.find({
       freelancerId: new Types.ObjectId(userId),
-    }).sort({createdAt:-1}).lean();
+    })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean();
 
-    return {wallet,payment};
+    const totalCount = await PaymentRequestModel.countDocuments({
+      freelancerId: new Types.ObjectId(userId),
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { wallet, payment, totalPages };
   }
 }
 
 interface IWalletTransaction {
-  type: "credit" | "debit"; 
+  type: "credit" | "debit";
   amount: number;
-  description: string; 
-  paymentId?: Types.ObjectId; 
+  description: string;
+  paymentId?: Types.ObjectId;
   createdAt: Date;
 }
 
-export interface IWallet  {
+export interface IWallet {
   _id: Types.ObjectId;
-  userId: Types.ObjectId | "admin"; 
+  userId: Types.ObjectId | "admin";
   balance: number;
-  currency: string; 
-  transactions: IWalletTransaction[]; 
+  currency: string;
+  transactions: IWalletTransaction[];
   createdAt: Date;
   updatedAt: Date;
 }

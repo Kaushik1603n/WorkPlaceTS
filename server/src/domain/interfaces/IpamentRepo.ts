@@ -41,5 +41,5 @@ export interface IpamentRepo {
     title: string,
     session: ClientSession
   ): Promise<any>;
-  findPaymentByUserId(userId: string): Promise<any>;
+  findPaymentByUserId(userId: string,page:number,limit:number): Promise<any>;
 }

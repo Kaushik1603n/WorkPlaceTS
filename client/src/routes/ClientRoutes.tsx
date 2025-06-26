@@ -11,11 +11,11 @@ import ClientDashBoard from "../pages/clientPages/project/ClientDashBoard";
 import ClientJobWithProposals from "../pages/clientPages/project/ClientProjectDetails";
 import FreelancerList from "../pages/clientPages/freelancerListing/FreelancerList";
 import ClientProjectPage from "../pages/clientPages/project/ClientProjectPage";
-import PendingPaymentListing from "../pages/clientPages/project/PaymentPage";
 import MessagingPage from "../pages/message/MessagingPage";
 import ActiveClinetProject from "../pages/clientPages/project/ActiveClinetProject";
 import ClientTicketDashboard from "../pages/clientPages/ticket/ClientTicketDashboard";
 import AllClientProject from "../pages/clientPages/project/AllProject";
+import PaymentsTable from "../pages/clientPages/project/PaymentPage";
 
 
 function ClientRoutes() {
@@ -34,7 +34,7 @@ function ClientRoutes() {
             path="jobs/:proposalId/proposals"
             element={<ProposalDetails/>}
           />
-          <Route path="payments" element={<PendingPaymentListing/>} />
+          <Route path="payments" element={<PaymentsTable/>} />
           <Route path="profile" element={<ClientProfile/>} />
           <Route path="profile/edit" element={<EditClientProfile/>} />
           <Route path="message" element={<MessagingPage/>} />

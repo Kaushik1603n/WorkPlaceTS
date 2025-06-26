@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Clock, DollarSign, CreditCard, User, TrendingUp, TrendingDown, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Clock, DollarSign, CreditCard, User, TrendingUp, TrendingDown, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
 import axiosClient from '../../../utils/axiosClient';
+import FreelancerPaymentDetailsModal from './FreelancerPaymentDetails';
+import Pagination from '../../../components/Pagination';
 
 interface IWalletTransaction {
     type: "credit" | "debit";
@@ -34,31 +36,39 @@ interface IPayment {
     clientId: string;
     freelancerId: string;
     paymentMethod: string;
-    createdAt: Date | string;
-    updatedAt: Date | string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 function WalletTransactions() {
     const [wallet, setWallet] = useState<IWallet | null>(null);
     const [payments, setPayments] = useState<IPayment[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
 
-   
-    const fetchPaymentsDetails = async () => {
-        setLoading(true)
-        try {
-            const res = await axiosClient.get("/payments/get-payment")
-            setWallet(res.data.data)
-            setPayments(res.data.payment)
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-        }
-    }
+
     useEffect(() => {
+        const fetchPaymentsDetails = async () => {
+            setLoading(true)
+            try {
+                const res = await axiosClient.get("/payments/get-payment", {
+                    params: { page: currentPage, limit: 5 }
+                });
+                setWallet(res.data.data)
+                setPayments(res.data.payment)
+                setTotalPage(res.data.totalPages)
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false)
+            }
+        }
         fetchPaymentsDetails()
-    }, [])
+    }, [currentPage])
 
 
     const formatDate = (dateString: string | Date) => {
@@ -80,12 +90,21 @@ function WalletTransactions() {
     };
 
     // Payment statistics
-    // const getTotalPayments = () => payments.reduce((sum, p) => sum + p.amount, 0);
-    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount*80, 0);
-    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee*80, 0);
-    // const getCompletedPayments = () => payments.filter(p => p.status === 'completed').length;
-    // const getPendingPayments = () => payments.filter(p => p.status === 'pending').length;
-    // const getFailedPayments = () => payments.filter(p => p.status === 'failed').length;
+    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount * 80, 0);
+    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee * 80, 0);
+
+    const handleViewDetails = (paymentId: string) => {
+        const payment = payments.find(p => p._id === paymentId);
+        if (payment) {
+            setSelectedPayment(payment);
+            setIsModalOpen(true);
+        }
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedPayment(null);
+    };
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -193,37 +212,6 @@ function WalletTransactions() {
                     </div>
                 )}
 
-                {/* Payment Status Overview */}
-                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                        <p className="text-3xl font-bold text-green-600">{getCompletedPayments()}</p>
-                        <p className="text-sm text-gray-600 mt-1">Successful payments</p>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
-                            <Clock className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <p className="text-3xl font-bold text-yellow-600">{getPendingPayments()}</p>
-                        <p className="text-sm text-gray-600 mt-1">Awaiting completion</p>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Failed</h3>
-                            <XCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                        <p className="text-3xl font-bold text-red-600">{getFailedPayments()}</p>
-                        <p className="text-sm text-gray-600 mt-1">Failed transactions</p>
-                    </div>
-                </div> */}
-
-                {/* Payment Transactions Table */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <h2 className="text-xl font-semibold text-gray-900">Payment Transactions</h2>
@@ -252,11 +240,11 @@ function WalletTransactions() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
-                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Gateway ID
-                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action
                                     </th>
                                 </tr>
                             </thead>
@@ -270,17 +258,17 @@ function WalletTransactions() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-gray-900">
-                                                {payment.amount*80}
+                                                {payment.amount * 80}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-green-600">
-                                                {payment.netAmount*80}
+                                                {payment.netAmount * 80}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-red-600">
-                                                {payment.platformFee*80}
+                                                {payment.platformFee * 80}
                                             </div>
                                         </td>
                                         {/* <td className="px-6 py-4 whitespace-nowrap">
@@ -294,20 +282,34 @@ function WalletTransactions() {
                                                 <span className="ml-1 capitalize">{payment.status}</span>
                                             </span>
                                         </td>
-                                        {/* <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-mono text-gray-600">
-                                                {payment.paymentGatewayId}
-                                            </div>
-                                        </td> */}
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {formatDate(payment.createdAt)}
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {payment.status === "paid"
+                                                &&
+                                                <button
+                                                    onClick={() => handleViewDetails(payment._id)}
+                                                    className="bg-gray-600 text-white px-3 py-1 rounded-md text-xs hover:bg-gray-700 transition-colors flex items-center"
+                                                >
+                                                    <Eye className="w-3 h-3 mr-1" />
+                                                    Details
+                                                </button>}
+                                        </td>
+
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
+                {isModalOpen && selectedPayment && (
+                    <div className="fixed inset-0  backdrop-blur-lg rounded-2xl bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+                            <FreelancerPaymentDetailsModal paymentData={selectedPayment} onClose={closeModal} />
+                        </div>
+                    </div>
+                )}
 
                 {payments.length === 0 && (
                     <div className="text-center py-12">
@@ -315,6 +317,15 @@ function WalletTransactions() {
                         <p className="text-gray-600">No payment transactions found</p>
                     </div>
                 )}
+            </div>
+            <div className="flex justify-center mt-6">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPage}
+                    onPageChange={(page) => {
+                        setCurrentPage(page);
+                    }}
+                />
             </div>
         </div>
     );

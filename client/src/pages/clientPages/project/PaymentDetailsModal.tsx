@@ -1,23 +1,25 @@
 import { Clock, DollarSign, User, FileText, Calendar, CreditCard } from 'lucide-react';
 
-const PendingPaymentListing = () => {
-  // Sample data based on the provided structure
-  const paymentData = {
-    _id: '68503964ba5d54f906a5b2ef',
-    jobId: '684a708302f195cc7d0b6606',
-    proposalId: '684a72a4bafd81e8d9345c8a',
-    milestoneId: '684a72a4bafd81e8d9345c8c',
-    amount: 50,
-    platformFee: 5,
-    netAmount: 45,
-    status: 'pending',
-    freelancerId: '68260956ec6ff5b5ef769b40',
-    clientId: '682321f0ebe2e8dac2d7a54b',
-    createdAt: '2025-06-16T15:33:56.804Z',
-    updatedAt: '2025-06-16T15:33:56.804Z'
+interface PendingPaymentListingProps {
+  paymentData: {
+    _id: string;
+    jobId: string;
+    proposalId: string;
+    milestoneId: string;
+    amount: number;
+    platformFee: number;
+    netAmount: number;
+    status: string;
+    freelancerId: string;
+    clientId: string;
+    createdAt: string;
+    updatedAt: string;
   };
+  onClose?: () => void;
+}
 
-  const formatDate = (dateString) => {
+const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProps) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -27,7 +29,7 @@ const PendingPaymentListing = () => {
     });
   };
 
-  const getStatusColor = (status:string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -41,7 +43,20 @@ const PendingPaymentListing = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+    <div className="max-w-4xl mx-auto p-6 bg-gray-50">
+      {/* Close Button */}
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
+          aria-label="Close"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Payment Details</h1>
         <p className="text-gray-600">Comprehensive view of payment information</p>
@@ -198,20 +213,19 @@ const PendingPaymentListing = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              Payment record version:
+              Payment record version: 1.0
             </p>
-            <div className="flex space-x-3">
+            {/* <div className="flex space-x-3">
               <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 Process Payment
               </button>
               <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                View Details
+                View History
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -219,4 +233,4 @@ const PendingPaymentListing = () => {
   );
 };
 
-export default PendingPaymentListing;
+export default PaymentDetailsModal;

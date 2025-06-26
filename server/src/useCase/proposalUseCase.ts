@@ -241,9 +241,9 @@ async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
     }
   }
 
-  async pendingPamentsUseCase (userId:string){
+  async pendingPamentsUseCase (userId:string,page:number,limit:number){
 
-    const data = await this.proposal.findPayment(userId)
+    const data = await this.proposal.findPayment(userId,page,limit)
     return data
   }
 }

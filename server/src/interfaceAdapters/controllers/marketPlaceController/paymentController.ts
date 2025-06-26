@@ -72,12 +72,16 @@ export class PaymentController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
 
-      const {wallet,payment} = await paymentlCase.getPaymentsUseCase(userId);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const { wallet, payment ,totalPages} = await paymentlCase.getPaymentsUseCase(userId,page,limit);
 
       res.status(200).json({
         message: "Payment fetched successfully",
         data: wallet,
-        payment
+        payment,
+        totalPages
       });
     } catch (error) {
       console.error(error);
