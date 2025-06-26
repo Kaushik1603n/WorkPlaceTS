@@ -6,7 +6,7 @@ import {
     MessageSquare,
     Bell,
     ChevronRight,
-    Calendar,
+    // Calendar,
     Shield,
     Captions,
     Menu,
@@ -22,14 +22,14 @@ type SidebarItem = {
 };
 
 const sidebarItems: SidebarItem[] = [
-    { icon: <Briefcase size={18} />, label: "Projects", path: "/freelancer-dashboard" },
+    { icon: <Briefcase size={18} />, label: "Dashboard", path: "/freelancer-dashboard" },
+    { icon: <ChevronRight size={18} />, label: "Project", path: "/freelancer-dashboard/project" },
     { icon: <FileText size={18} />, label: "Payments", path: "/freelancer-dashboard/payments" },
     { icon: <User size={18} />, label: "Profile", path: "/freelancer-dashboard/profile" },
     { icon: <MessageSquare size={18} />, label: "Message", path: "/freelancer-dashboard/message" },
     { icon: <Bell size={18} />, label: "Notification", path: "/freelancer-dashboard/notification" },
-    { icon: <ChevronRight size={18} />, label: "Project", path: "/freelancer-dashboard/project" },
     { icon: <User size={18} />, label: "Client", path: "/freelancer-dashboard/client" },
-    { icon: <Calendar size={18} />, label: "Interview Scheduling", path: "/freelancer-dashboard/interview" },
+    // { icon: <Calendar size={18} />, label: "Interview Scheduling", path: "/freelancer-dashboard/interview" },
     { icon: <Captions size={18} />, label: "Bids/Proposals", path: "/freelancer-dashboard/proposals" },
     { icon: <Shield size={18} />, label: "Dispute Resolution", path: "/freelancer-dashboard/dispute" },
 ];
