@@ -136,6 +136,33 @@ export class freelancerProfileControllers {
     }
   };
 
+  getTickets: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+
+      if (!userId) {
+        res.status(401).json({ success: false, error: "Unauthorized" });
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 6;
+
+      const {result,totalPages} =
+        await freelancerUseCase.freelancerTicketUseCase(userId, page, limit);
+
+      res.status(200).json({
+        success: true,
+        data: result,
+        totalPages,
+      });
+    } catch (error) {
+      console.error("Error in get client profile:", error);
+      res.status(500).json({ error: "can not get client details" });
+    }
+  };
+
   totalcount: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -145,12 +172,11 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const result=
-        await freelancerUseCase.totalcountUseCase(userId);
+      const result = await freelancerUseCase.totalcountUseCase(userId);
 
       res.status(200).json({
         success: true,
-        result
+        result,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
@@ -166,12 +192,11 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const result=
-        await freelancerUseCase.totalEarningsUseCase(userId);
+      const result = await freelancerUseCase.totalEarningsUseCase(userId);
 
       res.status(200).json({
         success: true,
-        result
+        result,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);

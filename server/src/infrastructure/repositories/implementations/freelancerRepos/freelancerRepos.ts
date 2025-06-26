@@ -10,6 +10,7 @@ import {
   ClientResultType,
   PaginatedClientResult,
 } from "../../../../domain/types/FreelancerProfileTypes";
+import ReportModel from "../../../../domain/models/ReportModel";
 
 export class FreelancerRepo implements IfreelancerRepo {
   async findOneAndUpdate(
@@ -111,8 +112,22 @@ export class FreelancerRepo implements IfreelancerRepo {
       },
     };
   }
+  async findFreelancerTicket(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<any> {
+    const result = await ReportModel.find({ reportedBy: userId })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
-  async findCounts(userId: string):Promise<any> {
+    const totalCount = await ReportModel.countDocuments({ reportedBy: userId });
+    const totalPages = Math.ceil(totalCount / limit);
+    return {result,totalPages};
+  }
+
+  async findCounts(userId: string): Promise<any> {
     const totalJob = await ProjectModel.countDocuments({
       hiredFreelancer: userId,
     });
@@ -149,7 +164,7 @@ export class FreelancerRepo implements IfreelancerRepo {
     return { totalJob, completedJob, activeJob, avgEarnings, totalProposal };
   }
 
-  async findTotalEarnings(userId: string):Promise<any> {
+  async findTotalEarnings(userId: string): Promise<any> {
     const Earnings = await PaymentModel.aggregate([
       {
         $match: {

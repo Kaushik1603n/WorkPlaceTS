@@ -10,6 +10,7 @@ import ClientList from "../pages/freelancerPages/clientListing/ClientList";
 import MessagingPage from "../pages/message/MessagingPage";
 import PaymentList from "../pages/freelancerPages/payment/PaymentList";
 import ActiveProject from "../pages/freelancerPages/project/ActiveProject";
+import FreelcancerTicket from "../pages/freelancerPages/ticket/FreelcancerTicket";
 
 function FreelancerRoutes() {
     return (
@@ -32,7 +33,7 @@ function FreelancerRoutes() {
                     <Route path="proposals" element={<FreelancerBit/>} />
                     <Route
                         path="dispute"
-                        element={<div>Dispute Resolution Page</div>}
+                        element={<FreelcancerTicket/>}
                     />
                 </Route>
             </Route>

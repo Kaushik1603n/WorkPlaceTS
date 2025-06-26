@@ -84,9 +84,8 @@ export class FreelancerProfileUseCase {
         throw new Error("Email already in use");
       }
     }
-    
-     const userData = await this.user.updateName(userId, fullName);
-    
+
+    const userData = await this.user.updateName(userId, fullName);
 
     return userData ?? user;
   }
@@ -98,15 +97,19 @@ export class FreelancerProfileUseCase {
     return result;
   }
 
-    async clientUseCase(page:number,limit:number) {
-    const result = await this.freelancer.findFreelancer(page,limit);
+  async clientUseCase(page: number, limit: number) {
+    const result = await this.freelancer.findFreelancer(page, limit);
     return result;
   }
-    async totalcountUseCase(userId:string) {
+  async freelancerTicketUseCase(userId:string,page: number, limit: number) {
+    const result = await this.freelancer.findFreelancerTicket(userId,page, limit);
+    return result;
+  }
+  async totalcountUseCase(userId: string) {
     const result = await this.freelancer.findCounts(userId);
     return result;
   }
-    async totalEarningsUseCase(userId:string) {
+  async totalEarningsUseCase(userId: string) {
     const result = await this.freelancer.findTotalEarnings(userId);
     return result;
   }
