@@ -116,6 +116,24 @@ export class marketPlaceRepo implements IMarketPlace {
 
     return allProjects;
   }
+  async findClientPendingProject(
+    userId: string
+  ): Promise<MarketPlaceClientProjectTypes> {
+    const allProjects = await ProjectModel.find(
+      { clientId: userId, status: "posted" },
+      {
+        contractId: 1,
+        budget: 1,
+        budgetType: 1,
+        time: 1,
+        status: 1,
+        title: 1,
+        description: 1,
+      }
+    ).lean<MarketPlaceClientProjectTypes>();
+
+    return allProjects;
+  }
   async findClientCompletedProject(
     userId: string
   ): Promise<MarketPlaceClientProjectTypes> {

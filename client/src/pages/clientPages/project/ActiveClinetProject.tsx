@@ -36,7 +36,7 @@ function ActiveClinetProject() {
                 // Fetch all data in parallel
                 const [activeRes, pendingRes, completedRes] = await Promise.all([
                     axiosClient.get("jobs/active-jobs"),
-                    axiosClient.get("jobs/completed-jobs"),
+                    axiosClient.get("jobs/pending-jobs"),
                     axiosClient.get("jobs/completed-jobs")
                 ]);
                 
