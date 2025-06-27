@@ -275,7 +275,7 @@ const ProjectDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <ProjectHeader title={jobDetails.title} clientName={jobDetails.clientFullName}
-          status={"active"} jobId={jobDetails.job_Id}
+          status={"active"} jobId={jobDetails.jobId}
           acceptedDate={"1/1/1"} progress={50} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

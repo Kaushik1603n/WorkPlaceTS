@@ -14,7 +14,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   clientName,
   status,
   jobId,
-  acceptedDate,
+  // acceptedDate,
   progress
 }) => (
   <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
@@ -25,7 +25,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
           <span>Client: <span className="text-blue-600 font-medium">{clientName}</span></span>
           <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">{status}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-1">Job ID: {jobId} | Accepted: {acceptedDate}</p>
+        <p className="text-sm text-gray-500 mt-1">Job ID: {jobId} </p>
       </div>
       <div className="text-right">
         <p className="text-sm text-gray-600 mb-1">Progress:</p>

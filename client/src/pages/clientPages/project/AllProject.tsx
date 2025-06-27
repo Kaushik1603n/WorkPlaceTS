@@ -59,7 +59,7 @@ function AllClientProject() {
         try {
 
 
-            navigate(`job-details/${projectId}`)
+            navigate(`${projectId}`)
         } catch (err) {
             const error = err as AxiosError;
             console.error("Failed to view project:", error);

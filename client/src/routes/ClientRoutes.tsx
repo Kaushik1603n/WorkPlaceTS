@@ -29,7 +29,7 @@ function ClientRoutes() {
             path="project"
             element={<AllClientProject/>}
           />
-          <Route path="job-details/:jobId" element={<ClientJobWithProposals/>} />
+          <Route path="project/:jobId" element={<ClientJobWithProposals/>} />
           <Route
             path="jobs/:proposalId/proposals"
             element={<ProposalDetails/>}

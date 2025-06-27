@@ -112,7 +112,7 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<MarketPlaceClientProjectTypes>();
+    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -130,7 +130,7 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<MarketPlaceClientProjectTypes>();
+    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -148,7 +148,7 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).lean<MarketPlaceClientProjectTypes>();
+    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }

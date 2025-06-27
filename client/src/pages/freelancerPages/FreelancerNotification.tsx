@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axiosClient from "../../utils/axiosClient";
+// import axiosClient from "../../utils/axiosClient";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 interface INotification {
     _id: string;
     userId: string;
-    type: "message" | "proposal" | "payment" | "milestone";
+    type: "message" | "proposal" | "payment" | "milestone" | "contract";
     title: string;
     message: string;
     content: string;
@@ -19,49 +19,57 @@ interface INotification {
     createdAt: string;
 }
 
-const NotificationList: React.FC = () => {
+
+function FreelancerNotification() {
     const { notifications: socketNotifications, clearNotifications } = useSocket();
     const [storedNotifications, setStoredNotifications] = useState<INotification[]>([]);
     const [allNotifications, setAllNotifications] = useState<INotification[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
+
+    // useEffect(() => {
+    //     setLoading(true)
+    //     const fetchNotifications = async () => {
+    //         try {
+    //             const res = await axiosClient.get("/notifications");
+    //             setStoredNotifications(res.data.data);
+    //         } catch (error) {
+    //             console.error("Error fetching notifications:", error);
+    //             toast.error("Failed to fetch notifications");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     const markNotificationsAsRead = async () => {
+    //         try {
+    //             await axiosClient.patch("/notifications/mark-read");
+    //             setStoredNotifications((prev) =>
+    //                 prev.map((n) => ({ ...n, isRead: true }))
+    //             );
+    //         } catch (error) {
+    //             console.error("Error marking notifications as read:", error);
+    //             toast.error("Failed to mark notifications as read");
+    //         }
+    //     };
+
+    //     fetchNotifications();
+    //     markNotificationsAsRead();
+
+    // return () => {
+    //     if (clearNotifications) {
+    //         clearNotifications();
+    //     }
+    // };
+    // }, []);
 
     useEffect(() => {
-        setLoading(true)
-        const fetchNotifications = async () => {
-            try {
-                const res = await axiosClient.get("/notifications");
-                setStoredNotifications(res.data.data);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-                toast.error("Failed to fetch notifications");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const markNotificationsAsRead = async () => {
-            try {
-                await axiosClient.patch("/notifications/mark-read");
-                setStoredNotifications((prev) =>
-                    prev.map((n) => ({ ...n, isRead: true }))
-                );
-            } catch (error) {
-                console.error("Error marking notifications as read:", error);
-                toast.error("Failed to mark notifications as read");
-            }
-        };
-
-        fetchNotifications();
-        markNotificationsAsRead();
-
         return () => {
             if (clearNotifications) {
                 clearNotifications();
             }
         };
-    }, []);
-
+    }, [])
     useMemo(() => {
         const combinedNotifications = [
             ...storedNotifications,
@@ -130,12 +138,12 @@ const NotificationList: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                   
+
                 </div>
             )}
             <ToastContainer />
         </div>
     );
-};
+}
 
-export default NotificationList;
+export default FreelancerNotification
