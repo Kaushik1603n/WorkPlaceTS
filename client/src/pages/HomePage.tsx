@@ -111,7 +111,7 @@ export default function HomePage() {
       </section>
 
       {/* Freelancers Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16">
+      {/* <section className="py-16 px-4 md:px-8 lg:px-16">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
             Our Freelancer
@@ -122,7 +122,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-auto">
@@ -319,7 +319,7 @@ export default function HomePage() {
 //   );
 // }
 
-function FreelancerCard() {
+export function FreelancerCard() {
   return (
     <div className="bg-green-50 border border-green-100 rounded-lg p-6 flex flex-col items-center">
       <div className="w-16 h-16 bg-green-200 rounded-full mb-4 overflow-hidden">
