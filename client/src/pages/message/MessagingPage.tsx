@@ -9,6 +9,7 @@ import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import type { Contact, Message, IMessage, GetLatestMessagesResponse } from "./MessagingTypes";
 import SelectChat from "./NoChat";
+import { toast } from "react-toastify";
 
 const MessagingPage = () => {
   const { socket, markMessageRead } = useSocket();
@@ -31,14 +32,14 @@ const MessagingPage = () => {
           isOnline: false,
           latestMessage: item.latestMessage
             ? {
-                id: item.latestMessage.id,
-                text: item.latestMessage.text,
-                senderId: item.latestMessage.senderId,
-                contactId: item.latestMessage.contactId,
-                timestamp: item.latestMessage.timestamp,
-                isRead: item.latestMessage.isRead,
-                sender: item.latestMessage.senderId === userId ? "user" : "contact",
-              }
+              id: item.latestMessage.id,
+              text: item.latestMessage.text,
+              senderId: item.latestMessage.senderId,
+              contactId: item.latestMessage.contactId,
+              timestamp: item.latestMessage.timestamp,
+              isRead: item.latestMessage.isRead,
+              sender: item.latestMessage.senderId === userId ? "user" : "contact",
+            }
             : null,
           unreadCount: item.unreadCount || 0,
         }))
@@ -90,7 +91,7 @@ const MessagingPage = () => {
           if (prevMessages.some((msg) => msg.id === message.id)) {
             return prevMessages;
           }
-          const newMessage:Message = {
+          const newMessage: Message = {
             ...message,
             sender: message.senderId === userId ? "user" : "contact",
             timestamp: message.timestamp || new Date().toISOString(),
@@ -102,16 +103,16 @@ const MessagingPage = () => {
           prevContacts.map((contact) =>
             contact.id === message.senderId || contact.id === message.contactId
               ? {
-                  ...contact,
-                  latestMessage: {
-                    ...message,
-                    sender: message.senderId === userId ? "user" : "contact",
-                  },
-                  unreadCount:
-                    contact.id === message.senderId && message.senderId !== userId
-                      ? (contact.unreadCount || 0) + 1
-                      : contact.unreadCount,
-                }
+                ...contact,
+                latestMessage: {
+                  ...message,
+                  sender: message.senderId === userId ? "user" : "contact",
+                },
+                unreadCount:
+                  contact.id === message.senderId && message.senderId !== userId
+                    ? (contact.unreadCount || 0) + 1
+                    : contact.unreadCount,
+              }
               : contact
           )
         );
@@ -122,13 +123,13 @@ const MessagingPage = () => {
             return prevContacts.map((contact) =>
               contact.id === message.senderId
                 ? {
-                    ...contact,
-                    latestMessage: {
-                      ...message,
-                      sender: "contact",
-                    },
-                    unreadCount: (contact.unreadCount || 0) + 1,
-                  }
+                  ...contact,
+                  latestMessage: {
+                    ...message,
+                    sender: "contact",
+                  },
+                  unreadCount: (contact.unreadCount || 0) + 1,
+                }
                 : contact
             );
           }
@@ -147,19 +148,52 @@ const MessagingPage = () => {
         prevContacts.map((contact) =>
           contact.id === contactId
             ? {
-                ...contact,
-                unreadCount: 0,
-              }
+              ...contact,
+              unreadCount: 0,
+            }
             : contact
         )
+      );
+    });
+
+    socket.on("messageDeleted", ({ messageId }: { messageId: string }) => {
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg.id !== messageId)
+      );
+
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) => {
+          if (
+            contact.latestMessage &&
+            contact.latestMessage.id === messageId
+          ) {
+            return { ...contact, latestMessage: null };
+          }
+          return contact;
+        })
       );
     });
 
     return () => {
       socket.off("message");
       socket.off("messagesRead");
+      socket.off("messageDeleted");
     };
   }, [socket, selectedContact, userId, markMessageRead]);
+
+  const deleteMsg = async (id: string) => {
+    try {
+      const res = await axiosClient.delete(`/message/deletemsg/${id}`);
+      if (!res.data.success) {
+        toast.error("Failed to delete message");
+      } else {
+        toast.success("Message deleted successfully");
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Error deleting message");
+    }
+  }
 
   const handleSendMessage = () => {
     if (!userId) {
@@ -183,9 +217,9 @@ const MessagingPage = () => {
         prevContacts.map((contact) =>
           contact.id === selectedContact.id
             ? {
-                ...contact,
-                latestMessage: newMessage,
-              }
+              ...contact,
+              latestMessage: newMessage,
+            }
             : contact
         )
       );
@@ -225,7 +259,9 @@ const MessagingPage = () => {
         {selectedContact ? (
           <>
             <ChatHeader contact={selectedContact} />
-            <MessageList messages={messages} userId={userId} />
+            <MessageList messages={messages} userId={userId}
+              setDeleteMsg={deleteMsg}
+            />
             <MessageInput
               messageInput={messageInput}
               setMessageInput={setMessageInput}

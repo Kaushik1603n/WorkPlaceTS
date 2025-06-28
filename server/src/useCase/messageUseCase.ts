@@ -32,6 +32,13 @@ export class MessageUseCase {
   async markMessagesReadUseCase(userId: string, contactId: string): Promise<void> {
     return await this.message.markMessagesRead(userId, contactId);
   }
+  async deleteMsg(msgId: string): Promise<void> {
+    
+    return await this.message.findAndDelete(msgId);
+  }
+ async getMessageById(msgId: string): Promise<any> {
+  return await this.message.getMessageById(msgId);
+}
 }
 
  interface IMessage {

@@ -144,6 +144,36 @@ export class MessageController {
       });
     }
   };
+  DeleteMsg: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const msgId = req.params.id.trim().replace(/^:/, "");
+      const io = req.app.get("io");
+      const connectedUsers = req.app.get("connectedUsers");
+      const message = await messageCase.getMessageById(msgId); // Assume you have a method to fetch message details
+      if (message) {
+        const { senderId, contactId } = message;
+
+        const senderSocketId = connectedUsers[senderId];
+        const recipientSocketId = connectedUsers[contactId];
+
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("messageDeleted", { messageId: msgId });
+        }
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("messageDeleted", { messageId: msgId });
+        }
+      }
+      await messageCase.deleteMsg(msgId);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to delete messages ",
+      });
+    }
+  };
 }
 
 interface IMessage {

@@ -30,6 +30,15 @@ export class MessageRepo implements IMessageRepo {
       { $set: { isRead: true } }
     );
   }
+  async findAndDelete(msgId: string): Promise<void> {
+    
+    const result = await MessageModel.deleteOne({ id: msgId });
+    console.log("Delete result:", result);
+  }
+
+  async getMessageById(msgId: string): Promise<any> {
+  return await MessageModel.findOne({ id: msgId });
+}
 
   async getLatestMessagedUsers(userId: string): Promise<any> {
     try {
@@ -56,9 +65,10 @@ export class MessageRepo implements IMessageRepo {
         },
       ]);
 
-      const allUsers = await UserModel.find({ _id: { $ne: userId },role: { $ne: "admin" } }).select(
-        "fullName role"
-      );
+      const allUsers = await UserModel.find({
+        _id: { $ne: userId },
+        role: { $ne: "admin" },
+      }).select("fullName role");
 
       const result = await Promise.all(
         allUsers.map(async (user) => {
@@ -78,7 +88,7 @@ export class MessageRepo implements IMessageRepo {
           ) {
             sortTimestamp = new Date(messageData.latestMessage.timestamp);
           } else {
-            sortTimestamp = new Date(0); 
+            sortTimestamp = new Date(0);
           }
 
           return {
