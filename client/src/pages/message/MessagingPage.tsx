@@ -15,7 +15,7 @@ const MessagingPage = () => {
   const { socket, markMessageRead } = useSocket();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [messageInput, setMessageInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [mediaInput, setMediaInput] = useState<string[]>([]); const [messages, setMessages] = useState<Message[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -224,6 +224,31 @@ const MessagingPage = () => {
         )
       );
       setMessageInput("");
+    }else if(selectedContact && socket){
+      console.log(mediaInput[0]);
+      
+       const newMessage: Message = {
+        id: Date.now().toString(),
+        text: mediaInput[0],
+        senderId: userId,
+        sender: "user",
+        contactId: String(selectedContact.id),
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      };
+
+      socket.emit("sendMessage", newMessage);
+      setMessages((prev) => [...prev, newMessage]);
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === selectedContact.id
+            ? {
+              ...contact,
+              latestMessage: newMessage,
+            }
+            : contact
+        )
+      );
     }
   };
 
@@ -265,6 +290,7 @@ const MessagingPage = () => {
             <MessageInput
               messageInput={messageInput}
               setMessageInput={setMessageInput}
+              setMediaInput={setMediaInput}
               handleSendMessage={handleSendMessage}
               handleKeyPress={handleKeyPress}
             />

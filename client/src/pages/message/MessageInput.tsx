@@ -4,6 +4,7 @@ import { Send, Paperclip, Image, FileText, X } from 'lucide-react';
 interface MessageInputProps {
   messageInput: string;
   setMessageInput: (value: string) => void;
+  setMediaInput: (value: string[]) => void;
   handleSendMessage: () => void;
   handleKeyPress: (e: React.KeyboardEvent) => void;
 }
@@ -17,6 +18,7 @@ interface AttachedFile {
 const MessageInput: React.FC<MessageInputProps> = ({
   messageInput,
   setMessageInput,
+  setMediaInput,
   handleSendMessage,
   handleKeyPress,
 }) => {
@@ -26,40 +28,43 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'media' | 'pdf' | 'general') => {
-    const files = Array.from(e.target.files || []);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    files.forEach(file => {
-      const newFile: AttachedFile = {
-        file,
-        type: file.type.startsWith('image/') ? 'image' :
-          file.type === 'application/pdf' ? 'pdf' : 'other'
+    const file = files[0];
+    const newFile: AttachedFile = {
+      file,
+      type: file.type.startsWith('image/') ? 'image' :
+        file.type === 'application/pdf' ? 'pdf' : 'other'
+    };
+
+    // Create preview for images
+    if (newFile.type === 'image') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newFile.preview = e.target?.result as string;
+        setAttachedFiles([newFile]); // Replace previous files
       };
-
-      // Create preview for images
-      if (newFile.type === 'image') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          newFile.preview = e.target?.result as string;
-          setAttachedFiles(prev => [...prev, newFile]);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setAttachedFiles(prev => [...prev, newFile]);
-      }
-    });
+      reader.readAsDataURL(file);
+    } else {
+      setAttachedFiles([newFile]); // Replace previous files
+    }
 
     setShowAttachMenu(false);
   };
 
-  const removeFile = (index: number) => {
-    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  // Remove file (now only one file exists, so index 0)
+  const removeFile = () => {
+    setAttachedFiles([]);
   };
+
+
 
   const handleSendWithAttachments = async () => {
     try {
       const uploadPromises = attachedFiles.map(async (attachedFile) => {
         const formData = new FormData();
-        formData.append('file', attachedFile.file); 
+        formData.append('file', attachedFile.file);
         formData.append('upload_preset', 'message_file');
         formData.append('folder', 'message_attachments');
         formData.append('resource_type', 'auto');
@@ -84,9 +89,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
       const uploadResults = await Promise.all(uploadPromises);
       console.log('Upload results:', uploadResults);
 
-      const fileUrls = uploadResults.map(result => result.secure_url);
-      console.log(fileUrls);
+      const fileUrls: string[] = uploadResults.map(result => result.secure_url);
 
+      setMediaInput([...fileUrls]);
       handleSendMessage();
 
       setAttachedFiles([]);
@@ -142,7 +147,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 </p>
               </div>
               <button
-                onClick={() => removeFile(index)}
+                onClick={() => removeFile()}
                 className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={14} className="text-gray-400" />
@@ -206,7 +211,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         ref={imageInputRef}
         type="file"
         accept="image/*"
-        multiple
         onChange={(e) => handleFileSelect(e, 'media')}
         className="hidden"
       />
@@ -214,10 +218,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
         ref={fileInputRef}
         type="file"
         accept=".pdf"
-        multiple
         onChange={(e) => handleFileSelect(e, 'pdf')}
         className="hidden"
       />
+
     </div>
   );
 };

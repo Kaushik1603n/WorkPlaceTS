@@ -67,7 +67,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId, setDeleteMs
                                     ? 'bg-green-500 text-white rounded-br-md hover:bg-green-600'
                                     : 'bg-white text-gray-800 border border-green-600 rounded-bl-md hover:shadow-md'
                                     }`}>
-                                    <p className="text-sm leading-relaxed">{message.text}</p>
+                                    <p className="text-sm leading-relaxed break-words overflow-x-hidden">{message.text}</p>
+
                                     <div className={`text-right text-xs transition-opacity duration-200 ${message.sender === 'user' ? 'right-0 text-gray-200' : 'left-0 text-gray-400'
                                         }`}>
                                         {new Date(message.timestamp).toLocaleTimeString([], {
