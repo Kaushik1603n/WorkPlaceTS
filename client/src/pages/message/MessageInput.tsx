@@ -1,17 +1,19 @@
 import React, { useRef, useState } from 'react';
 import { Send, Paperclip, Image, FileText, X } from 'lucide-react';
 
+type FileType = 'image' | 'pdf';
+
 interface MessageInputProps {
   messageInput: string;
   setMessageInput: (value: string) => void;
-  setMediaInput: (value: string[]) => void;
-  handleSendMessage: () => void;
+  setMediaInput: (value: string) => void;
+  handleSendMessage: (fileUrl?: string, fileType?: FileType) => void;
   handleKeyPress: (e: React.KeyboardEvent) => void;
 }
 
 interface AttachedFile {
   file: File;
-  type: 'image' | 'pdf' | 'other';
+  type: FileType;
   preview?: string;
 }
 
@@ -27,19 +29,29 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'media' | 'pdf' | 'general') => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     const file = files[0];
+    let fileType: FileType;
+
+    if (file.type.startsWith('image/')) {
+      fileType = 'image';
+    } else if (file.type === 'application/pdf') {
+      fileType = 'pdf';
+    } else {
+      // Handle unexpected file types or reject them
+      return;
+    }
+
     const newFile: AttachedFile = {
       file,
-      type: file.type.startsWith('image/') ? 'image' :
-        file.type === 'application/pdf' ? 'pdf' : 'other'
+      type: fileType
     };
 
     // Create preview for images
-    if (newFile.type === 'image') {
+    if (fileType === 'image') {
       const reader = new FileReader();
       reader.onload = (e) => {
         newFile.preview = e.target?.result as string;
@@ -53,18 +65,22 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowAttachMenu(false);
   };
 
-  // Remove file (now only one file exists, so index 0)
   const removeFile = () => {
     setAttachedFiles([]);
   };
 
-
-
   const handleSendWithAttachments = async () => {
     try {
-      const uploadPromises = attachedFiles.map(async (attachedFile) => {
+      if (attachedFiles.length === 0 && !messageInput.trim()) {
+        return; // No files or message to send
+      }
+
+      let fileUrl: string | undefined;
+      let fileType: FileType | undefined;
+
+      if (attachedFiles.length > 0) {
         const formData = new FormData();
-        formData.append('file', attachedFile.file);
+        formData.append('file', attachedFiles[0].file);
         formData.append('upload_preset', 'message_file');
         formData.append('folder', 'message_attachments');
         formData.append('resource_type', 'auto');
@@ -83,17 +99,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
           throw new Error('Upload failed');
         }
 
-        return await response.json();
-      });
+        const result = await response.json();
+        fileUrl = result.secure_url;
+        fileType = attachedFiles[0].type;
+        setMediaInput(fileUrl);
+      }
 
-      const uploadResults = await Promise.all(uploadPromises);
-      console.log('Upload results:', uploadResults);
-
-      const fileUrls: string[] = uploadResults.map(result => result.secure_url);
-
-      setMediaInput([...fileUrls]);
-      handleSendMessage();
-
+      handleSendMessage(fileUrl, fileType);
       setAttachedFiles([]);
     } catch (error) {
       console.error('Upload error:', error);
@@ -101,14 +113,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
-  const getFileIcon = (type: string) => {
+  const getFileIcon = (type: FileType) => {
     switch (type) {
       case 'image':
         return <Image size={16} className="text-blue-500" />;
       case 'pdf':
         return <FileText size={16} className="text-red-500" />;
-      default:
-        return <Paperclip size={16} className="text-gray-500" />;
     }
   };
 
@@ -147,7 +157,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 </p>
               </div>
               <button
-                onClick={() => removeFile()}
+                onClick={removeFile}
                 className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={14} className="text-gray-400" />
@@ -211,17 +221,16 @@ const MessageInput: React.FC<MessageInputProps> = ({
         ref={imageInputRef}
         type="file"
         accept="image/*"
-        onChange={(e) => handleFileSelect(e, 'media')}
+        onChange={handleFileSelect}
         className="hidden"
       />
       <input
         ref={fileInputRef}
         type="file"
         accept=".pdf"
-        onChange={(e) => handleFileSelect(e, 'pdf')}
+        onChange={handleFileSelect}
         className="hidden"
       />
-
     </div>
   );
 };

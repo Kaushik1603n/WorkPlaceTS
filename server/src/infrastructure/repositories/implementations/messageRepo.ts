@@ -3,21 +3,27 @@ import { MessageModel } from "../../../domain/models/MessageSchema";
 import UserModel from "../../../domain/models/User";
 
 export class MessageRepo implements IMessageRepo {
-  async saveMessage(message: IMessage): Promise<IMessage> {
+  async saveMessage(message: IMessage): Promise<any> {
+    const newMessage = new MessageModel(message);
+    return await newMessage.save();
+  }
+  async saveMedia(message: IMedia): Promise<IMedia> {
     const newMessage = new MessageModel(message);
     return await newMessage.save();
   }
 
-  async getMessages(senderId: string, contactId: string): Promise<IMessage[]> {
+  async getMessages(senderId: string, contactId: string): Promise<any[]> {
     return await MessageModel.find({
       $or: [
         { senderId, contactId },
         { senderId: contactId, contactId: senderId },
       ],
-    }).sort({ id: 1 });
+    })
+      .lean()
+      .sort({ id: 1 });
   }
 
-  async getUnreadMessages(userId: string): Promise<IMessage[]> {
+  async getUnreadMessages(userId: string): Promise<any[]> {
     return await MessageModel.find({
       contactId: userId,
       isRead: false,
@@ -31,14 +37,12 @@ export class MessageRepo implements IMessageRepo {
     );
   }
   async findAndDelete(msgId: string): Promise<void> {
-    
-    const result = await MessageModel.deleteOne({ id: msgId });
-    console.log("Delete result:", result);
+    await MessageModel.deleteOne({ id: msgId });
   }
 
   async getMessageById(msgId: string): Promise<any> {
-  return await MessageModel.findOne({ id: msgId });
-}
+    return await MessageModel.findOne({ id: msgId });
+  }
 
   async getLatestMessagedUsers(userId: string): Promise<any> {
     try {
@@ -138,7 +142,32 @@ export class MessageRepo implements IMessageRepo {
 
 interface IMessage {
   id: string;
-  text: string;
+  text?: string;
+  senderId: string;
+  contactId: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+// interface IMessageDTO {
+//   id: string;
+//   text?: string;
+//   senderId: string;
+//   contactId: string;
+//   timestamp: string;
+//   isRead: boolean;
+//   media?: {
+//     url: string;
+//     type: "image" | "pdf";
+//   };
+// }
+
+interface IMedia {
+  id: string;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
   senderId: string;
   contactId: string;
   timestamp: string;

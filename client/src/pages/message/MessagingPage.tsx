@@ -15,7 +15,8 @@ const MessagingPage = () => {
   const { socket, markMessageRead } = useSocket();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [messageInput, setMessageInput] = useState("");
-  const [mediaInput, setMediaInput] = useState<string[]>([]); const [messages, setMessages] = useState<Message[]>([]);
+  const [, setMediaInput] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -33,7 +34,7 @@ const MessagingPage = () => {
           latestMessage: item.latestMessage
             ? {
               id: item.latestMessage.id,
-              text: item.latestMessage.text,
+              text: item.latestMessage.text ? item.latestMessage.text:item.latestMessage.media?.type,
               senderId: item.latestMessage.senderId,
               contactId: item.latestMessage.contactId,
               timestamp: item.latestMessage.timestamp,
@@ -195,7 +196,9 @@ const MessagingPage = () => {
     }
   }
 
-  const handleSendMessage = () => {
+ 
+
+  const handleSendMessage = (fileUrl?: string, fileType?: 'image' | 'pdf' ) => {
     if (!userId) {
       console.error("User ID is undefined");
       return;
@@ -224,12 +227,13 @@ const MessagingPage = () => {
         )
       );
       setMessageInput("");
-    }else if(selectedContact && socket){
-      console.log(mediaInput[0]);
-      
-       const newMessage: Message = {
+    } else if (fileUrl && selectedContact && socket) {
+      const newMessage: Message = {
         id: Date.now().toString(),
-        text: mediaInput[0],
+        media: {
+          url: fileUrl,
+          type: fileType || "image",
+        },
         senderId: userId,
         sender: "user",
         contactId: String(selectedContact.id),
@@ -237,7 +241,7 @@ const MessagingPage = () => {
         isRead: false,
       };
 
-      socket.emit("sendMessage", newMessage);
+      socket.emit("sendMedia", newMessage);
       setMessages((prev) => [...prev, newMessage]);
       setContacts((prevContacts) =>
         prevContacts.map((contact) =>
@@ -249,7 +253,9 @@ const MessagingPage = () => {
             : contact
         )
       );
+      setMediaInput("");
     }
+    getUserLatestMessage()
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

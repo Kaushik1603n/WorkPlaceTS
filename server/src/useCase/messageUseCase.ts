@@ -8,6 +8,9 @@ export class MessageUseCase {
   async sendMessageUseCase(message: IMessage): Promise<IMessage> {
     return await this.message.saveMessage(message);
   }
+  async sendMediaUseCase(message: IMedia): Promise<IMedia> {
+    return await this.message.saveMedia(message);
+  }
 
   async getMessageUseCase(senderId: string, contactId: string): Promise<IMessage[]> {
     return await this.message.getMessages(senderId, contactId);
@@ -43,7 +46,18 @@ export class MessageUseCase {
 
  interface IMessage {
   id: string;
-  text: string;
+  text?: string;
+  senderId: string;
+  contactId: string;
+  timestamp: string;
+  isRead: boolean;
+}
+ interface IMedia {
+  id: string;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
   senderId: string;
   contactId: string;
   timestamp: string;

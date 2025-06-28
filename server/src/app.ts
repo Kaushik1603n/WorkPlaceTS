@@ -134,22 +134,90 @@ export class App {
           // });
         }
       );
+      socket.on(
+        "sendMedia",
+        async (message: {
+          id: string;
+          media?: {
+            url: string;
+            type: "image" | "pdf";
+          };
+          senderId: string;
+          contactId: string;
+          timestamp: string;
+          isRead: boolean;
+        }) => {
+          if (!message.senderId || !message.contactId) {
+            console.log("Error: Invalid message format", message);
+            return;
+          }
 
-      socket.on("markMessagesRead", async ({ userId, contactId }: { userId: string; contactId: string }) => {
-      try {
-        await messageUseCase.markMessagesReadUseCase(userId, contactId);
-        const recipientSocketId = connectedUsers[userId];
-        const senderSocketId = connectedUsers[contactId];
-        if (recipientSocketId) {
-          this.io.to(recipientSocketId).emit("messagesRead", { contactId });
+          try {
+            
+            const savedMessage = await messageUseCase.sendMediaUseCase({
+              ...message,
+              timestamp: message.timestamp || new Date().toISOString(),
+              isRead: false,
+            });
+            
+
+            const recipientSocketId = connectedUsers[message.contactId];
+            if (recipientSocketId) {
+              this.io.to(recipientSocketId).emit("message", savedMessage);
+            }
+
+            this.io.to(socket.id).emit("message", {
+              ...savedMessage,
+              isRead: true,
+            });
+          } catch (error) {
+            console.error("Error saving message:", error);
+          }
+
+          // const recipientSocketId = connectedUsers[message.contactId];
+          // if (recipientSocketId) {
+          //   this.io.to(recipientSocketId).emit("message", {
+          //     ...message,
+          //     timestamp: message.timestamp || new Date().toISOString(),
+          //     isRead: false,
+          //   });
+          // }
+
+          // // Also send back to sender to confirm receipt
+          // this.io.to(socket.id).emit("message", {
+          //   ...message,
+          //   timestamp: message.timestamp || new Date().toISOString(),
+          //   isRead: true,
+          // });
         }
-        if (senderSocketId) {
-          this.io.to(senderSocketId).emit("messagesRead", { contactId: userId });
+      );
+
+      socket.on(
+        "markMessagesRead",
+        async ({
+          userId,
+          contactId,
+        }: {
+          userId: string;
+          contactId: string;
+        }) => {
+          try {
+            await messageUseCase.markMessagesReadUseCase(userId, contactId);
+            const recipientSocketId = connectedUsers[userId];
+            const senderSocketId = connectedUsers[contactId];
+            if (recipientSocketId) {
+              this.io.to(recipientSocketId).emit("messagesRead", { contactId });
+            }
+            if (senderSocketId) {
+              this.io
+                .to(senderSocketId)
+                .emit("messagesRead", { contactId: userId });
+            }
+          } catch (error) {
+            console.error("Error marking messages as read:", error);
+          }
         }
-      } catch (error) {
-        console.error("Error marking messages as read:", error);
-      }
-    });
+      );
 
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);

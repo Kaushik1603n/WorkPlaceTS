@@ -1,23 +1,34 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-interface IMessage extends Document {
+export interface IMessage extends Document {
   id: string;
-  text: string;
+  text?: string;
   senderId: string;
   contactId: string;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
   timestamp: string;
   isRead: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const MessageSchema: Schema = new Schema({
-  id: { type: String, required: true, unique: true },
-  text: { type: String, required: true },
-  senderId: { type: String, required: true },
-  contactId: { type: String, required: true },
-  timestamp: { type: String,default: Date.now },
-  isRead: { type: Boolean, default: false },
-}, { timestamps: true });
+const MessageSchema: Schema = new Schema(
+  {
+    id: { type: String, required: true, unique: true },
+    text: { type: String },
+    media: {
+      url: { type: String },
+      type: { type: String, enum: ["image", "pdf"] },
+    },
+    senderId: { type: String, required: true },
+    contactId: { type: String, required: true },
+    timestamp: { type: String, default: () => new Date().toISOString() },
+    isRead: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-export const MessageModel = mongoose.model<IMessage>('Message', MessageSchema);
+export const MessageModel = mongoose.model<IMessage>("Message", MessageSchema);

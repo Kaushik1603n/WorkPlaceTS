@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
 import type { Message } from './MessagingTypes';
-import { Trash2 } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Trash2, FileText, Download } from 'lucide-react';
 
 interface MessageListProps {
     messages: Message[];
@@ -8,9 +8,8 @@ interface MessageListProps {
     setDeleteMsg: (id: string) => Promise<void>;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, userId, setDeleteMsg }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    console.log(userId);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +47,64 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId, setDeleteMs
         return currentDate.toDateString() !== previousDate.toDateString();
     };
 
+    const renderMessageContent = (message: Message) => {
+        const hasText = message.text && message.text.trim();
+        const hasMedia = message.media;
+
+        return (
+            <div className="">
+                {/* Media Content */}
+                {hasMedia && (
+                    <div className="max-w-xs">
+                        {message.media!.type === 'image' ? (
+                            <div className="relative">
+                                <img
+                                    src={message.media!.url}
+                                    alt="Shared image"
+                                    className="rounded-lg max-w-full h-auto shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => window.open(message.media!.url, '_blank')}
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border">
+                                <FileText className="text-red-500 flex-shrink-0" size={20} />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                        PDF Document
+                                    </p>
+                                    <p className="text-xs text-gray-500">Click to view</p>
+                                </div>
+                                <button
+                                    onClick={() => window.open(message.media!.url, '_blank')}
+                                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                                >
+                                    <Download size={16} />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Text Content */}
+                {hasText && (
+                    <p className=" px-6 pt-1 text-sm leading-relaxed break-words overflow-x-hidden">
+                        {message.text}
+                    </p>
+                )}
+
+                {/* Timestamp */}
+                <div className={`px-6 py-1  text-xs transition-opacity duration-200 ${
+                    message.sender === 'user' ? 'text-gray-200 text-right' : 'text-gray-400 text-left'
+                }`}>
+                    {new Date(message.timestamp).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="flex-1 p-4 mb-5 overflow-y-auto">
             <div className="space-y-2 max-h-full">
@@ -55,29 +112,25 @@ const MessageList: React.FC<MessageListProps> = ({ messages, userId, setDeleteMs
                     <div key={message.id} className="flex flex-col">
                         {shouldShowDateSeparator(message, messages[index - 1]) && (
                             <div className="flex justify-center mb-3 mt-4">
-                                <div className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full shadow-sm ">
+                                <div className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full shadow-sm">
                                     {formatDateOnly(message.timestamp)}
                                 </div>
                             </div>
                         )}
 
-                        <div className={`flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`group relative max-w-xs lg:max-w-md ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
-                                <div className={`px-4 py-0.5 rounded-2xl shadow-sm transition-all duration-200 ${message.sender === 'user'
-                                    ? 'bg-green-500 text-white rounded-br-md hover:bg-green-600'
-                                    : 'bg-white text-gray-800 border border-green-600 rounded-bl-md hover:shadow-md'
-                                    }`}>
-                                    <p className="text-sm leading-relaxed break-words overflow-x-hidden">{message.text}</p>
-
-                                    <div className={`text-right text-xs transition-opacity duration-200 ${message.sender === 'user' ? 'right-0 text-gray-200' : 'left-0 text-gray-400'
-                                        }`}>
-                                        {new Date(message.timestamp).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </div>
+                        <div className={`flex items-end gap-2 ${
+                            message.sender === 'user' ? 'justify-end' : 'justify-start'
+                        }`}>
+                            <div className={`group relative max-w-xs lg:max-w-md ${
+                                message.sender === 'user' ? 'order-2' : 'order-1'
+                            }`}>
+                                <div className={` rounded-2xl shadow-sm transition-all duration-200 ${
+                                    message.sender === 'user'
+                                        ? 'bg-green-500 text-white rounded-br-md hover:bg-green-600'
+                                        : 'bg-white text-gray-800 border border-green-600 rounded-bl-md hover:shadow-md'
+                                }`}>
+                                    {renderMessageContent(message)}
                                 </div>
-
 
                                 {message.sender === 'user' && (
                                     <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-0 group-hover:scale-100">

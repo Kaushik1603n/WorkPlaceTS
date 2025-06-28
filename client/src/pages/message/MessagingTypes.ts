@@ -16,12 +16,16 @@ export interface Contact {
 
 export interface Message {
   id: string;
-  text: string;
+  text?: string;
   senderId: string;
   sender: "user" | "contact";
   contactId: string;
   timestamp: string;
   isRead: boolean;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
 }
 
 export interface IMessage {
@@ -31,6 +35,10 @@ export interface IMessage {
   contactId: string;
   timestamp: string;
   isRead: boolean;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
 }
 
 // Add these to your MessagingTypes.ts or wherever you define your types
@@ -48,6 +56,10 @@ export interface ApiMessage {
   contactId: string;
   timestamp: string;
   isRead: boolean;
+  media?: {
+    url: string;
+    type: "image" | "pdf";
+  };
 }
 
 export interface LatestMessagedUser {
