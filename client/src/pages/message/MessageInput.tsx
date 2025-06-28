@@ -26,8 +26,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const hasText = messageInput.trim().length > 0;
+  const hasAttachment = attachedFiles.length > 0;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -63,6 +67,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
 
     setShowAttachMenu(false);
+    
+    // Clear text input when file is selected
+    if (messageInput.trim()) {
+      setMessageInput('');
+    }
   };
 
   const removeFile = () => {
@@ -70,10 +79,14 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   const handleSendWithAttachments = async () => {
+    if (isSending) return; // Prevent double sending
+    
     try {
       if (attachedFiles.length === 0 && !messageInput.trim()) {
         return; // No files or message to send
       }
+
+      setIsSending(true);
 
       let fileUrl: string | undefined;
       let fileType: FileType | undefined;
@@ -110,6 +123,25 @@ const MessageInput: React.FC<MessageInputProps> = ({
     } catch (error) {
       console.error('Upload error:', error);
       alert('Failed to upload files. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMessageInput(value);
+    
+    // Close attachment menu if user starts typing
+    if (value.trim() && showAttachMenu) {
+      setShowAttachMenu(false);
+    }
+  };
+
+  const handleAttachmentMenuToggle = () => {
+    // Only allow opening attachment menu if no text is typed
+    if (!hasText) {
+      setShowAttachMenu(!showAttachMenu);
     }
   };
 
@@ -158,7 +190,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
               </div>
               <button
                 onClick={removeFile}
-                className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                disabled={isSending}
+                className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <X size={14} className="text-gray-400" />
               </button>
@@ -171,14 +204,20 @@ const MessageInput: React.FC<MessageInputProps> = ({
         {/* Attachment Menu */}
         <div className="relative">
           <button
-            onClick={() => setShowAttachMenu(!showAttachMenu)}
-            className="p-3 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-full transition-colors"
+            onClick={handleAttachmentMenuToggle}
+            disabled={hasText || isSending}
+            className={`p-3 rounded-full transition-colors ${
+              hasText || isSending
+                ? 'text-gray-300 cursor-not-allowed' 
+                : 'text-gray-500 hover:text-green-500 hover:bg-green-50'
+            }`}
+            title={hasText ? "Clear text to attach files" : "Attach files"}
           >
             <Paperclip size={18} />
           </button>
 
-          {showAttachMenu && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 min-w-[160px]">
+          {showAttachMenu && !hasText && !isSending && (
+            <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 min-w-[160px] z-10">
               <button
                 onClick={() => imageInputRef.current?.click()}
                 className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
@@ -201,18 +240,40 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <input
           type="text"
           value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
+          onChange={handleTextInputChange}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
-          className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[#EFFFF6] placeholder-gray-500"
+          disabled={hasAttachment || isSending}
+          placeholder={
+            hasAttachment 
+              ? "Remove attachment to type message..." 
+              : isSending 
+                ? "Sending..." 
+                : "Type your message..."
+          }
+          className={`flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[#EFFFF6] transition-colors ${
+            hasAttachment || isSending 
+              ? 'placeholder-gray-400 text-gray-400 cursor-not-allowed' 
+              : 'placeholder-gray-500 text-gray-900'
+          }`}
         />
 
         {/* Send Button */}
         <button
           onClick={handleSendWithAttachments}
-          className="p-3 bg-green-500 text-white rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors shadow-sm"
+          disabled={isSending || (!hasText && !hasAttachment)}
+          className={`p-3 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all shadow-sm ${
+            isSending
+              ? 'bg-gray-400 cursor-not-allowed'
+              : (!hasText && !hasAttachment)
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-green-500 text-white hover:bg-green-600'
+          }`}
         >
-          <Send size={18} />
+          {isSending ? (
+            <div className="animate-spin rounded-full h-[18px] w-[18px] border-b-2 border-white"></div>
+          ) : (
+            <Send size={18} />
+          )}
         </button>
       </div>
 
@@ -222,6 +283,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
+        disabled={isSending}
         className="hidden"
       />
       <input
@@ -229,6 +291,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         type="file"
         accept=".pdf"
         onChange={handleFileSelect}
+        disabled={isSending}
         className="hidden"
       />
     </div>
