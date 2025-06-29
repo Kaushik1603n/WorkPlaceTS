@@ -1,45 +1,47 @@
 import { RequestHandler } from "express";
 import { ProposalUseCase } from "../../../useCase/proposalUseCase";
 import { ProposalRepo } from "../../../infrastructure/repositories/implementations/marketPlace/proposalRepo";
+import { Server } from "socket.io";
 
 const proposal = new ProposalRepo();
 const proposalCase = new ProposalUseCase(proposal);
 export class ProposalController {
-  hireRequest: RequestHandler = async (req, res): Promise<void> => {
-    try {
-      const user = req.user as { userId: string; email: string };
-      const userId = user.userId;
-      const proposalId = req.params.proposalId;
+ hireRequest: RequestHandler = async (req, res): Promise<void> => {
+  try {
+    const user = req.user as { userId: string; email: string };
+    const userId = user.userId;
+    const proposalId = req.params.proposalId;
 
-      if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
-        return;
-      }
-
-      if (!proposalId) {
-        res
-          .status(400)
-          .json({ success: false, message: "Proposal ID is required" });
-        return;
-      }
-
-      await proposalCase.hireRequestUseCase(userId, proposalId);
-
-      res.status(200).json({
-        success: true,
-        message: "Hire request processed successfully",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to process hire request",
-      });
+    if (!userId) {
+      res.status(401).json({ message: "user not authenticated" });
+      return;
     }
-  };
+
+    if (!proposalId) {
+      res.status(400).json({ success: false, message: "Proposal ID is required" });
+      return;
+    }
+
+    const io: Server = req.app.get("io");
+    const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
+
+    await proposalCase.hireRequestUseCase(userId, proposalId, io, connectedUsers);
+
+    res.status(200).json({
+      success: true,
+      message: "Hire request processed successfully",
+    });
+  } catch (error) {
+    console.error("Hire request error:", error);
+    const statusCode = error instanceof Error && error.message.includes("not found") ? 404 : 500;
+    const errorMessage = error instanceof Error ? error.message : "Failed to process hire request";
+
+    res.status(statusCode).json({
+      success: false,
+      error: errorMessage,
+    });
+  }
+};
 
   getAllFreelancerProposals: RequestHandler = async (
     req,

@@ -1,12 +1,22 @@
 import mongoose from "mongoose";
 import { ProposalRepo } from "../infrastructure/repositories/implementations/marketPlace/proposalRepo";
+import { Server } from "socket.io";
+import UserModel from "../domain/models/User";
+import NotificationModel from "../domain/models/Notification";
 
 export class ProposalUseCase {
   constructor(private proposal: ProposalRepo) {
     this.proposal = proposal;
   }
 
-  async hireRequestUseCase(userId: string, proposalId: string) {
+  async hireRequestUseCase(
+    userId: string,
+    proposalId: string,
+    io: Server,
+    connectedUsers: { [key: string]: string }
+  ) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
       if (!userId || !proposalId) {
         throw new Error("Credentials missing");
@@ -31,7 +41,7 @@ export class ProposalUseCase {
 
       const contract = {
         jobId: proposal?.jobId,
-        job_Id: proposal?.job_Id  || new Date(),
+        job_Id: proposal?.job_Id || new Date(),
         proposalId: proposalId,
         clientId: userId,
         freelancerId: proposal?.freelancerId,
@@ -44,22 +54,77 @@ export class ProposalUseCase {
       };
 
       const contractDetails = await this.proposal.createProposalContract(
-        contract
+        contract,
+        session
       );
 
-      if (!contractDetails) {
+      if (!contractDetails[0]) {
         throw new Error("Contract not generated");
       }
 
       await this.proposal.findProposalAndUpdateStatus(
         proposalId,
-        contractDetails._id
+        contractDetails[0]?._id,
+        session
       );
+
+      const client = await UserModel.findById(userId).session(session);
+
+      await NotificationModel.create(
+        [
+          {
+            userId: proposal.freelancerId,
+            type: "contract",
+            title: "Proposal Accepted",
+            message: `Your proposal for the job "${proposal.jobTitle}" has been accepted by ${client?.fullName}.`,
+            content: `Contract ID: ${contractDetails._id}`,
+            isRead: false,
+            actionLink: `/freelancer-dashboard/proposals`,
+            metadata: {
+              jobId: proposal.jobId,
+              proposalId: proposalId,
+              contractId: contractDetails._id,
+              clientId: userId,
+            },
+            createdAt: new Date(),
+          },
+        ],
+        { session }
+      );
+      const freelancerSocketId =
+        connectedUsers[proposal.freelancerId.toString()];
+      if (freelancerSocketId) {
+        io.to(freelancerSocketId).emit("notification", {
+          _id: contractDetails._id,
+          userId: proposal.freelancerId.toString(),
+          type: "contract",
+          title: "Proposal Accepted",
+          message: `Your proposal for the job "${proposal.jobTitle}" has been accepted by ${client?.fullName}.`,
+          content: `Contract ID: ${contractDetails._id}`,
+          isRead: false,
+          actionLink: `/freelancer-dashboard/proposals`,
+          metadata: {
+            jobId: proposal.jobId,
+            proposalId: proposalId,
+            contractId: contractDetails._id,
+            clientId: userId,
+          },
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`Notification sent to freelancer ${proposal.freelancerId}`);
+      } else {
+        console.log(`Freelancer ${proposal.freelancerId} is not connected`);
+      }
+
+      await session.commitTransaction();
 
       return;
     } catch (error) {
+      await session.abortTransaction();
       console.error(`creating proposal usecase error`, error);
       throw error;
+    } finally {
+      session.endSession();
     }
   }
 
@@ -176,53 +241,51 @@ export class ProposalUseCase {
     }
   }
 
-async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-  try {
-    const proposalApprove = await this.proposal.proposalMilestonesApprove(
-      milestoneId,
-      session
-    );
-    if (!proposalApprove) throw new Error("Milestone not found");
+    try {
+      const proposalApprove = await this.proposal.proposalMilestonesApprove(
+        milestoneId,
+        session
+      );
+      if (!proposalApprove) throw new Error("Milestone not found");
 
-    const proposal = await this.proposal.findProposal(milestoneId, session);
-    if (!proposal) throw new Error("Proposal not found");
+      const proposal = await this.proposal.findProposal(milestoneId, session);
+      if (!proposal) throw new Error("Proposal not found");
 
-    const platformFee=(proposal.amount/100)*10;
-    const netAmount=proposal.amount-platformFee
-    const paymentRequest = await this.proposal.paymentRequest(
-      proposal.jobId,
-      proposal.freelancerId,
-      proposal._id,
-      milestoneId,
-      proposal.amount,
-      userId,
-      "pending",
-      platformFee,
-      netAmount,
-      session
-    );
-    await this.proposal.updatePaymentID(
-      milestoneId,
-      paymentRequest[0]._id,     
-      session
-    );
+      const platformFee = (proposal.amount / 100) * 10;
+      const netAmount = proposal.amount - platformFee;
+      const paymentRequest = await this.proposal.paymentRequest(
+        proposal.jobId,
+        proposal.freelancerId,
+        proposal._id,
+        milestoneId,
+        proposal.amount,
+        userId,
+        "pending",
+        platformFee,
+        netAmount,
+        session
+      );
+      await this.proposal.updatePaymentID(
+        milestoneId,
+        paymentRequest[0]._id,
+        session
+      );
 
-    
-    await session.commitTransaction();
-    session.endSession();
+      await session.commitTransaction();
+      session.endSession();
 
-    return proposalApprove;
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error(`Proposal usecase error`, error);
-    throw error;
+      return proposalApprove;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      console.error(`Proposal usecase error`, error);
+      throw error;
+    }
   }
-}
-
 
   async proposalMilestonesRejectUseCase(milestoneId: string) {
     try {
@@ -241,10 +304,9 @@ async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
     }
   }
 
-  async pendingPamentsUseCase (userId:string,page:number,limit:number){
-
-    const data = await this.proposal.findPayment(userId,page,limit)
-    return data
+  async pendingPamentsUseCase(userId: string, page: number, limit: number) {
+    const data = await this.proposal.findPayment(userId, page, limit);
+    return data;
   }
 }
 

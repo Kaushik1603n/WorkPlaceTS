@@ -13,7 +13,8 @@ import { IProposalMilestonesType } from "../../../../domain/types/proposalMilsto
 export class ProposalRepo implements IProposalRepo {
   async findProposalAndUpdateStatus(
     proposalId: string,
-    contractId: string
+    contractId: string,
+    session: mongoose.ClientSession
   ): Promise<any> {
     try {
       return await ProposalModel.findByIdAndUpdate(
@@ -21,7 +22,7 @@ export class ProposalRepo implements IProposalRepo {
         {
           $set: { status: "accepted", contractId: contractId },
         },
-        { new: true }
+        { new: true, session }
       ).lean();
     } catch (error) {
       console.error("Error updating proposal status:", error);
@@ -66,9 +67,12 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async createProposalContract(contract: object): Promise<any> {
+  async createProposalContract(
+    contract: object,
+    session: mongoose.ClientSession
+  ): Promise<any> {
     try {
-      return await ContractModel.create(contract);
+      return await ContractModel.create([contract], { session });
     } catch (error) {
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
@@ -415,13 +419,13 @@ export class ProposalRepo implements IProposalRepo {
     });
     const totalPages = Math.ceil(totalCount / limit);
 
-    return {data,totalPages,totalCount};
+    return { data, totalPages, totalCount };
   }
 }
 interface IPaymentRequestWithPagination {
-  data:IPaymentRequest[];
-  totalPages:number
-  totalCount:number
+  data: IPaymentRequest[];
+  totalPages: number;
+  totalCount: number;
 }
 
 interface IPaymentRequest {

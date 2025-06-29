@@ -37,7 +37,7 @@ function FreelancerBit() {
                 setIsLoading(true);
 
                 const response = await axiosClient.get("/proposal/get-freelacer-proposal");
-                setProposals(response.data.data);
+                setProposals(response.data.data);                
             } catch (error) {
                 if (axios.isAxiosError(error)) {
                     toast.error(error.response?.data?.message || "Failed to load proposal details");

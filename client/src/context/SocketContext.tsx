@@ -4,7 +4,7 @@ import io, { Socket } from "socket.io-client";
 interface INotification {
   _id: string;
   userId: string;
-  type: "message" | "proposal" | "payment" | "milestone";
+  type: "message" | "proposal" | "payment" | "milestone" | "contract";
   title: string;
   message: string;
   content: string;

@@ -8,7 +8,7 @@ interface IMetadata {
 // Define the main Notification document interface
 interface INotification extends Document {
   userId: Types.ObjectId;
-  type: "message" | "proposal" | "payment" | "milestone";
+  type: "message" | "proposal" | "payment" | "milestone" | "contract";
   title: string;
   message: string;
   isRead: boolean;
@@ -28,7 +28,7 @@ const NotificationSchema: Schema = new Schema(
     },
     type: {
       type: String,
-      enum: ["message", "proposal", "payment", "milestone"],
+      enum: ["message", "proposal", "payment", "milestone","contract"],
       required: true,
     },
     title: {

@@ -4,11 +4,15 @@ import { IProposalMilestonesType } from "../types/proposalMilstoneTypes";
 export interface IProposalRepo {
   findProposalAndUpdateStatus(
     proposalId: string,
-    contractId: string
+    contractId: string,
+    session: mongoose.ClientSession
   ): Promise<any>;
   findProposalById(proposalId: string): Promise<any>;
   getProjectProposalbyId(jobId: string): Promise<any>;
-  createProposalContract(contract: object): Promise<any>;
+  createProposalContract(
+    contract: object,
+    session: mongoose.ClientSession
+  ): Promise<any>;
   getProposalbyId(userId: string): Promise<any>;
   getContractDetails(contractId: string): Promise<any>;
   getJobStatus(jobId: string): Promise<any>;
@@ -46,13 +50,17 @@ export interface IProposalRepo {
     session: mongoose.ClientSession
   ): Promise<any>;
   proposalMilestonesReject(milestoneId: string): Promise<any>;
-   findPayment(userId: string,page:number,limit:number): Promise<IPaymentRequestWithPagination>
+  findPayment(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<IPaymentRequestWithPagination>;
 }
 
 interface IPaymentRequestWithPagination {
-  data:IPaymentRequest[];
-  totalPages:number
-  totalCount:number
+  data: IPaymentRequest[];
+  totalPages: number;
+  totalCount: number;
 }
 export interface Proposal {
   _id: string;
