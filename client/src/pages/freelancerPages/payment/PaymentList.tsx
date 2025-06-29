@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock, DollarSign, CreditCard, User, TrendingUp, TrendingDown, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
+import { Clock, IndianRupee, CreditCard, User, TrendingUp, TrendingDown, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
 import axiosClient from '../../../utils/axiosClient';
 import FreelancerPaymentDetailsModal from './FreelancerPaymentDetails';
 import Pagination from '../../../components/Pagination';
@@ -90,8 +90,8 @@ function WalletTransactions() {
     };
 
     // Payment statistics
-    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount * 80, 0);
-    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee * 80, 0);
+    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount, 0);
+    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee, 0);
 
     const handleViewDetails = (paymentId: string) => {
         const payment = payments.find(p => p._id === paymentId);
@@ -205,7 +205,7 @@ function WalletTransactions() {
                                     </p>
                                 </div>
                                 <div className="p-3 bg-purple-100 rounded-lg">
-                                    <DollarSign className="w-6 h-6 text-purple-600" />
+                                    <IndianRupee className="w-6 h-6 text-purple-600" />
                                 </div>
                             </div>
                         </div>
@@ -258,17 +258,17 @@ function WalletTransactions() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-gray-900">
-                                                {payment.amount * 80}
+                                                {payment.amount}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-green-600">
-                                                {payment.netAmount * 80}
+                                                {payment.netAmount}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-semibold text-red-600">
-                                                {payment.platformFee * 80}
+                                                {payment.platformFee}
                                             </div>
                                         </td>
                                         {/* <td className="px-6 py-4 whitespace-nowrap">

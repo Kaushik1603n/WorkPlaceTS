@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, DollarSign, FileText, User, Briefcase, CheckCircle } from "lucide-react";
+import { Calendar, IndianRupee, FileText, User, Briefcase, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosClient from "../../../utils/axiosClient";
 import axios from "axios";
@@ -117,10 +117,10 @@ function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContract
                 </div>
               </div>
               <div className="flex items-start">
-                <DollarSign className="w-5 h-5 text-blue-600 mr-2 mt-1" />
+                <IndianRupee className="w-5 h-5 text-blue-600 mr-2 mt-1" />
                 <div>
                   <p className="text-sm text-gray-500">Total Amount</p>
-                  <p className="font-medium">${contract?.totalAmount}</p>
+                  <p className="font-medium">₹{contract?.totalAmount}</p>
                 </div>
               </div>
             </div>

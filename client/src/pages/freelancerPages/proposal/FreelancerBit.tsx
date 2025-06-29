@@ -75,7 +75,7 @@ function FreelancerBit() {
                             >
                                 <h2 className="text-xl font-semibold mb-2">{proposal?.jobId?.title}</h2>
                                 <p className="text-gray-600 mb-3">
-                                    Bid: ${proposal?.bidAmount} • Budget: ${proposal?.jobId?.budget} • Type:{" "}
+                                    Bid: ₹{proposal?.bidAmount} • Budget: ₹{proposal?.jobId?.budget} • Type:{" "}
                                     {proposal?.budgetType}
                                 </p>
                                 <p className="text-gray-500 mb-2">
