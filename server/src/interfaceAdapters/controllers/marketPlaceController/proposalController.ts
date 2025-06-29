@@ -6,42 +6,56 @@ import { Server } from "socket.io";
 const proposal = new ProposalRepo();
 const proposalCase = new ProposalUseCase(proposal);
 export class ProposalController {
- hireRequest: RequestHandler = async (req, res): Promise<void> => {
-  try {
-    const user = req.user as { userId: string; email: string };
-    const userId = user.userId;
-    const proposalId = req.params.proposalId;
+  hireRequest: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const proposalId = req.params.proposalId;
 
-    if (!userId) {
-      res.status(401).json({ message: "user not authenticated" });
-      return;
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      if (!proposalId) {
+        res
+          .status(400)
+          .json({ success: false, message: "Proposal ID is required" });
+        return;
+      }
+
+      const io: Server = req.app.get("io");
+      const connectedUsers: { [key: string]: string } =
+        req.app.get("connectedUsers");
+
+      await proposalCase.hireRequestUseCase(
+        userId,
+        proposalId,
+        io,
+        connectedUsers
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Hire request processed successfully",
+      });
+    } catch (error) {
+      console.error("Hire request error:", error);
+      const statusCode =
+        error instanceof Error && error.message.includes("not found")
+          ? 404
+          : 500;
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to process hire request";
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
+      });
     }
-
-    if (!proposalId) {
-      res.status(400).json({ success: false, message: "Proposal ID is required" });
-      return;
-    }
-
-    const io: Server = req.app.get("io");
-    const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
-
-    await proposalCase.hireRequestUseCase(userId, proposalId, io, connectedUsers);
-
-    res.status(200).json({
-      success: true,
-      message: "Hire request processed successfully",
-    });
-  } catch (error) {
-    console.error("Hire request error:", error);
-    const statusCode = error instanceof Error && error.message.includes("not found") ? 404 : 500;
-    const errorMessage = error instanceof Error ? error.message : "Failed to process hire request";
-
-    res.status(statusCode).json({
-      success: false,
-      error: errorMessage,
-    });
-  }
-};
+  };
 
   getAllFreelancerProposals: RequestHandler = async (
     req,
@@ -135,39 +149,44 @@ export class ProposalController {
 
   acceptProposalcontract: RequestHandler = async (req, res): Promise<void> => {
     try {
-    const user = req.user as { userId: string; email: string };
-    const userId = user.userId;
-    const contractId = req.params.id;
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const contractId = req.params.id;
 
-    if (!userId) {
-      res.status(401).json({ message: "user not authenticated" });
-      return;
+      if (!userId) {
+        res.status(401).json({ message: "user not authenticated" });
+        return;
+      }
+
+      const io: Server = req.app.get("io");
+      const connectedUsers: { [key: string]: string } =
+        req.app.get("connectedUsers");
+
+      const contractDetails = await proposalCase.acceptProposalUseCase(
+        userId,
+        contractId,
+        io,
+        connectedUsers
+      );
+
+      res.status(200).json({
+        message: "Proposals fetched successfully",
+        data: contractDetails,
+      });
+    } catch (error) {
+      console.error("Accept proposal contract error:", error);
+      const statusCode =
+        error instanceof Error && error.message.includes("not found")
+          ? 404
+          : 500;
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to get proposal";
+
+      res.status(statusCode).json({
+        success: false,
+        error: errorMessage,
+      });
     }
-
-    const io: Server = req.app.get("io");
-    const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
-
-    const contractDetails = await proposalCase.acceptProposalUseCase(
-      userId,
-      contractId,
-      io,
-      connectedUsers
-    );
-
-    res.status(200).json({
-      message: "Proposals fetched successfully",
-      data: contractDetails,
-    });
-  } catch (error) {
-    console.error("Accept proposal contract error:", error);
-    const statusCode = error instanceof Error && error.message.includes("not found") ? 404 : 500;
-    const errorMessage = error instanceof Error ? error.message : "Failed to get proposal";
-
-    res.status(statusCode).json({
-      success: false,
-      error: errorMessage,
-    });
-  }
   };
 
   rejectProposalcontract: RequestHandler = async (req, res): Promise<void> => {
@@ -231,9 +250,15 @@ export class ProposalController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
+
+      const io: Server = req.app.get("io");
+      const connectedUsers: { [key: string]: string } =
+        req.app.get("connectedUsers");
       const data = await proposalCase.proposalMilestonesApproveUseCase(
         milestoneId,
-        userId
+        userId,
+        io,
+        connectedUsers
       );
 
       res.status(200).json({
@@ -291,17 +316,14 @@ export class ProposalController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { data, totalPages,totalCount } = await proposalCase.pendingPamentsUseCase(
-        userId,
-        page,
-        limit
-      );
+      const { data, totalPages, totalCount } =
+        await proposalCase.pendingPamentsUseCase(userId, page, limit);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
         data: data,
         totalPages,
-        totalCount
+        totalCount,
       });
     } catch (error) {
       console.error(error);

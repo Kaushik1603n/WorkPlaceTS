@@ -3,6 +3,7 @@ import { ProposalRepo } from "../infrastructure/repositories/implementations/mar
 import { Server } from "socket.io";
 import UserModel from "../domain/models/User";
 import NotificationModel from "../domain/models/Notification";
+import ProjectModel from "../domain/models/Projects";
 
 export class ProposalUseCase {
   constructor(private proposal: ProposalRepo) {
@@ -166,53 +167,84 @@ export class ProposalUseCase {
     }
   }
 
- async  acceptProposalUseCase(
-  userId: string,
-  contractId: string,
-  io: Server,
-  connectedUsers: { [key: string]: string }
-): Promise<any> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  async acceptProposalUseCase(
+    userId: string,
+    contractId: string,
+    io: Server,
+    connectedUsers: { [key: string]: string }
+  ): Promise<any> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-  try {
-    const contractDetails = await this.proposal.getContractDetailsWithSession(contractId, session);
+    try {
+      const contractDetails = await this.proposal.getContractDetailsWithSession(
+        contractId,
+        session
+      );
 
-    const proposal_id = contractDetails?.proposalId
-      ? contractDetails?.proposalId
-      : "";
+      const proposal_id = contractDetails?.proposalId
+        ? contractDetails?.proposalId
+        : "";
 
-    if (
-      contractDetails?.freelancerId.toString() !== userId.toString() ||
-      contractDetails?.status === "reject"
-    ) {
-      throw new Error("You cannot accept this proposal");
-    }
+      if (
+        contractDetails?.freelancerId.toString() !== userId.toString() ||
+        contractDetails?.status === "reject"
+      ) {
+        throw new Error("You cannot accept this proposal");
+      }
 
-    const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
+      const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
 
-    const jobStatus = await this.proposal.getJobStatus(jobId as string, session);
+      const jobStatus = await this.proposal.getJobStatus(
+        jobId as string,
+        session
+      );
 
-    if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
-      throw new Error("Cannot Accept this Contract");
-    }
+      if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
+        throw new Error("Cannot Accept this Contract");
+      }
 
-    const contract = await this.proposal.acceptProposalContract(
-      userId,
-      jobId as string,
-      proposal_id as string,
-      contractId,
-      session
-    );
+      const contract = await this.proposal.acceptProposalContract(
+        userId,
+        jobId as string,
+        proposal_id as string,
+        contractId,
+        session
+      );
 
-    // Fetch freelancer data for notification
-    const freelancer = await UserModel.findById(userId).session(session);
+      // Fetch freelancer data for notification
+      const freelancer = await UserModel.findById(userId).session(session);
 
-    // Create notification in database
-    await NotificationModel.create(
-      [
-        {
-          userId: contractDetails.clientId,
+      // Create notification in database
+      await NotificationModel.create(
+        [
+          {
+            userId: contractDetails.clientId,
+            type: "contract",
+            title: "Contract Accepted",
+            message: `Freelancer ${freelancer?.fullName} has accepted the contract for your job "${contractDetails.title}".`,
+            content: `Contract ID: ${contractId}`,
+            isRead: false,
+            actionLink: `/client-dashboard/active-project`,
+            metadata: {
+              jobId: jobId,
+              proposalId: proposal_id,
+              contractId: contractId,
+              freelancerId: userId,
+            },
+            createdAt: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      // Emit real-time Socket.IO notification
+      const clientSocketId =
+        connectedUsers[contractDetails.clientId.toString()];
+      if (clientSocketId) {
+        io.to(clientSocketId).emit("notification", {
+          _id: contractId,
+          userId: contractDetails.clientId.toString(),
           type: "contract",
           title: "Contract Accepted",
           message: `Freelancer ${freelancer?.fullName} has accepted the contract for your job "${contractDetails.title}".`,
@@ -225,48 +257,24 @@ export class ProposalUseCase {
             contractId: contractId,
             freelancerId: userId,
           },
-          createdAt: new Date(),
-        },
-      ],
-      { session }
-    );
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`Notification sent to client ${contractDetails.clientId}`);
+      } else {
+        console.log(`Client ${contractDetails.clientId} is not connected`);
+      }
 
-    // Emit real-time Socket.IO notification
-    const clientSocketId = connectedUsers[contractDetails.clientId.toString()];
-    if (clientSocketId) {
-      io.to(clientSocketId).emit("notification", {
-        _id: contractId,
-        userId: contractDetails.clientId.toString(),
-        type: "contract",
-        title: "Contract Accepted",
-        message: `Freelancer ${freelancer?.fullName} has accepted the contract for your job "${contractDetails.title}".`,
-        content: `Contract ID: ${contractId}`,
-        isRead: false,
-        actionLink: `/client-dashboard/active-project`,
-        metadata: {
-          jobId: jobId,
-          proposalId: proposal_id,
-          contractId: contractId,
-          freelancerId: userId,
-        },
-        createdAt: new Date().toISOString(),
-      });
-      console.log(`Notification sent to client ${contractDetails.clientId}`);
-    } else {
-      console.log(`Client ${contractDetails.clientId} is not connected`);
+      await session.commitTransaction();
+
+      return contract;
+    } catch (error) {
+      await session.abortTransaction();
+      console.error(`proposal usecase error`, error);
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    await session.commitTransaction();
-
-    return contract;
-  } catch (error) {
-    await session.abortTransaction();
-    console.error(`proposal usecase error`, error);
-    throw error;
-  } finally {
-    session.endSession();
   }
-}
 
   async rejectProposalUseCase(userId: string, contractId: string) {
     try {
@@ -304,7 +312,12 @@ export class ProposalUseCase {
     }
   }
 
-  async proposalMilestonesApproveUseCase(milestoneId: string, userId: string) {
+  async proposalMilestonesApproveUseCase(
+    milestoneId: string,
+    userId: string,
+    io: Server,
+    connectedUsers: { [key: string]: string }
+  ) {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -338,8 +351,64 @@ export class ProposalUseCase {
         session
       );
 
+      // Fetch job and client data for notification
+      const job = await ProjectModel.findById(proposal.jobId).session(session);
+      const client = await UserModel.findById(userId).session(session);
+
+      if (!job || !client) {
+        throw new Error("Job or client not found");
+      }
+
+      // Create notification in database
+      await NotificationModel.create(
+        [
+          {
+            userId: proposal.freelancerId,
+            type: "milestone",
+            title: "Milestone Approved",
+            message: `Client ${client.fullName} has approved your milestone for the job "${job.title}".`,
+            content: `Milestone ID: ${milestoneId}`,
+            isRead: false,
+            actionLink: `/freelancer-dashboard`,
+            metadata: {
+              jobId: proposal.jobId,
+              milestoneId: milestoneId,
+              proposalId: proposal._id,
+              clientId: userId,
+            },
+            createdAt: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      // Emit real-time Socket.IO notification
+      const freelancerSocketId =
+        connectedUsers[proposal.freelancerId.toString()];
+      if (freelancerSocketId) {
+        io.to(freelancerSocketId).emit("notification", {
+          _id: milestoneId,
+          userId: proposal.freelancerId.toString(),
+          type: "milestone",
+          title: "Milestone Approved",
+          message: `Client ${client.fullName} has approved your milestone for the job "${job.title}".`,
+          content: `Milestone ID: ${milestoneId}`,
+          isRead: false,
+          actionLink: `/freelancer-dashboard`,
+          metadata: {
+            jobId: proposal.jobId,
+            milestoneId: milestoneId,
+            proposalId: proposal._id,
+            clientId: userId,
+          },
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`Notification sent to freelancer ${proposal.freelancerId}`);
+      } else {
+        console.log(`Freelancer ${proposal.freelancerId} is not connected`);
+      }
+
       await session.commitTransaction();
-      session.endSession();
 
       return proposalApprove;
     } catch (error) {
