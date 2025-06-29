@@ -76,7 +76,7 @@ const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, pa
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Agreed Price:</span>
-        <span className="font-semibold text-gray-900">${proposalDetails} (Fixed Price)</span>
+        <span className="font-semibold text-gray-900">₹{proposalDetails} (Fixed Price)</span>
       </div>
 
       <div className="flex justify-between items-center">
@@ -97,14 +97,14 @@ const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, pa
 
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">Platform Fee:</span>
-        <span className="text-gray-900">10% (${proposalDetails * 0.1})</span>
+        <span className="text-gray-900">10% (₹{proposalDetails * 0.1})</span>
       </div>
 
       <hr className="border-gray-200" />
 
       <div className="flex justify-between items-center">
         <span className="text-sm font-semibold text-gray-700">You'll Receive:</span>
-        <span className="text-lg font-bold text-gray-900">${proposalDetails * 0.9}</span>
+        <span className="text-lg font-bold text-gray-900">₹{proposalDetails * 0.9}</span>
       </div>
 
       {/* <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -125,7 +125,7 @@ const TermsConditions: React.FC = () => (
     <div className="space-y-4 text-sm text-gray-600">
       <div>
         <h3 className="font-medium text-gray-700 mb-1">Revision Policy</h3>
-        <p>Includes 2 free revisions per milestone; additional revisions at $50/hour.</p>
+        <p>Includes 2 free revisions per milestone; additional revisions at ₹50/hour.</p>
       </div>
 
       <div>

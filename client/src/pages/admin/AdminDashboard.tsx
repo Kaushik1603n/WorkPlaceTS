@@ -4,7 +4,7 @@ import {
   BarChart, Bar, AreaChart, Area
 } from 'recharts';
 import {
-  Users, Briefcase, DollarSign, AlertTriangle, TrendingUp,
+  Users, Briefcase, IndianRupee, AlertTriangle, TrendingUp,
   Clock, Star,
 } from 'lucide-react';
 
@@ -251,7 +251,7 @@ const AdminDashboard: React.FC = () => {
               <MetricCard
                 title="Avg Budget"
                 value={jobDetails.avgBudget}
-                icon={DollarSign}
+                icon={IndianRupee}
               />
             </div>
 
@@ -281,8 +281,8 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <MetricCard
                 title="Revenue"
-                value={revenueDetails.revenue * 80}
-                icon={DollarSign}
+                value={revenueDetails.revenue }
+                icon={IndianRupee}
               />
               <MetricCard
                 title="Wallet"
@@ -291,7 +291,7 @@ const AdminDashboard: React.FC = () => {
               />
               <MetricCard
                 title="Pending"
-                value={revenueDetails.pending * 80}
+                value={revenueDetails.pending }
 
                 icon={Clock}
               />

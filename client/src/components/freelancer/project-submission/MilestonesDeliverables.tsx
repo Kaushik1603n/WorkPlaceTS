@@ -93,7 +93,7 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-gray-900">${milestone.amount.toFixed(2)}</span>
+                <span className="text-lg font-semibold text-gray-900">₹{milestone.amount.toFixed(2)}</span>
                 {milestone.status === 'interviewing' || milestone.status === 'pending' || milestone.status === 'active' || milestone.status === 'rejected' ? (
                   <button
                     className="border border-green-500 text-green-600 hover:bg-green-50 text-sm font-medium px-3 py-1 rounded transition-colors"

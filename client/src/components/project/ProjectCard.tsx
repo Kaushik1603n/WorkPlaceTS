@@ -1,4 +1,4 @@
-import {  Calendar,  DollarSign, Eye, FileText, Star } from "lucide-react";
+import {  Calendar,  IndianRupee, Eye, FileText, Star } from "lucide-react";
 
 interface freelancerProject  {
   _id: string;
@@ -41,8 +41,8 @@ export default function ProjectCard({ project, onViewContract }:Props) {
 
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-1 text-emerald-600">
-            <DollarSign size={18} />
-            <span className="text-lg font-bold">${project.budget.toLocaleString()}</span>
+            <IndianRupee size={18} />
+            <span className="text-lg font-bold">{project.budget.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-1 text-gray-500">
             <Calendar size={16} />
