@@ -148,11 +148,11 @@ export class PaymentRepo implements IpamentRepo {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: freelancerId },
       {
-        $inc: { balance: netAmount * 80 },
+        $inc: { balance: netAmount  },
         $push: {
           transactions: {
             type: "credit",
-            amount: netAmount * 80,
+            amount: netAmount ,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },
@@ -171,11 +171,11 @@ export class PaymentRepo implements IpamentRepo {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: "admin" },
       {
-        $inc: { balance: platformFee * 80 },
+        $inc: { balance: platformFee  },
         $push: {
           transactions: {
             type: "credit",
-            amount: platformFee * 80,
+            amount: platformFee ,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },

@@ -77,7 +77,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
               value={newMilestone.amount}
               onChange={onMilestoneChange}
               className="w-full border border-color focus:outline-none  rounded-lg p-2"
-              placeholder="$"
+              placeholder="₹"
             />
           </div>
         </div>

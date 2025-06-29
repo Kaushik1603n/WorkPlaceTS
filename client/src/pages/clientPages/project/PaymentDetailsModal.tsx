@@ -1,4 +1,4 @@
-import { Clock, DollarSign, User, FileText, Calendar, CreditCard } from 'lucide-react';
+import { Clock,  User, FileText, Calendar, CreditCard, IndianRupee } from 'lucide-react';
 
 interface PendingPaymentListingProps {
   paymentData: {
@@ -46,7 +46,7 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
     <div className="max-w-4xl mx-auto p-6 bg-gray-50">
       {/* Close Button */}
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
           aria-label="Close"
@@ -85,29 +85,29 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-green-600 font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold text-green-800">{paymentData.amount*80}</p>
+                  <p className="text-2xl font-bold text-green-800">{paymentData.amount }</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-600" />
+                <IndianRupee className="w-8 h-8 text-green-600" />
               </div>
             </div>
-            
+
             <div className="bg-red-50 rounded-lg p-4 border border-red-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-red-600 font-medium">Platform Fee</p>
-                  <p className="text-2xl font-bold text-red-800">{paymentData.platformFee*80}</p>
+                  <p className="text-2xl font-bold text-red-800">{paymentData.platformFee }</p>
                 </div>
                 <div className="text-red-600 font-semibold">-</div>
               </div>
             </div>
-            
+
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-blue-600 font-medium">Net Amount</p>
-                  <p className="text-2xl font-bold text-blue-800">{paymentData.netAmount*80}</p>
+                  <p className="text-2xl font-bold text-blue-800">{paymentData.netAmount }</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-600" />
+                <IndianRupee className="w-8 h-8 text-blue-600" />
               </div>
             </div>
           </div>
@@ -194,16 +194,16 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Gross Amount:</span>
-                      <span className="font-semibold">{paymentData.amount*80}</span>
+                      <span className="font-semibold">{paymentData.amount }</span>
                     </div>
                     <div className="flex justify-between text-red-600">
                       <span>Platform Fee ({((paymentData.platformFee / paymentData.amount) * 100).toFixed(0)}%):</span>
-                      <span>-{paymentData.platformFee*80}</span>
+                      <span>-{paymentData.platformFee }</span>
                     </div>
                     <div className="border-t border-gray-300 pt-2 mt-2">
                       <div className="flex justify-between font-bold text-lg">
                         <span>Net Amount:</span>
-                        <span className="text-green-600">{paymentData.netAmount*80}</span>
+                        <span className="text-green-600">{paymentData.netAmount }</span>
                       </div>
                     </div>
                   </div>

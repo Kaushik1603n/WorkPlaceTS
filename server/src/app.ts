@@ -117,21 +117,7 @@ export class App {
             console.error("Error saving message:", error);
           }
 
-          // const recipientSocketId = connectedUsers[message.contactId];
-          // if (recipientSocketId) {
-          //   this.io.to(recipientSocketId).emit("message", {
-          //     ...message,
-          //     timestamp: message.timestamp || new Date().toISOString(),
-          //     isRead: false,
-          //   });
-          // }
-
-          // // Also send back to sender to confirm receipt
-          // this.io.to(socket.id).emit("message", {
-          //   ...message,
-          //   timestamp: message.timestamp || new Date().toISOString(),
-          //   isRead: true,
-          // });
+         
         }
       );
       socket.on(
@@ -174,21 +160,7 @@ export class App {
             console.error("Error saving message:", error);
           }
 
-          // const recipientSocketId = connectedUsers[message.contactId];
-          // if (recipientSocketId) {
-          //   this.io.to(recipientSocketId).emit("message", {
-          //     ...message,
-          //     timestamp: message.timestamp || new Date().toISOString(),
-          //     isRead: false,
-          //   });
-          // }
-
-          // // Also send back to sender to confirm receipt
-          // this.io.to(socket.id).emit("message", {
-          //   ...message,
-          //   timestamp: message.timestamp || new Date().toISOString(),
-          //   isRead: true,
-          // });
+         
         }
       );
 

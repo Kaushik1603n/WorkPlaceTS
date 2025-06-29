@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Job } from "./MarketPlace";
+import { IndianRupee } from "lucide-react";
 
 interface JobCardProps {
     job: Job;
@@ -47,8 +48,9 @@ function JobCard({ job }: JobCardProps) {
             </div>
             <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center">
-                    <h3 className="text-lg font-semibold text-gray-700">
-                        ${job.budget}
+                    <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-1">
+                        <IndianRupee className="w-5 h-5" />
+                        {job.budget}
                     </h3>
                 </div>
                 <div className="text-sm text-gray-600">

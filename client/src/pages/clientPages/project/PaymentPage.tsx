@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock, DollarSign, Eye, CreditCard, User, } from 'lucide-react';
+import { Clock, IndianRupee, Eye, CreditCard, User, } from 'lucide-react';
 import { loadRazorpay } from '../../../utils/razorpay';
 import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
@@ -75,7 +75,7 @@ const PaymentsTable = () => {
         bg: 'bg-green-100',
         text: 'text-green-800',
         border: 'border-green-200',
-        icon: DollarSign
+        icon: IndianRupee
       },
       failed: {
         bg: 'bg-red-100',
@@ -186,12 +186,12 @@ const PaymentsTable = () => {
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <IndianRupee className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                {payments.reduce((sum, p) => sum + (p.amount || 0), 0)*80}
+                {payments.reduce((sum, p) => sum + (p.amount || 0), 0)}
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Net Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                {payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)*80}
+                {payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)}
               </p>
             </div>
           </div>
@@ -274,17 +274,17 @@ const PaymentsTable = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900">
-                      {payment.amount*80}
+                      {payment.amount}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-red-600">
-                      -{payment.platformFee ? payment.platformFee*80 : 0}
+                      -{payment.platformFee ? payment.platformFee : 0}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-green-600">
-                      {payment.netAmount*80}
+                      {payment.netAmount}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -1,6 +1,6 @@
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Line, LineChart } from 'recharts';
 import {
-    TrendingUp, Target, DollarSign,
+    TrendingUp, Target, IndianRupee,
 } from 'lucide-react';
 import MetricCard from './MetricCard';
 import { useEffect, useState } from 'react';
@@ -53,7 +53,7 @@ function FinancialInsights() {
                 <MetricCard
                     title="Total Spent"
                     value={(totalSpent * 80).toString()}
-                    icon={DollarSign}
+                    icon={IndianRupee}
                     trend="up"
                 />
                 <MetricCard

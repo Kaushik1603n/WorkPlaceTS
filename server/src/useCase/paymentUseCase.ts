@@ -35,7 +35,7 @@ export class PaymentUseCase {
     }
 
     const options = {
-      amount: paymentRequest.amount * 80 * 100,
+      amount: paymentRequest.amount * 100,
       currency: "INR",
       receipt: receipt,
       payment_capture: 1,
