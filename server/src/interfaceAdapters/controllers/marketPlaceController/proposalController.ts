@@ -135,32 +135,39 @@ export class ProposalController {
 
   acceptProposalcontract: RequestHandler = async (req, res): Promise<void> => {
     try {
-      const user = req.user as { userId: string; email: string };
-      const userId = user.userId;
-      const contractId = req.params.id;
+    const user = req.user as { userId: string; email: string };
+    const userId = user.userId;
+    const contractId = req.params.id;
 
-      if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
-        return;
-      }
-
-      const contractDetails = await proposalCase.acceptProposalUseCase(
-        userId,
-        contractId
-      );
-
-      res.status(200).json({
-        message: "Proposals fetched successfully",
-        data: contractDetails,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
-      });
+    if (!userId) {
+      res.status(401).json({ message: "user not authenticated" });
+      return;
     }
+
+    const io: Server = req.app.get("io");
+    const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
+
+    const contractDetails = await proposalCase.acceptProposalUseCase(
+      userId,
+      contractId,
+      io,
+      connectedUsers
+    );
+
+    res.status(200).json({
+      message: "Proposals fetched successfully",
+      data: contractDetails,
+    });
+  } catch (error) {
+    console.error("Accept proposal contract error:", error);
+    const statusCode = error instanceof Error && error.message.includes("not found") ? 404 : 500;
+    const errorMessage = error instanceof Error ? error.message : "Failed to get proposal";
+
+    res.status(statusCode).json({
+      success: false,
+      error: errorMessage,
+    });
+  }
   };
 
   rejectProposalcontract: RequestHandler = async (req, res): Promise<void> => {

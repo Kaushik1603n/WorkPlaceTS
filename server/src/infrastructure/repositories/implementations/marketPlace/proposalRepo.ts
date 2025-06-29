@@ -138,26 +138,71 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
+  async getContractDetailsNormal(contractId: string): Promise<any> {
+    try {
+      const contractDetails = await ContractModel.findById(
+        contractId
+      ).lean<JonContractDetails>();
+
+      if (!contractDetails) {
+        throw new Error("Contract not found");
+      }
+
+      return contractDetails;
+    } catch (error) {
+      console.error("Error fetching contract details:", error);
+      throw new Error("Failed to fetch contract details");
+    }
+  }
+
   async getContractDetails(contractId: string): Promise<any> {
     try {
       const contractDetails = await ContractModel.findById(
         contractId
       ).lean<JonContractDetails>();
 
+      if (!contractDetails) {
+        throw new Error("Contract not found");
+      }
+
       return contractDetails;
     } catch (error) {
-      console.error("Error creating contract:", error);
-      throw new Error("Failed to create contract");
+      console.error("Error fetching contract details:", error);
+      throw new Error("Failed to fetch contract details");
+    }
+  }
+  async getContractDetailsWithSession(
+    contractId: string,
+    session: mongoose.ClientSession
+  ): Promise<any> {
+    try {
+      const contractDetails = await ContractModel.findById(contractId)
+        .session(session)
+        .lean<JonContractDetails>();
+
+      if (!contractDetails) {
+        throw new Error("Contract not found");
+      }
+
+      return contractDetails;
+    } catch (error) {
+      console.error("Error fetching contract details:", error);
+      throw new Error("Failed to fetch contract details");
     }
   }
 
-  async getJobStatus(jobId: string): Promise<any> {
+  async getJobStatus(
+    jobId: string,
+    session: mongoose.ClientSession
+  ): Promise<any> {
     try {
-      const status = await ProjectModel.findById(jobId, { status: 1 }).lean<{
-        status: string;
-        _id?: ObjectId;
-      }>();
+      const status = await ProjectModel.findById(jobId, { status: 1 })
+        .session(session)
+        .lean<{ status: string; _id?: ObjectId }>();
 
+      if (!status) {
+        throw new Error("Job not found");
+      }
       return status;
     } catch (error) {
       console.error("Error creating contract:", error);
@@ -169,11 +214,9 @@ export class ProposalRepo implements IProposalRepo {
     userId: string,
     jobId: string,
     proposal_id: string,
-    contractId: string
+    contractId: string,
+    session: mongoose.ClientSession
   ): Promise<any> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
       const job = await ProjectModel.findByIdAndUpdate(
         jobId,
@@ -189,6 +232,7 @@ export class ProposalRepo implements IProposalRepo {
       if (!job) {
         throw new Error("Job not found");
       }
+
       const contract = await ContractModel.findByIdAndUpdate(
         contractId,
         {
@@ -213,15 +257,10 @@ export class ProposalRepo implements IProposalRepo {
         throw new Error("Proposal not found");
       }
 
-      await session.commitTransaction();
-
       return contract;
     } catch (error) {
-      await session.abortTransaction();
       console.error("Error update contract accept status:", error);
       throw new Error("Failed to contract accept status");
-    } finally {
-      session.endSession();
     }
   }
 
@@ -270,10 +309,7 @@ export class ProposalRepo implements IProposalRepo {
   }
 
   async proposalMilestones(jobId: string): Promise<IProposalMilestonesType> {
-    // const proposal = await ProposalModel.findOne(
-    //   { jobId },
-    //   { _id: 1, freelancerId: 1, milestones: 1 }
-    // ).lean<IProposalMilestones>();
+    
 
     const proposal = await ProjectModel.findById(jobId, {
       _id: 1,

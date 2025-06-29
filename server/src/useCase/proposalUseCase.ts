@@ -155,7 +155,7 @@ export class ProposalUseCase {
 
   async getContractDetailsUseCase(contractId: string) {
     try {
-      const contractDetails = await this.proposal.getContractDetails(
+      const contractDetails = await this.proposal.getContractDetailsNormal(
         contractId
       );
 
@@ -166,44 +166,107 @@ export class ProposalUseCase {
     }
   }
 
-  async acceptProposalUseCase(userId: string, contractId: string) {
-    try {
-      const contractDetails = await this.proposal.getContractDetails(
-        contractId
-      );
+ async  acceptProposalUseCase(
+  userId: string,
+  contractId: string,
+  io: Server,
+  connectedUsers: { [key: string]: string }
+): Promise<any> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-      const proposal_id = contractDetails?.proposalId
-        ? contractDetails?.proposalId
-        : "";
+  try {
+    const contractDetails = await this.proposal.getContractDetailsWithSession(contractId, session);
 
-      if (
-        contractDetails?.freelancerId.toString() !== userId.toString() &&
-        contractDetails?.status === "reject"
-      ) {
-        throw new Error("You cannot accept this proposal");
-      }
+    const proposal_id = contractDetails?.proposalId
+      ? contractDetails?.proposalId
+      : "";
 
-      const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
-
-      const jobStatus = await this.proposal.getJobStatus(jobId as string);
-
-      if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
-        throw new Error("Cannot Accept this Contract");
-      }
-
-      const contract = await this.proposal.acceptProposalContract(
-        userId,
-        jobId as string,
-        proposal_id as string,
-        contractId
-      );
-
-      return contract;
-    } catch (error) {
-      console.error(`proposal usecase error`, error);
-      throw error;
+    if (
+      contractDetails?.freelancerId.toString() !== userId.toString() ||
+      contractDetails?.status === "reject"
+    ) {
+      throw new Error("You cannot accept this proposal");
     }
+
+    const jobId = contractDetails?.jobId ? contractDetails.jobId : "";
+
+    const jobStatus = await this.proposal.getJobStatus(jobId as string, session);
+
+    if (jobStatus?.status !== "posted" && jobStatus?.status !== "draft") {
+      throw new Error("Cannot Accept this Contract");
+    }
+
+    const contract = await this.proposal.acceptProposalContract(
+      userId,
+      jobId as string,
+      proposal_id as string,
+      contractId,
+      session
+    );
+
+    // Fetch freelancer data for notification
+    const freelancer = await UserModel.findById(userId).session(session);
+
+    // Create notification in database
+    await NotificationModel.create(
+      [
+        {
+          userId: contractDetails.clientId,
+          type: "contract",
+          title: "Contract Accepted",
+          message: `Freelancer ${freelancer?.fullName} has accepted the contract for your job "${contractDetails.title}".`,
+          content: `Contract ID: ${contractId}`,
+          isRead: false,
+          actionLink: `/client-dashboard/active-project`,
+          metadata: {
+            jobId: jobId,
+            proposalId: proposal_id,
+            contractId: contractId,
+            freelancerId: userId,
+          },
+          createdAt: new Date(),
+        },
+      ],
+      { session }
+    );
+
+    // Emit real-time Socket.IO notification
+    const clientSocketId = connectedUsers[contractDetails.clientId.toString()];
+    if (clientSocketId) {
+      io.to(clientSocketId).emit("notification", {
+        _id: contractId,
+        userId: contractDetails.clientId.toString(),
+        type: "contract",
+        title: "Contract Accepted",
+        message: `Freelancer ${freelancer?.fullName} has accepted the contract for your job "${contractDetails.title}".`,
+        content: `Contract ID: ${contractId}`,
+        isRead: false,
+        actionLink: `/client-dashboard/active-project`,
+        metadata: {
+          jobId: jobId,
+          proposalId: proposal_id,
+          contractId: contractId,
+          freelancerId: userId,
+        },
+        createdAt: new Date().toISOString(),
+      });
+      console.log(`Notification sent to client ${contractDetails.clientId}`);
+    } else {
+      console.log(`Client ${contractDetails.clientId} is not connected`);
+    }
+
+    await session.commitTransaction();
+
+    return contract;
+  } catch (error) {
+    await session.abortTransaction();
+    console.error(`proposal usecase error`, error);
+    throw error;
+  } finally {
+    session.endSession();
   }
+}
 
   async rejectProposalUseCase(userId: string, contractId: string) {
     try {

@@ -14,13 +14,17 @@ export interface IProposalRepo {
     session: mongoose.ClientSession
   ): Promise<any>;
   getProposalbyId(userId: string): Promise<any>;
-  getContractDetails(contractId: string): Promise<any>;
-  getJobStatus(jobId: string): Promise<any>;
+  getContractDetails(
+    contractId: string,
+    session: mongoose.ClientSession
+  ): Promise<any>;
+  getJobStatus(jobId: string, session: mongoose.ClientSession): Promise<any>;
   acceptProposalContract(
     userId: string,
     jobId: string,
     proposal_id: string,
-    contractId: string
+    contractId: string,
+    session: mongoose.ClientSession
   ): Promise<any>;
   rejectProposalContract(proposal_id: string, contractId: string): Promise<any>;
   proposalMilestones(jobId: string): Promise<IProposalMilestonesType>;
