@@ -3,7 +3,9 @@ import { BidRequest } from "../domain/dto/projectDTO/jobProposalDTO";
 import { JobQueryParamsDTO } from "../domain/dto/projectDTO/marketPlaceDTO";
 import ProjectModel from "../domain/models/Projects";
 import { marketPlaceRepo } from "../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
-import { FilterQuery } from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
+import UserModel from "../domain/models/User";
+import NotificationModel from "../domain/models/Notification";
 
 export class MarketPlaceUseCase {
   constructor(private market: marketPlaceRepo) {
@@ -264,30 +266,105 @@ export class MarketPlaceUseCase {
     userId: string,
     milestoneId: string,
     comments: string,
-    links: string[]
+    links: string[],
+    io: Server,
+    connectedUsers: { [key: string]: string }
   ) {
-    if (!jobId || typeof jobId !== "string") {
-      throw new Error("Invalid Job ID");
-    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
+      if (!jobId || typeof jobId !== "string") {
+        throw new Error("Invalid Job ID");
+      }
+
       const result = await this.market.submitMilestoneRepo(
         jobId,
         userId,
         milestoneId,
         comments,
-        links
+        links,
+        session
       );
       if (!result) {
         throw new Error("Job not found");
       }
 
+      const job = await ProjectModel.findById(jobId).session(session);
+      const freelancer = await UserModel.findById(userId).session(session);
+
+      if (!job || !freelancer) {
+        throw new Error("Job or freelancer not found");
+      }
+
+      const milestone = result.milestones.find(
+        (m: any) => m._id.toString() === milestoneId
+      );
+
+      if (!milestone) {
+        throw new Error("Milestone not found in proposal");
+      }
+
+      await NotificationModel.create(
+        [
+          {
+            userId: job.clientId,
+            type: "milestone",
+            title: "Milestone Submitted",
+            message: `Freelancer ${freelancer.fullName} has submitted a milestone for the job "${job.title}".`,
+            content: `Milestone ID: ${milestoneId}`,
+            isRead: false,
+            actionLink: `/client-dashboard/active-project/${jobId}`,
+            metadata: {
+              jobId: jobId,
+              milestoneId: milestoneId,
+              freelancerId: userId,
+              proposalId: result._id,
+            },
+            createdAt: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      const clientSocketId = connectedUsers[job.clientId.toString()];
+      if (clientSocketId) {
+        io.to(clientSocketId).emit("notification", {
+          _id: milestoneId,
+          userId: job.clientId.toString(),
+          type: "milestone",
+          title: "Milestone Submitted",
+          message: `Freelancer ${freelancer.fullName} has submitted a milestone for the job "${job.title}".`,
+          content: `Milestone ID: ${milestoneId}`,
+          isRead: false,
+          actionLink: `/client-dashboard/active-project/${jobId}`,
+          metadata: {
+            jobId: jobId,
+            milestoneId: milestoneId,
+            freelancerId: userId,
+            proposalId: result._id,
+          },
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`Notification sent to client ${job.clientId}`);
+      } else {
+        console.log(`Client ${job.clientId} is not connected`);
+      }
+
+      await session.commitTransaction();
+
       return {
         jobDetails: result,
       };
     } catch (error) {
-      console.error(`[getProjectDetails] Error fetching job ${jobId}:`, error);
+      await session.abortTransaction();
+      console.error(
+        `[submitMilestoneUseCase] Error submitting milestone for job ${jobId}:`,
+        error
+      );
       throw error;
+    } finally {
+      session.endSession();
     }
   }
   async submitFeedbackCase(feedbackData: Feedback) {

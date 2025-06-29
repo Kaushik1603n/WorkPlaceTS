@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ReturnAllProjectsInfoDTO } from "../dto/projectDTO/getProjectAllInformationDTO";
 import { BidRequest } from "../dto/projectDTO/jobProposalDTO";
 import { IUser } from "../types/authTypes";
@@ -40,7 +41,8 @@ export interface IMarketPlace {
     userId: string,
     milestoneId: string,
     comments: string,
-    links: string[]
+    links: string[],
+     session: mongoose.ClientSession
   ): Promise<any>;
 submitFeedbackRepo({
     ratings,

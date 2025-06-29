@@ -21,7 +21,11 @@ import {
   allProjectsInfoTypes,
   ReturnAllProjectsInfoTypes,
 } from "../../../../domain/types/getProjectAllInformationTypes";
-import { FeedbackArguments, FeedbackTypes, ReportDataArgument } from "../../../../domain/types/FeedbackTypes";
+import {
+  FeedbackArguments,
+  FeedbackTypes,
+  ReportDataArgument,
+} from "../../../../domain/types/FeedbackTypes";
 export class marketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -112,7 +116,9 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
+    )
+      .sort({ createdAt: -1 })
+      .lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -130,7 +136,9 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
+    )
+      .sort({ createdAt: -1 })
+      .lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -148,7 +156,9 @@ export class marketPlaceRepo implements IMarketPlace {
         title: 1,
         description: 1,
       }
-    ).sort({createdAt:-1}).lean<MarketPlaceClientProjectTypes>();
+    )
+      .sort({ createdAt: -1 })
+      .lean<MarketPlaceClientProjectTypes>();
 
     return allProjects;
   }
@@ -362,16 +372,16 @@ export class marketPlaceRepo implements IMarketPlace {
     userId: string,
     milestoneId: string,
     comments: string,
-    links: string[]
+    links: string[],
+    session: mongoose.ClientSession
   ): Promise<any> {
-    console.log(jobId, userId, milestoneId, comments, links);
     const proposal = await ProposalModel.findOne({
       jobId,
       freelancerId: userId,
-    });
+    }).session(session);
 
     if (!proposal) {
-      throw new Error("Proposal not found ");
+      throw new Error("Proposal not found");
     }
 
     const result = await ProposalModel.findOneAndUpdate(
@@ -386,8 +396,11 @@ export class marketPlaceRepo implements IMarketPlace {
           "milestones.$.status": "submitted",
         },
       },
-      { new: true }
+      { new: true, session }
     );
+    if (!result) {
+      throw new Error("Milestone not found");
+    }
 
     return result;
   }
@@ -398,7 +411,7 @@ export class marketPlaceRepo implements IMarketPlace {
     jobId,
     freelancerId,
     userId,
-  }: FeedbackArguments):Promise<FeedbackTypes> {
+  }: FeedbackArguments): Promise<FeedbackTypes> {
     const result = await FeedbackModel.create({
       ratings: ratings,
       feedback,
@@ -434,7 +447,3 @@ export class marketPlaceRepo implements IMarketPlace {
     }
   }
 }
-
-
-
-
