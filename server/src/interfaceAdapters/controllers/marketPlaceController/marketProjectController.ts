@@ -359,38 +359,39 @@ export class MarketPlaceProjectController {
   };
   submitMilestone: RequestHandler = async (req, res): Promise<void> => {
     try {
-    const { jobId } = req.params;
-    const user = req.user as { userId: string; email: string };
-    const userId = user.userId;
-    const { milestoneId, comments, links } = req.body;
+      const { jobId } = req.params;
+      const user = req.user as { userId: string; email: string };
+      const userId = user.userId;
+      const { milestoneId, comments, links } = req.body;
 
-    if (!userId) {
-      throw new Error("user not Authenticated");
-    }
+      if (!userId) {
+        throw new Error("user not Authenticated");
+      }
 
-    const io: Server = req.app.get("io");
-    const connectedUsers: { [key: string]: string } = req.app.get("connectedUsers");
+      const io: Server = req.app.get("io");
+      const connectedUsers: { [key: string]: string } =
+        req.app.get("connectedUsers");
 
-    const data = await marketPlace.submitMilestoneUseCase(
-      jobId,
-      userId,
-      milestoneId,
-      comments,
-      links,
-      io,
-      connectedUsers
-    );
+      const data = await marketPlace.submitMilestoneUseCase(
+        jobId,
+        userId,
+        milestoneId,
+        comments,
+        links,
+        io,
+        connectedUsers
+      );
 
-    if (!data) {
-      res.status(404).json({
-        success: false,
-        error: "Milestone not found",
-      });
-      return;
-    }
+      if (!data) {
+        res.status(404).json({
+          success: false,
+          error: "Milestone not found",
+        });
+        return;
+      }
 
-    res.status(200).json({ success: true, data: "" });
-  }  catch (error) {
+      res.status(200).json({ success: true, data: "" });
+    } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to fetch job details";
@@ -403,8 +404,8 @@ export class MarketPlaceProjectController {
   };
   submitFeedback: RequestHandler = async (req, res): Promise<void> => {
     try {
-      const user = req.user as { userId: string; email: string };
-      const userId = user.userId;
+      const userData = req.user as { userId: string; email: string };
+      const userId = userData.userId;
       if (!userId) {
         throw new Error("user not Authenticated");
       }
@@ -414,7 +415,8 @@ export class MarketPlaceProjectController {
         feedback,
         overallRating,
         jobId,
-        freelancerId,
+        receverId,
+        user,
       }: {
         ratings: {
           quality: number;
@@ -424,32 +426,43 @@ export class MarketPlaceProjectController {
         feedback: string;
         overallRating: number;
         jobId: string;
-        freelancerId: string;
+        receverId: string;
+        user: string;
       } = req.body;
 
-      if (!ratings || !overallRating || !jobId || !freelancerId) {
+      if (!ratings || !overallRating || !jobId || !receverId) {
         throw new Error("Missing required fields");
       }
 
+       const feedbackType= user==="client"?"client-to-freelancer":"freelancer-to-client"
+
       const feedbackData: {
         ratings: {
-          quality: number;
-          deadlines: number;
-          professionalism: number;
+          quality?: number;
+          deadlines?: number;
+          professionalism?: number;
+          clarity?: number;
+          payment?: number;
+          communication?: number;
         };
         feedback: string;
         overallRating: number;
         jobId: string;
-        freelancerId: string;
-        userId: string;
+        fromUser: string;
+        toUser: string;
+        feedbackType: string;
+
       } = {
         ratings,
         feedback,
         overallRating,
         jobId,
-        freelancerId,
-        userId,
+        fromUser: userId,
+        toUser: receverId,
+        feedbackType,
       };
+
+      
 
       const data = await marketPlace.submitFeedbackCase(feedbackData);
 
@@ -463,6 +476,7 @@ export class MarketPlaceProjectController {
       });
     }
   };
+ 
   freelacerReport: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -471,8 +485,7 @@ export class MarketPlaceProjectController {
         throw new Error("user not Authenticated");
       }
 
-      
-      const { clientId, clientEmail, title, description,jobId } = req.body;
+      const { clientId, clientEmail, title, description, jobId } = req.body;
       const reportData: IReportData = {
         clientId,
         clientEmail,

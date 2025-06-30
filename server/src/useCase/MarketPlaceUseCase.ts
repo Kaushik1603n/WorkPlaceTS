@@ -368,14 +368,14 @@ export class MarketPlaceUseCase {
     }
   }
   async submitFeedbackCase(feedbackData: Feedback) {
-    const { jobId, freelancerId } = feedbackData;
+    const { jobId, toUser, feedbackType } = feedbackData;
 
     if (!jobId || typeof jobId !== "string") {
       throw new Error("Invalid Job ID");
     }
 
-    if (!freelancerId || typeof freelancerId !== "string") {
-      throw new Error("Invalid Freelancer ID");
+    if (!toUser || typeof toUser !== "string") {
+      throw new Error("Invalid toUser ID");
     }
 
     try {
@@ -383,6 +383,60 @@ export class MarketPlaceUseCase {
       if (!result) {
         throw new Error("Job not found");
       }
+
+      const feedbacks = await this.market.findFeedbackRepo(
+        toUser,
+        feedbackType
+      );
+      let totalRating = 0;
+      let qualityTotal = 0;
+      let deadlinesTotal = 0;
+      let professionalismTotal = 0;
+      let clarityTotal = 0;
+      let paymentTotal = 0;
+      let communicationTotal = 0;
+
+      feedbacks.forEach((fb: Feedback) => {
+        totalRating += fb.overallRating;
+
+        // For client-to-freelancer feedback
+        if (fb.feedbackType === "client-to-freelancer") {
+          qualityTotal += fb.ratings.quality || 0;
+          deadlinesTotal += fb.ratings.deadlines || 0;
+          professionalismTotal += fb.ratings.professionalism || 0;
+        }
+        // For freelancer-to-client feedback
+        else {
+          clarityTotal += fb.ratings.clarity || 0;
+          paymentTotal += fb.ratings.payment || 0;
+          communicationTotal += fb.ratings.communication || 0;
+        }
+      });
+
+      const feedbackCount = feedbacks.length;
+      const avgOverallRating = totalRating / feedbackCount;
+
+      const updateData: any = {
+        avgRating: avgOverallRating,
+        feedbackCount,
+      };
+
+      // Add specific averages based on feedback type
+      if (feedbackType === "client-to-freelancer") {
+        updateData.freelancerRatings = {
+          avgQuality: qualityTotal / feedbackCount,
+          avgDeadlines: deadlinesTotal / feedbackCount,
+          avgProfessionalism: professionalismTotal / feedbackCount,
+        };
+      } else {
+        updateData.clientRatings = {
+          avgClarity: clarityTotal / feedbackCount,
+          avgPayment: paymentTotal / feedbackCount,
+          avgCommunication: communicationTotal / feedbackCount,
+        };
+      }
+
+      await this.market.findUserAndUpdateFeedback(toUser, updateData);
 
       return result;
     } catch (error) {
@@ -404,15 +458,19 @@ export class MarketPlaceUseCase {
 
 interface Feedback {
   ratings: {
-    quality: number;
-    deadlines: number;
-    professionalism: number;
+    quality?: number;
+    deadlines?: number;
+    professionalism?: number;
+    clarity?: number;
+    payment?: number;
+    communication?: number;
   };
   feedback: string;
   overallRating: number;
   jobId: string;
-  freelancerId: string;
-  userId: string;
+  fromUser: string;
+  toUser: string;
+  feedbackType: string;
 }
 interface IReportData {
   clientId: string;

@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../../components/ui/ErrorMessage';
 import ReportProblemModal from '../../../components/freelancer/project-submission/ReportProblemModal';
+import FreelancerRatesClient from '../../../components/freelancer/project-submission/FreelancerRatesClient';
 
 
 interface Milestones {
@@ -67,7 +68,15 @@ interface FinancialDetailsProps {
   proposalDetails: number;
   payment: string;
 }
-
+interface FeedbackData {
+  ratings: {
+    clarity: number;
+    payment: number;
+    communication: number;
+  };
+  feedback: string;
+  overallRating: number;
+}
 
 const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, payment }) => (
   <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -107,13 +116,7 @@ const FinancialDetails: React.FC<FinancialDetailsProps> = ({ proposalDetails, pa
         <span className="text-lg font-bold text-gray-900">₹{proposalDetails * 0.9}</span>
       </div>
 
-      {/* <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-        Request Milestone Payment
-      </button>
 
-      <button className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors">
-        Download Invoice
-      </button> */}
     </div>
   </div>
 );
@@ -141,24 +144,6 @@ const TermsConditions: React.FC = () => (
   </div>
 );
 
-// const Actions: React.FC = () => (
-//   <div className="bg-white border border-gray-200 rounded-lg p-6">
-//     <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
-
-//     <div className="space-y-3">
-//       <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-//         Submit Work for Milestone 1
-//       </button>
-
-//       <button className="w-full border border-blue-500 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
-//         <DollarSign className="w-4 h-4" />
-//         <span>Request Milestone Payment</span>
-//       </button>
-//     </div>
-//   </div>
-// );
-
-// Main Dashboard Component
 const ProjectDashboard: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
 
@@ -197,6 +182,9 @@ const ProjectDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestones | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [clientId, setClientId] = useState<string>("");
+
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -205,6 +193,7 @@ const ProjectDashboard: React.FC = () => {
         setError(null);
         const res = await axiosClient.get(`/jobs/project-details/${jobId}`);
         SetJobDetails(res.data.data?.jobDetails);
+        setClientId(res.data.data?.jobDetails?.clientId);
         setProposalDetails(res.data.data?.proposalDetails);
 
       } catch (err) {
@@ -271,6 +260,29 @@ const ProjectDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const handleSubmitFeedback = async (data: FeedbackData) => {
+    try {
+      console.log(data);
+
+      const res = await axiosClient.post("/jobs/feedback", {
+        ...data,
+        jobId,
+        receverId:clientId,
+        user:"freelancer"
+      });
+      return {
+        success: true,
+        data: res.data
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        error: 'Failed to submit feedback'
+      };
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -297,19 +309,33 @@ const ProjectDashboard: React.FC = () => {
             <TermsConditions />
             {/* <Actions /> */}
             <div>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="w-full border border-orange-300 bg-orange-200 hover:bg-orange-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                Report
-              </button>
-
+              {jobDetails.paymentStatus !== "fully-paid" &&
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full border border-orange-300 bg-orange-200 hover:bg-orange-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Report
+                </button>
+              }
+              {jobDetails.paymentStatus === "fully-paid" &&
+                <button
+                  onClick={() => setIsRatingModalOpen(true)}
+                  className="w-full border border-green-600 bg-green-300 hover:bg-green-100 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Rating
+                </button>
+              }
               <ReportProblemModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 clientId={jobDetails.clientId}
                 clientEmail={jobDetails.clientEmail}
                 jobId={jobDetails.jobId}
+              />
+              <FreelancerRatesClient
+                isOpen={isRatingModalOpen}
+                onClose={() => setIsRatingModalOpen(false)}
+                onSubmit={handleSubmitFeedback}
               />
             </div>
           </div>

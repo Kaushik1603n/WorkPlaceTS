@@ -29,17 +29,19 @@ export interface OtpVerifyType {
   message: string;
 }
 
-
 export interface IUser {
-  _id?:string;
+  _id?: string;
   fullName: string;
   email: string;
   password?: string;
   role: UserRole;
   isVerified: boolean;
+  avgRating?: number;
+  freelancerRatings?: FreelancerRatingStats;
+  clientRatings?: ClientRatingStats;
   otp?: number;
   otpExpiry?: Date;
-  refreshToken?: string|null;
+  refreshToken?: string | null;
   googleId?: string;
   pic?: string;
   status: UserStatus;
@@ -59,4 +61,18 @@ export enum UserStatus {
   ACTIVE = "active",
   SUSPENDED = "suspended",
   DELETED = "deleted",
+}
+
+export interface FreelancerRatingStats {
+  avgQuality: number;
+  avgDeadlines: number;
+  avgProfessionalism: number;
+  feedbackCount: number;
+}
+
+export interface ClientRatingStats {
+  avgClarity: number;
+  avgPayment: number;
+  avgCommunication: number;
+  feedbackCount: number;
 }

@@ -25,6 +25,18 @@ export enum verification {
   REJECTED = "rejected",
 }
 
+export interface FreelancerRatingStats {
+  avgQuality: number;
+  avgDeadlines: number;
+  avgProfessionalism: number;
+}
+
+export interface ClientRatingStats {
+  avgClarity: number;
+  avgPayment: number;
+  avgCommunication: number;
+}
+
 // Interfaces
 export interface SocialLogin {
   provider: SocialProvider;
@@ -49,6 +61,10 @@ export interface User extends Document {
   lastLogin?: Date;
   jobs?: any[];
   profile?: any;
+  avgRating?: number;
+  feedbackCount: number;
+  freelancerRatings?: FreelancerRatingStats;
+  clientRatings?: ClientRatingStats;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,6 +84,23 @@ const UserSchema = new Schema<User>(
       type: String,
       enum: Object.values(verification),
       default: verification.FALSE,
+    },
+    avgRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    feedbackCount: { type: Number, default: 0 },
+    freelancerRatings: {
+      avgQuality: { type: Number, default: 0, min: 0, max: 5 },
+      avgDeadlines: { type: Number, default: 0, min: 0, max: 5 },
+      avgProfessionalism: { type: Number, default: 0, min: 0, max: 5 },
+    },
+    clientRatings: {
+      avgClarity: { type: Number, default: 0, min: 0, max: 5 },
+      avgPayment: { type: Number, default: 0, min: 0, max: 5 },
+      avgCommunication: { type: Number, default: 0, min: 0, max: 5 },
     },
     otp: { type: Number },
     otpExpiry: { type: Date },

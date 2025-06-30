@@ -116,8 +116,6 @@ export class App {
           } catch (error) {
             console.error("Error saving message:", error);
           }
-
-         
         }
       );
       socket.on(
@@ -139,13 +137,11 @@ export class App {
           }
 
           try {
-            
             const savedMessage = await messageUseCase.sendMediaUseCase({
               ...message,
               timestamp: message.timestamp || new Date().toISOString(),
               isRead: false,
             });
-            
 
             const recipientSocketId = connectedUsers[message.contactId];
             if (recipientSocketId) {
@@ -159,8 +155,6 @@ export class App {
           } catch (error) {
             console.error("Error saving message:", error);
           }
-
-         
         }
       );
 

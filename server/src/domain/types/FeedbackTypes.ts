@@ -1,30 +1,38 @@
 import { Types } from "mongoose";
 
-export interface FeedbackTypes  {
-  clientId: Types.ObjectId;
-  freelancerId: Types.ObjectId;
+export interface FeedbackTypes {
+  fromUser: Types.ObjectId;
+  toUser: Types.ObjectId;
   jobId: Types.ObjectId;
   ratings: {
-    quality: number;
-    deadlines: number;
-    professionalism: number;
+    quality?: number;
+    deadlines?: number;
+    professionalism?: number;
+    clarity?: number;
+    payment?: number;
+    communication?: number;
   };
-  overallRating: number;
+  feedbackType: string;
   feedback: string;
+  overallRating: number;
   createdAt: Date;
 }
 
 export interface FeedbackArguments {
   ratings: {
-    quality: number;
-    deadlines: number;
-    professionalism: number;
+    quality?: number;
+    deadlines?: number;
+    professionalism?: number;
+    clarity?: number;
+    payment?: number;
+    communication?: number;
   };
   feedback: string;
   overallRating: number;
   jobId: string;
-  freelancerId: string;
-  userId: string;
+  fromUser: string;
+  toUser: string;
+  feedbackType: string;
 }
 
 export interface ReportDataArgument {

@@ -39,7 +39,7 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
 
     const handleSubmitFeedback = async (data: FeedbackFormData) => {
         try {
-            const res = await axiosClient.post("/jobs/feedback", { ...data, jobId, freelancerId })
+            const res = await axiosClient.post("/jobs/feedback", { ...data, jobId, receverId:freelancerId ,user:"client"})
             return res.data;
         } catch (error) {
             console.log(error);

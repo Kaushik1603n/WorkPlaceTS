@@ -409,19 +409,34 @@ export class marketPlaceRepo implements IMarketPlace {
     feedback,
     overallRating,
     jobId,
-    freelancerId,
-    userId,
+    toUser,
+    fromUser,
+    feedbackType,
   }: FeedbackArguments): Promise<FeedbackTypes> {
     const result = await FeedbackModel.create({
       ratings: ratings,
       feedback,
       overallRating,
       jobId,
-      freelancerId,
-      clientId: userId,
+      toUser,
+      fromUser,
+      feedbackType,
     });
 
     return result;
+  }
+  async findFeedbackRepo(toUser: string, feedbackType: string): Promise<any> {
+    const feedbacks = await FeedbackModel.find({ toUser, feedbackType });
+    return feedbacks;
+  }
+  async findUserAndUpdateFeedback(
+    toUser: string,
+    updateData: object
+  ): Promise<any> {
+    const feedbacks = await UserModel.findByIdAndUpdate(toUser, {
+      $set: { ...updateData },
+    });
+    return feedbacks;
   }
   async submitFreelacerReportRepo(reportData: ReportDataArgument) {
     try {

@@ -351,25 +351,27 @@ export class UserDataRepo implements userDataRepoI {
         }
       >();
 
-      feedbacks.forEach((feedback) => {
-        const freelancerId = feedback.freelancerId.toString();
-        const current = userRatingsMap.get(freelancerId) || {
-          count: 0,
-          totalRating: 0,
-          quality: 0,
-          deadlines: 0,
-          professionalism: 0,
-        };
+  feedbacks.forEach((feedback) => {
+  const freelancerId = feedback.toUser.toString();
+  const current = userRatingsMap.get(freelancerId) || {
+    count: 0,
+    totalRating: 0,
+    quality: 0,
+    deadlines: 0,
+    professionalism: 0,
+  };
 
-        userRatingsMap.set(freelancerId, {
-          count: current.count + 1,
-          totalRating: current.totalRating + feedback.overallRating,
-          quality: current.quality + feedback.ratings.quality,
-          deadlines: current.deadlines + feedback.ratings.deadlines,
-          professionalism:
-            current.professionalism + feedback.ratings.professionalism,
-        });
-      });
+  // Only process client-to-freelancer feedback for these stats
+  if (feedback.feedbackType === 'client-to-freelancer') {
+    userRatingsMap.set(freelancerId, {
+      count: current.count + 1,
+      totalRating: current.totalRating + feedback.overallRating,
+      quality: current.quality + (feedback.ratings.quality || 0),
+      deadlines: current.deadlines + (feedback.ratings.deadlines || 0),
+      professionalism: current.professionalism + (feedback.ratings.professionalism || 0),
+    });
+  }
+});
 
       // Convert map to array of user rating summaries
       const userRatingSummaries = Array.from(userRatingsMap.entries()).map(
