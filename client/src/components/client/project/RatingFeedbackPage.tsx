@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Star, Heart, Shield, Clock, Award, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
+
 interface RatingFeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -9,11 +10,11 @@ interface RatingFeedbackModalProps {
     ratings: { quality: number; deadlines: number; professionalism: number };
     feedback: string;
     overallRating: number;
-  }) => {
+  }) => Promise<{
     success: string,
     error: string,
-    data:object
-  }
+    data: object
+  }>;
 }
 
 interface Ratings {
