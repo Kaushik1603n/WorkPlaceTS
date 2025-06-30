@@ -113,4 +113,8 @@ export class FreelancerProfileUseCase {
     const result = await this.freelancer.findTotalEarnings(userId);
     return result;
   }
+  async dashboardProjectUseCase(userId: string) {
+    const result = await this.freelancer.findTotalProject(userId);
+    return result;
+  }
 }

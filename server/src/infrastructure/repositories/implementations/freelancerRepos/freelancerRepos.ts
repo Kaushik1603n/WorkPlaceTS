@@ -262,6 +262,33 @@ export class FreelancerRepo implements IfreelancerRepo {
 
     return { totalPayments, pendingPayments, weeklyPayments, monthlyStats };
   }
+  async findTotalProject(userId: string): Promise<any> {
+    const allProject = await ProjectModel.find(
+      { hiredFreelancer: userId },
+      { _id: 1, title: 1, clientId: 1, budget: 1, status: 1, createdAt: 1 }
+    )
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const totalProject = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+    });
+    const completedProject = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+      status: "completed",
+    });
+    const activeProject = await ProjectModel.countDocuments({
+      hiredFreelancer: userId,
+      status: "in-progress",
+    });
+
+    return {
+      allProject: allProject || [],
+      totalProject,
+      completedProject,
+      activeProject,
+    };
+  }
 }
 
 // interface ClientResult {

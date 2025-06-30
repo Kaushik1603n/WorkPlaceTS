@@ -1,132 +1,222 @@
+import { useEffect, useState } from "react";
 import MetricCard from "./MetricCard"
 import {
     CheckCircle,
-
     Clock,
-    Star,
+    // Star,
     Users,
     BarChart3,
-    Filter
+    Calendar,
 } from 'lucide-react';
+import axiosClient from "../../../utils/axiosClient";
+import type { AxiosError } from "axios";
+import LoadingSpinner from "../../ui/LoadingSpinner";
+
+interface AllProjectDetails {
+    _id: string,
+    title: string,
+    clientId: string,
+    budget: number
+    status: string
+    createdAt: string
+}
+
+interface ProjectData {
+    totalProject: number;
+    completedProject: number;
+    activeProject: number;
+}
+
 function FreelancerProjects() {
-      const projectHistory = [
-        { id: 1, name: 'E-commerce Website', client: 'TechCorp', status: 'Completed', earnings: 2500, rating: 5, date: '2024-05-15' },
-        { id: 2, name: 'Mobile App UI', client: 'StartupXYZ', status: 'Active', earnings: 1800, rating: null, date: '2024-06-01' },
-        { id: 3, name: 'Dashboard Design', client: 'DataCorp', status: 'Completed', earnings: 1200, rating: 4.8, date: '2024-04-20' },
-        { id: 4, name: 'API Integration', client: 'TechCorp', status: 'Completed', earnings: 900, rating: 5, date: '2024-03-10' }
-    ];
+    const [projectData, setProjectData] = useState<ProjectData>({
+        totalProject: 0,
+        completedProject: 0,
+        activeProject: 0,
+    });
+    const [allProject, setAllProject] = useState<AllProjectDetails[]>([])
+    const [loading, setLoading] = useState<boolean>(false)
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                setLoading(true);
+                const res = await axiosClient.get("freelancer/dashboardproject");
+
+                if (res.data && res.data.result) {
+                    setProjectData({
+                        totalProject: res.data.result.totalProject || 0,
+                        completedProject: res.data.result.completedProject || 0,
+                        activeProject: res.data.result.activeProject || 0,
+                    });
+
+                    setAllProject(res.data.result.allProject || []);
+                }
+            } catch (err) {
+                const error = err as AxiosError;
+                console.error("Failed to fetch projects:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+    const formatDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch {
+            return dateString;
+        }
+    };
+
+    // Format currency
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    if (loading) {
+        return (
+            <main className="flex-1 p-4 flex items-center justify-center">
+                <LoadingSpinner size="lg" />
+            </main>
+        );
+    }
+
     return (
-        <div className="space-y-8">
-            {/* Project Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
+            {/* Header */}
+
+
+            {/* Enhanced Project Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
                     title="Total Projects"
-                    value="47"
-                    change={""}
+                    value={projectData.totalProject.toString()}
                     icon={BarChart3}
                 />
                 <MetricCard
-                    title="Completed"
-                    value="44"
-                    change={""}
+                    title="Completed Projects"
+                    value={projectData.completedProject.toString()}
                     icon={CheckCircle}
                 />
                 <MetricCard
-                    title="Active"
-                    value="3"
-                    change={""}
+                    title="Active Projects"
+                    value={projectData.activeProject.toString()}
                     icon={Clock}
-
                 />
-                <MetricCard
-                    title="Repeat Clients"
-                    value="12"
-                    change={""}
-                    icon={Users}
 
-                />
             </div>
 
             {/* Project History */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Project History</h3>
-                    <button className="flex items-center px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
-                        <Filter className="w-4 h-4 mr-2" />
-                        Filter
-                    </button>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-gray-200">
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Project</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Client</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Earnings</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Rating</th>
-                                <th className="text-left py-3 px-4 font-medium text-gray-600">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {projectHistory.map((project) => (
-                                <tr key={project.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                    <td className="py-3 px-4">
-                                        <p className="font-medium text-gray-900">{project.name}</p>
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-600">{project.client}</td>
-                                    <td className="py-3 px-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${project.status === 'Completed'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-blue-100 text-blue-800'
-                                            }`}>
-                                            {project.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-4 font-medium text-green-600">${project.earnings}</td>
-                                    <td className="py-3 px-4">
-                                        {project.rating ? (
-                                            <div className="flex items-center">
-                                                <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                                                <span className="text-sm">{project.rating}</span>
-                                            </div>
-                                        ) : (
-                                            <span className="text-gray-400 text-sm">Pending</span>
-                                        )}
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-500 text-sm">{project.date}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Timeline Visualization */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Project Timeline</h3>
-                <div className="space-y-4">
-                    {projectHistory.slice(0, 3).map((project, index) => (
-                        <div key={project.id} className="flex items-center">
-                            <div className="flex flex-col items-center mr-4">
-                                <div className={`w-3 h-3 rounded-full ${project.status === 'Completed' ? 'bg-green-500' : 'bg-blue-500'
-                                    }`}></div>
-                                {index < 2 && <div className="w-0.5 h-8 bg-gray-300 mt-2"></div>}
-                            </div>
-                            <div className="flex-1 pb-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-medium text-gray-900">{project.name}</p>
-                                        <p className="text-sm text-gray-500">{project.client} • {project.date}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-medium text-green-600">${project.earnings}</p>
-                                        <p className="text-sm text-gray-500">{project.status}</p>
-                                    </div>
-                                </div>
-                            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                {/* Table Header */}
+                <div className="p-6 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-xl font-semibold text-gray-900">Project History</h3>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Showing {allProject.length} projects
+                            </p>
                         </div>
-                    ))}
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                    {allProject.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <BarChart3 className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
+                            <p className="text-gray-500">
+                                You haven't started any projects yet
+                            </p>
+                        </div>
+                    ) : (
+                        <table className="w-full">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">ProjectId</th>
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Title</th>
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Client</th>
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Status</th>
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Budget</th>
+                                    {/* <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Rating</th> */}
+                                    <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {allProject.map((project, index) => (
+                                    <tr key={project._id} className="hover:bg-gray-50 transition-colors duration-150">
+                                        <td className="py-4 px-6">
+                                            <div>
+
+                                                <p className="text-sm text-gray-500">ID: {project._id.slice(-8)}</p>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="max-w-[200px]"> 
+                                                <p className="font-semibold text-gray-900 line-clamp-2">
+                                                    {project.title || `Project #${index + 1}`}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <Users className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <span className="text-gray-900">
+                                                    {project.clientId.slice(-8)}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize min-w-[80px] justify-center ${project.status === 'completed'
+                                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                                : project.status === 'active' || project.status === 'in-progress'
+                                                    ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                                    : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                }`}>
+                                                {project.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
+                                                {(project.status === 'active' || project.status === 'in-progress') && <Clock className="w-3 h-3 mr-1" />}
+                                                {project.status.replace('-', ' ')}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <span className="font-semibold text-green-600 text-lg">
+                                                {formatCurrency(project.budget)}
+                                            </span>
+                                        </td>
+                                        {/* <td className="py-4 px-6">
+                                            <div className="flex items-center">
+                                                <Star className="w-4 h-4 text-gray-300 mr-1" />
+                                                <span className="text-gray-400 text-sm">Pending</span>
+                                            </div>
+                                        </td> */}
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center text-gray-500">
+                                                <Calendar className="w-4 h-4 mr-2" />
+                                                <span className="text-sm">{formatDate(project.createdAt)}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </div>
