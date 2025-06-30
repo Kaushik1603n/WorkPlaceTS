@@ -67,6 +67,9 @@ export class ClientRepo implements clientRepoI {
             fullName: 1,
             email: 1,
             role: 1,
+            avgRating:1,
+            feedbackCount: 1,
+            freelancerRatings: 1,
             profilePic: "$profile.profilePic",
             hourlyRate: "$profile.hourlyRate",
             location: "$profile.location",
@@ -79,6 +82,7 @@ export class ClientRepo implements clientRepoI {
 
     const totalCount = await UserModel.countDocuments({ role: "freelancer" });
     const totalPages = Math.ceil(totalCount / limit);
+console.log(freelancers?.[0]);
 
     return {
       freelancers,

@@ -1,4 +1,4 @@
-export interface FreelancerProfileTypes  {
+export interface FreelancerProfileTypes {
   _id: string;
   userId: string;
   profilePic?: string;
@@ -19,8 +19,14 @@ export interface FreelancerProfileTypes  {
   updatedAt?: Date;
 }
 
+export interface ClientRatingStats {
+  avgClarity: number;
+  avgPayment: number;
+  avgCommunication: number;
+}
+
 export interface ClientResultType {
-  _id:string ;
+  _id: string;
   fullName: string;
   email: string;
   role: string;
@@ -28,6 +34,9 @@ export interface ClientResultType {
   hourlyRate?: number;
   location?: string;
   description?: string;
+  avgRating?: number;
+  feedbackCount: number;
+  clientRatings?: ClientRatingStats;
 }
 
 export interface PaginatedClientResult {

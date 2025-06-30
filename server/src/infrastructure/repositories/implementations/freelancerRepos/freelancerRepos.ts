@@ -90,6 +90,9 @@ export class FreelancerRepo implements IfreelancerRepo {
             fullName: 1,
             email: 1,
             role: 1,
+            avgRating: 1,
+            feedbackCount: 1,
+            clientRatings: 1,
             profilePic: "$profile.profilePic",
             hourlyRate: "$profile.hourlyRate",
             location: "$profile.location",
@@ -124,7 +127,7 @@ export class FreelancerRepo implements IfreelancerRepo {
 
     const totalCount = await ReportModel.countDocuments({ reportedBy: userId });
     const totalPages = Math.ceil(totalCount / limit);
-    return {result,totalPages};
+    return { result, totalPages };
   }
 
   async findCounts(userId: string): Promise<any> {

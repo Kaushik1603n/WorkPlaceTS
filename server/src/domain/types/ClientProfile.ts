@@ -1,8 +1,8 @@
-export interface ClientProfileType  {
+export interface ClientProfileType {
   _id?: string;
   userId: string;
   profilePic?: string;
-  coverPic?: string; 
+  coverPic?: string;
   companyName?: string;
   location?: string;
   website?: string;
@@ -13,8 +13,13 @@ export interface ClientProfileType  {
   updatedAt: Date;
 }
 
+export interface FreelancerRatingStats {
+  avgQuality: number;
+  avgDeadlines: number;
+  avgProfessionalism: number;
+}
 export interface FreelancerResultType {
-  _id:string ;
+  _id: string;
   fullName: string;
   email: string;
   role: string;
@@ -22,4 +27,7 @@ export interface FreelancerResultType {
   bio?: string;
   location?: string;
   hourlyRate?: number;
+  avgRating?: number;
+  feedbackCount: number;
+  freelancerRatings?: FreelancerRatingStats;
 }
