@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import axiosClient from "../../utils/axiosClient";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import axiosClient from "../../utils/axiosClient";
 
 interface INotification {
     _id: string;
@@ -28,41 +29,41 @@ function FreelancerNotification() {
 
 console.log(socketNotifications);
 
-    // useEffect(() => {
-    //     setLoading(true)
-    //     const fetchNotifications = async () => {
-    //         try {
-    //             const res = await axiosClient.get("/notifications");
-    //             setStoredNotifications(res.data.data);
-    //         } catch (error) {
-    //             console.error("Error fetching notifications:", error);
-    //             toast.error("Failed to fetch notifications");
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
+    useEffect(() => {
+        setLoading(true)
+        const fetchNotifications = async () => {
+            try {
+                const res = await axiosClient.get("/notifications");
+                setStoredNotifications(res.data.data);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+                toast.error("Failed to fetch notifications");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    //     const markNotificationsAsRead = async () => {
-    //         try {
-    //             await axiosClient.patch("/notifications/mark-read");
-    //             setStoredNotifications((prev) =>
-    //                 prev.map((n) => ({ ...n, isRead: true }))
-    //             );
-    //         } catch (error) {
-    //             console.error("Error marking notifications as read:", error);
-    //             toast.error("Failed to mark notifications as read");
-    //         }
-    //     };
+        const markNotificationsAsRead = async () => {
+            try {
+                await axiosClient.patch("/notifications/mark-read");
+                setStoredNotifications((prev) =>
+                    prev.map((n) => ({ ...n, isRead: true }))
+                );
+            } catch (error) {
+                console.error("Error marking notifications as read:", error);
+                toast.error("Failed to mark notifications as read");
+            }
+        };
 
-    //     fetchNotifications();
-    //     markNotificationsAsRead();
+        fetchNotifications();
+        markNotificationsAsRead();
 
-    // return () => {
-    //     if (clearNotifications) {
-    //         clearNotifications();
-    //     }
-    // };
-    // }, []);
+    return () => {
+        if (clearNotifications) {
+            clearNotifications();
+        }
+    };
+    }, []);
 
     useEffect(() => {
         return () => {
