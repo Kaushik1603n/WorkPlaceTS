@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import avt from "../../../assets/avt.jpg";
 import axiosClient from "../../../utils/axiosClient";
 import Pagination from "../../../components/Pagination";
+import { User, X, MapPin, DollarSign, Mail } from "lucide-react";
 
 interface FreelancerResult {
     _id: string;
@@ -14,14 +15,116 @@ interface FreelancerResult {
     hourlyRate?: number;
 }
 
+interface ProfileModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    profile: FreelancerResult | null;
+}
+
+const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile }) => {
+    if (!isOpen || !profile) return null;
+
+    return (
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50  flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                {/* Modal Header */}
+                <div className="flex justify-between items-center p-6 border-b">
+                    <h2 className="text-2xl font-bold text-gray-800">Profile Details</h2>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6">
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Profile Picture */}
+                        <div className="flex-shrink-0">
+                            <img
+                                src={profile.profilePic || avt}
+                                alt={profile.fullName}
+                                className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = avt;
+                                }}
+                            />
+                        </div>
+
+                        {/* Profile Info */}
+                        <div className="flex-1">
+                            <h3 className="text-3xl font-bold text-gray-800 mb-2">
+                                {profile.fullName}
+                            </h3>
+                            <p className="text-lg text-green-600 font-medium mb-4">
+                                {profile.role}
+                            </p>
+
+                            <div className="space-y-3">
+                                {/* Email */}
+                                <div className="flex items-center gap-3">
+                                    <Mail size={20} className="text-gray-500" />
+                                    <span className="text-gray-700">{profile.email}</span>
+                                </div>
+
+                                {/* Location */}
+                                {profile.location && (
+                                    <div className="flex items-center gap-3">
+                                        <MapPin size={20} className="text-gray-500" />
+                                        <span className="text-gray-700">{profile.location}</span>
+                                    </div>
+                                )}
+
+                                {/* Hourly Rate */}
+                                {profile.hourlyRate && (
+                                    <div className="flex items-center gap-3">
+                                        <DollarSign size={20} className="text-gray-500" />
+                                        <span className="text-gray-700">
+                                            ${profile.hourlyRate}/hour
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bio Section */}
+                    {profile.bio && (
+                        <div className="mt-6">
+                            <h4 className="text-xl font-semibold text-gray-800 mb-3">About</h4>
+                            <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Modal Footer */}
+                <div className="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                        Close
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+    );
+};
+
 function FreelancerList() {
     const [freelancers, setFreelancers] = useState<FreelancerResult[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
-
-
+    
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProfile, setSelectedProfile] = useState<FreelancerResult | null>(null);
 
     const fetchFreelancers = async () => {
         try {
@@ -48,14 +151,18 @@ function FreelancerList() {
         fetchFreelancers();
     }, [currentPage]);
 
-    const handleMessage = (freelancerId: string, freelancerName: string) => {
-        // Implement message functionality
-        console.log(`Message ${freelancerName} (ID: ${freelancerId})`);
+    const handleProfileView = (freelancerId: string) => {
+        const profile = freelancers.find(f => f._id === freelancerId);
+        if (profile) {
+            setSelectedProfile(profile);
+            setIsModalOpen(true);
+        }
     };
-    // const handleProfile = (freelancerId: string) => {
-    //     // Implement message functionality
-    //     console.log(` (ID: ${freelancerId})`);
-    // };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedProfile(null);
+    };
 
     if (loading) {
         return (
@@ -177,13 +284,11 @@ function FreelancerList() {
                             {/* Action Bar */}
                             <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto mb-2">
                                 <button
-                                onClick={() => handleMessage(profile._id, profile.fullName)}
+                                    onClick={() => handleProfileView(profile._id)}
                                     className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2"
                                 >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    <span>Message</span>
+                                    <User />
+                                    <span>Profile View</span>
                                 </button>
 
                                 <div className="text-right">
@@ -195,17 +300,6 @@ function FreelancerList() {
                                     </div>
                                 </div>
                             </div>
-                            {/* <button
-                                onClick={() => handleMessage(profile._id, profile.fullName)}
-                                className=" bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span>Message</span>
-                            </button> */}
-
-
                         </div>
                     ))}
                 </div>
@@ -219,6 +313,13 @@ function FreelancerList() {
                     </div>
                 )}
             </div>
+
+            {/* Profile Modal */}
+            <ProfileModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                profile={selectedProfile}
+            />
         </div>
     );
 }
