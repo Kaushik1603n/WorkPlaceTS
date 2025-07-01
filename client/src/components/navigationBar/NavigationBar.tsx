@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../features/auth/authSlice";
@@ -13,14 +13,19 @@ export default function NavigationBar() {
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  // Function to check if a link is active
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
 
   const handleLogout = async () => {
     try {
-
       await dispatch(logoutUser({ userId: user?.id })).unwrap().then((res) => {
-
         localStorage.removeItem("access_token");
-        toast.success(res.message ||"Logged out successfully");
+        toast.success(res.message || "Logged out successfully");
         navigate("/login");
       })
     } catch (error) {
@@ -29,7 +34,6 @@ export default function NavigationBar() {
     }
   };
 
-
   return (
     <nav className="bg-white px-4 py-4 flex items-center justify-between relative shadow-lg border-b border-gray-100">
       <div className="flex items-center space-x-8">
@@ -37,20 +41,20 @@ export default function NavigationBar() {
         <div className="hidden md:flex space-x-6">
           <Link
             to="/"
-            className="text-green-600 font-medium hover:text-green-800 transition-colors"
+            className={`${isActive('/') ? 'text-green-600 font-semibold' : 'text-gray-700'} font-medium hover:text-green-800 transition-colors`}
           >
             Home
           </Link>
-          <Link
-            to="#"
-            className="text-gray-700 hover:text-green-600 transition-colors"
+          {/* <Link
+            to="/about"
+            className={`${isActive('/about') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
           >
             About
-          </Link>
+          </Link> */}
 
           <Link
             to="/market-place"
-            className="text-gray-700 hover:text-green-600 transition-colors"
+            className={`${isActive('/market-place') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
           >
             Market place
           </Link>
@@ -58,7 +62,15 @@ export default function NavigationBar() {
           {user?.role === "client" && (
             <Link
               to="/client-dashboard"
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className={`${isActive('/client-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
+            >
+              Dashboard
+            </Link>
+          )}
+          {user?.role === "admin" && (
+            <Link
+              to="/admin-dashboard"
+              className={`${isActive('/admin-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
             >
               Dashboard
             </Link>
@@ -66,27 +78,27 @@ export default function NavigationBar() {
           {user?.role === "freelancer" && (
             <Link
               to="/freelancer-dashboard"
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className={`${isActive('/freelancer-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
             >
               Dashboard
             </Link>
           )}
-          {user?.role === "freelancer" && (
+          {/* {user?.role === "freelancer" && (
             <Link
-              to="#"
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              to="/find-client"
+              className={`${isActive('/find-client') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
             >
               Find Client
             </Link>
           )}
           {user?.role === "client" && (
             <Link
-              to="#"
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              to="/find-freelancers"
+              className={`${isActive('/find-freelancers') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
             >
               Find Freelancers
             </Link>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -102,12 +114,12 @@ export default function NavigationBar() {
         {!isAuthenticated ? (
           <>
             <Link to="/login">
-              <button className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 transition shadow-sm hover:shadow">
+              <button className={`${isActive('/login') ? 'bg-green-600' : 'bg-green-500'} text-white px-5 py-2 rounded-md hover:bg-green-600 transition shadow-sm hover:shadow`}>
                 LogIn
               </button>
             </Link>
             <Link to="/register">
-              <button className="border border-green-500 text-green-500 px-5 py-2 rounded-md hover:bg-green-50 transition shadow-sm hover:shadow">
+              <button className={`${isActive('/register') ? 'bg-green-50 border-green-600' : 'border border-green-500'} text-green-500 px-5 py-2 rounded-md hover:bg-green-50 transition shadow-sm hover:shadow`}>
                 SignUp
               </button>
             </Link>
@@ -128,20 +140,21 @@ export default function NavigationBar() {
           <div className="flex flex-col space-y-4">
             <Link
               to="/"
-              className="text-green-600 font-medium hover:text-green-800 transition-colors"
+              className={`${isActive('/') ? 'text-green-600 font-semibold' : 'text-gray-700'} font-medium hover:text-green-800 transition-colors`}
             >
               Home
             </Link>
-            <Link
-              to="#"
-              className="text-gray-700 hover:text-green-600 transition-colors"
-            >
+            {/* <Link
+              to="/about"
+              className={`${isActive('/about') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
+            > 
               About
             </Link>
+             */}
 
             <Link
               to="/market-place"
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className={`${isActive('/market-place') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
             >
               Market place
             </Link>
@@ -149,7 +162,15 @@ export default function NavigationBar() {
             {user?.role === "client" && (
               <Link
                 to="/client-dashboard"
-                className="text-gray-700 hover:text-green-600 transition-colors"
+                className={`${isActive('/client-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
+              >
+                Dashboard
+              </Link>
+            )}
+            {user?.role === "admin" && (
+              <Link
+                to="/admin-dashboard"
+                className={`${isActive('/admin-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
               >
                 Dashboard
               </Link>
@@ -157,37 +178,37 @@ export default function NavigationBar() {
             {user?.role === "freelancer" && (
               <Link
                 to="/freelancer-dashboard"
-                className="text-gray-700 hover:text-green-600 transition-colors"
+                className={`${isActive('/freelancer-dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
               >
                 Dashboard
               </Link>
             )}
-            {user?.role === "freelancer" && (
+            {/* {user?.role === "freelancer" && (
               <Link
-                to="#"
-                className="text-gray-700 hover:text-green-600 transition-colors"
+                to="/find-client"
+                className={`${isActive('/find-client') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
               >
                 Find Client
               </Link>
             )}
             {user?.role === "client" && (
               <Link
-                to="#"
-                className="text-gray-700 hover:text-green-600 transition-colors"
+                to="/find-freelancers"
+                className={`${isActive('/find-freelancers') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
               >
                 Find Freelancers
               </Link>
-            )}
+            )} */}
             <div className="flex flex-col space-y-3 pt-3">
               {!isAuthenticated ? (
                 <>
                   <Link to="/login">
-                    <button className="bg-green-500 text-white w-full px-5 py-2 rounded-md hover:bg-green-600 transition shadow-sm hover:shadow">
+                    <button className={`${isActive('/login') ? 'bg-green-600' : 'bg-green-500'} text-white w-full px-5 py-2 rounded-md hover:bg-green-600 transition shadow-sm hover:shadow`}>
                       LogIn
                     </button>
                   </Link>
                   <Link to="/register">
-                    <button className="border border-green-500 text-green-500 w-full px-5 py-2 rounded-md hover:bg-green-50 transition shadow-sm hover:shadow">
+                    <button className={`${isActive('/register') ? 'bg-green-50 border-green-600' : 'border border-green-500'} text-green-500 w-full px-5 py-2 rounded-md hover:bg-green-50 transition shadow-sm hover:shadow`}>
                       SignUp
                     </button>
                   </Link>
