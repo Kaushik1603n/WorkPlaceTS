@@ -28,7 +28,8 @@ interface Milestones {
   | "cancelled"
   | "active"
   | "completed"
-  | "pending";
+  | "pending"
+  | "paid";
 }
 
 interface ProposalDetails {
@@ -247,7 +248,6 @@ const ProjectDashboard: React.FC = () => {
 
       await axiosClient.post(`/jobs/submit-milestone/${jobId}`, submissionData,);
 
-      // Refresh project details after submission
       const res = await axiosClient.get(`/jobs/project-details/${jobId}`);
       setProposalDetails(res.data.data?.proposalDetails);
 
@@ -268,8 +268,8 @@ const ProjectDashboard: React.FC = () => {
       const res = await axiosClient.post("/jobs/feedback", {
         ...data,
         jobId,
-        receverId:clientId,
-        user:"freelancer"
+        receverId: clientId,
+        user: "freelancer"
       });
       return {
         success: true,
@@ -283,12 +283,20 @@ const ProjectDashboard: React.FC = () => {
       };
     }
   };
+
+  console.log(proposalDetails.milestones);
+
+  const milestoneCompleted = proposalDetails.milestones.reduce(
+    (acc, mil) => (mil.status === "accepted" || mil.status === "paid") ? acc + 1 : acc,
+    0
+  ); const progress = (milestoneCompleted / (proposalDetails.milestones.length || 1)) * 100;
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <ProjectHeader title={jobDetails.title} clientName={jobDetails.clientFullName}
           status={"active"} jobId={jobDetails.jobId}
-          acceptedDate={"1/1/1"} progress={50} />
+          acceptedDate={"1/1/1"} progress={progress}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 

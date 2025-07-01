@@ -15,7 +15,8 @@ interface Milestone {
   | "cancelled"
   | "active"
   | "completed"
-  | "pending";
+  | "pending"
+  | "paid";
 }
 
 
@@ -42,7 +43,7 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
 
 
   const handleLinkChange = (index: number, value: string) => {
-    if(deliverables.links.includes(value)){
+    if (deliverables.links.includes(value)) {
       toast.error("not duplicate links allowed")
       return "not duplicate links allowed"
     }
@@ -71,7 +72,7 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
           </button>
         </div>
         <div className="space-y-4">
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Links (e.g., GitHub, Figma)</label>
             {deliverables.links.map((link, index) => (
