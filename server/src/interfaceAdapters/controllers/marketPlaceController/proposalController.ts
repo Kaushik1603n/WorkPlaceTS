@@ -316,14 +316,25 @@ export class ProposalController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { data, totalPages, totalCount } =
-        await proposalCase.pendingPamentsUseCase(userId, page, limit);
+      const {
+        data,
+        totalPages,
+        totalCount,
+        totalAmount,
+        netAmount,
+        platformFee,
+        pendingAmount
+      } = await proposalCase.pendingPamentsUseCase(userId, page, limit);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
         data: data,
         totalPages,
         totalCount,
+        totalAmount,
+        netAmount,
+        platformFee,
+        pendingAmount
       });
     } catch (error) {
       console.error(error);

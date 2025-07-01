@@ -30,8 +30,11 @@ const PaymentsTable = () => {
   const [selectedPayment, setSelectedPayment] = useState<IPaymentRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
-
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(1);
+  const [netAmount, setNetAmount] = useState(1);
+  const [platformFee, setPlatformFee] = useState(1);
+  const [pendingAmount, setPendingAmount] = useState(1);
   const fetchPendingPayments = async () => {
     setLoading(true)
     try {
@@ -41,6 +44,10 @@ const PaymentsTable = () => {
       setPayments(res.data.data)
       setTotalPage(res.data.totalPages)
       setTotalCount(res.data.totalCount)
+      setTotalAmount(res.data.totalAmount)
+      setNetAmount(res.data.netAmount)
+      setPlatformFee(res.data.platformFee)
+      setPendingAmount(res.data.pendingAmount)
     } catch (error) {
       console.log(error);
     } finally {
@@ -156,7 +163,7 @@ const PaymentsTable = () => {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -177,7 +184,7 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Pending</p>
               <p className="text-xl font-semibold text-gray-800">
-                {payments.filter(p => p.status === 'pending').length}
+                {pendingAmount}
               </p>
             </div>
           </div>
@@ -191,7 +198,7 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Total Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                {payments.reduce((sum, p) => sum + (p.amount || 0), 0)}
+                {totalAmount}
               </p>
             </div>
           </div>
@@ -205,7 +212,20 @@ const PaymentsTable = () => {
             <div className="ml-3">
               <p className="text-sm text-gray-600">Net Amount</p>
               <p className="text-xl font-semibold text-gray-800">
-                {payments.reduce((sum, p) => sum + (p.netAmount || 0), 0)}
+                {netAmount}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <IndianRupee className="w-6 h-6 text-red-600" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-gray-600">Platform Fees</p>
+              <p className="text-xl font-semibold text-gray-800">
+                {platformFee}
               </p>
             </div>
           </div>

@@ -309,8 +309,6 @@ export class ProposalRepo implements IProposalRepo {
   }
 
   async proposalMilestones(jobId: string): Promise<IProposalMilestonesType> {
-    
-
     const proposal = await ProjectModel.findById(jobId, {
       _id: 1,
       status: 1,
@@ -455,13 +453,82 @@ export class ProposalRepo implements IProposalRepo {
     });
     const totalPages = Math.ceil(totalCount / limit);
 
-    return { data, totalPages, totalCount };
+    const objectId = new mongoose.Types.ObjectId(userId);
+    const totalAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          clientId: objectId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    const netAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          clientId: objectId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          netAmount: { $sum: "$netAmount" },
+        },
+      },
+    ]);
+    const platformFee = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          clientId: objectId,
+         
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          platformFee: { $sum: "$platformFee" },
+        },
+      },
+    ]);
+    const pendingAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          clientId: objectId,
+           status:"pending"
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          pendingAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    
+
+    return {
+      data,
+      totalPages,
+      totalCount,
+      totalAmount: totalAmount[0]?.totalAmount || 0,
+      netAmount: netAmount[0]?.netAmount || 0,
+      platformFee: platformFee[0]?.platformFee || 0,
+      pendingAmount: pendingAmount[0]?.pendingAmount || 0,
+    };
   }
 }
 interface IPaymentRequestWithPagination {
   data: IPaymentRequest[];
   totalPages: number;
   totalCount: number;
+  totalAmount: number;
+  netAmount: number;
+  platformFee: number;
+  pendingAmount: number;
 }
 
 interface IPaymentRequest {
