@@ -30,7 +30,6 @@ export class PaymentController {
         data: order,
       });
     } catch (error) {
-      console.error(error);
       // res.status(500).json({
       //   success: false,
       //   error:
@@ -62,7 +61,6 @@ export class PaymentController {
         data: result,
       });
     } catch (error) {
-      console.error(error);
       throw error;
       // res.status(500).json({
       //   success: false,
