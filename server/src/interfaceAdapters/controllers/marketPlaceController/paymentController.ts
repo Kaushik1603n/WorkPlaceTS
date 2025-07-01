@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { PaymentUseCase } from "../../../useCase/paymentUseCase";
 import { PaymentRepo } from "../../../infrastructure/repositories/implementations/marketPlace/paymentRepo";
+import { AppError } from "../../../shared/utils/appError";
 
 const payment = new PaymentRepo();
 const paymentlCase = new PaymentUseCase(payment);
@@ -12,7 +13,7 @@ export class PaymentController {
       const userId = user.userId;
 
       if (!userId) {
-        throw new Error("User Not Authenticated");
+        throw new AppError("User Not Authenticated", 401);
       }
       const { paymentRequestId, milestoneId, amount, receipt } = req.body;
 
@@ -30,11 +31,12 @@ export class PaymentController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
-      });
+      // res.status(500).json({
+      //   success: false,
+      //   error:
+      //     error instanceof Error ? error.message : "Failed to get proposal",
+      // });
+      throw error;
     }
   };
   verifyPayment: RequestHandler = async (req, res): Promise<void> => {
@@ -43,7 +45,8 @@ export class PaymentController {
       const userId = user.userId;
 
       if (!userId) {
-        throw new Error("User Not Authenticated");
+        // throw new Error("User Not Authenticated");
+        throw new AppError("User Not Authenticated", 401);
       }
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
         req.body;
@@ -60,17 +63,23 @@ export class PaymentController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
-      });
+      throw error;
+      // res.status(500).json({
+      //   success: false,
+      //   error:
+      //     error instanceof Error ? error.message : "Failed to get proposal",
+      // });
     }
   };
   getPayments: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
+
+      if (!userId) {
+        // throw new Error("User Not Authenticated");
+        throw new AppError("User Not Authenticated", 401);
+      }
 
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
@@ -98,12 +107,13 @@ export class PaymentController {
         totalCount,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
-      });
+      // console.error(error);
+      throw error;
+      // res.status(500).json({
+      //   success: false,
+      //   error:
+      //     error instanceof Error ? error.message : "Failed to get proposal",
+      // });
     }
   };
 }

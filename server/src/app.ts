@@ -20,6 +20,7 @@ import messageRoute from "./interfaceAdapters/routes/messageRoute";
 import { MessageRepo } from "./infrastructure/repositories/implementations/messageRepo";
 import { MessageUseCase } from "./useCase/messageUseCase";
 import adminProjectRoute from "./interfaceAdapters/routes/adminRoutes/adminProjectRoute";
+import { errorHandler } from "./middleware/errorHandler";
 
 export class App {
   private app: Application;
@@ -38,6 +39,7 @@ export class App {
     });
     this.setupMiddlewares();
     this.setupRoutes();
+    this.setupErrorHandler();
     this.setupSocketIO();
   }
 
@@ -67,6 +69,10 @@ export class App {
     this.app.use("/api/message", messageRoute);
     this.app.use("/api/admin", userRoutes);
     this.app.use("/api/admin/project", adminProjectRoute);
+  }
+
+  private setupErrorHandler() {
+    this.app.use(errorHandler); // Register error handler
   }
 
   private setupSocketIO() {

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { PaymentRepo } from "../infrastructure/repositories/implementations/marketPlace/paymentRepo";
 import { createOrder } from "../shared/utils/razorpay";
 import crypto from "crypto";
+import { AppError } from "../shared/utils/appError";
 
 export class PaymentUseCase {
   constructor(private payment: PaymentRepo) {
@@ -21,17 +22,17 @@ export class PaymentUseCase {
       userId
     );
     if (!paymentRequest) {
-      throw new Error("Payment request not found or unauthorized");
+      throw new AppError("Payment request not found or unauthorized", 404);
     }
 
     const paymentMilestoneId = paymentRequest.milestoneId;
     const paymentAmount = paymentRequest.amount;
 
     if (milestoneId.toString() !== paymentMilestoneId.toString()) {
-      throw new Error("Milestone Payment not found");
+      throw new AppError("Milestone Payment not found", 404);
     }
     if (Number(amount) !== Number(paymentAmount)) {
-      throw new Error("Amount Miss Match");
+      throw new AppError("Amount Mismatch", 400);
     }
 
     const options = {
@@ -58,8 +59,7 @@ export class PaymentUseCase {
       paymentMethod: "razorpay",
     };
 
-    const paymentDetails = await this.payment.createPayment(paymentData);
-    console.log(paymentDetails);
+    await this.payment.createPayment(paymentData);
 
     return order;
   }
@@ -79,12 +79,12 @@ export class PaymentUseCase {
         .digest("hex");
 
       if (shasum !== razorpay_signature) {
-        throw new Error("Invalid payment signature");
+        throw new AppError("Invalid payment signature",400);
       }
 
       const payment = await this.payment.findPayment(razorpay_order_id);
       if (!payment) {
-        throw new Error("Payment not found");
+        throw new AppError("Payment not found",404);
       }
 
       await this.payment.findPaymentAndUpdate(
@@ -106,7 +106,7 @@ export class PaymentUseCase {
       );
 
       if (!proposal) {
-        throw new Error("Proposal not found");
+        throw new AppError("Proposal not found",404);
       }
 
       const title =
@@ -120,7 +120,7 @@ export class PaymentUseCase {
       const job = await this.payment.findJobById(payment.jobId, session);
 
       if (!job) {
-        throw new Error("Job not found");
+        throw new AppError("Job not found",404);
       }
 
       const totalPaid = await this.payment.totalPaidPayment(job._id, session);
@@ -130,7 +130,12 @@ export class PaymentUseCase {
       const status =
         totalPaid >= totalMilestoneAmount ? "completed" : "in-progress";
 
-      await this.payment.updatePaymentStatus(job._id, paymentStatus,status, session);
+      await this.payment.updatePaymentStatus(
+        job._id,
+        paymentStatus,
+        status,
+        session
+      );
 
       await this.payment.updateFreelancerWallet(
         payment.freelancerId,
@@ -139,7 +144,7 @@ export class PaymentUseCase {
         title,
         session
       );
-     await this.payment.updateAdminWallet(
+      await this.payment.updateAdminWallet(
         payment.platformFee,
         payment._id,
         title,
@@ -160,8 +165,12 @@ export class PaymentUseCase {
     }
   }
 
-  async getPaymentsUseCase(userId: string,page:number,limit:number) {
-    const paymentList = await this.payment.findPaymentByUserId(userId,page,limit);
+  async getPaymentsUseCase(userId: string, page: number, limit: number) {
+    const paymentList = await this.payment.findPaymentByUserId(
+      userId,
+      page,
+      limit
+    );
     return paymentList;
   }
 }
