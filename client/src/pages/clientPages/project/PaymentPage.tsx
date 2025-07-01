@@ -30,12 +30,12 @@ const PaymentsTable = () => {
   const [selectedPayment, setSelectedPayment] = useState<IPaymentRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(1);
-  const [netAmount, setNetAmount] = useState(1);
-  const [platformFee, setPlatformFee] = useState(1);
-  const [pendingAmount, setPendingAmount] = useState(1);
-  const fetchPendingPayments = async () => {
+  const [totalCount, setTotalCount] = useState(1);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [netAmount, setNetAmount] = useState(0);
+  const [platformFee, setPlatformFee] = useState(0);
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const fetchPendingPayments = async (currentPage:number) => {
     setLoading(true)
     try {
       const res = await axiosClient.get("/proposal/pending-paments", {
@@ -55,7 +55,7 @@ const PaymentsTable = () => {
     }
   }
   useEffect(() => {
-    fetchPendingPayments()
+    fetchPendingPayments(currentPage)
   }, [currentPage])
 
 
@@ -119,7 +119,7 @@ const PaymentsTable = () => {
 
       loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD",
         () => {
-          fetchPendingPayments();
+          fetchPendingPayments(currentPage);
           toast.success("Payment completed successfully!");
         }
       )

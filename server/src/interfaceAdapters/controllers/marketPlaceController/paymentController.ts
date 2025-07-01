@@ -75,13 +75,27 @@ export class PaymentController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { wallet, payment ,totalPages} = await paymentlCase.getPaymentsUseCase(userId,page,limit);
+      const {
+        wallet,
+        payment,
+        totalPages,
+        totalAmount,
+        netAmount,
+        platformFee,
+        pendingAmount,
+        totalCount,
+      } = await paymentlCase.getPaymentsUseCase(userId, page, limit);
 
       res.status(200).json({
         message: "Payment fetched successfully",
         data: wallet,
         payment,
-        totalPages
+        totalPages,
+        totalAmount,
+        netAmount,
+        platformFee,
+        pendingAmount,
+        totalCount,
       });
     } catch (error) {
       console.error(error);

@@ -46,8 +46,13 @@ function WalletTransactions() {
     const [loading, setLoading] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPage, setTotalPage] = useState<number>(1);
+    const [totalCount, setTotalCount] = useState<number>(0);
+    const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [netAmount, setNetAmount] = useState<number>(0);
+    const [platformFee, setPlatformFee] = useState<number>(0);
+    const [pendingAmount, setPendingAmount] = useState<number>(0);
 
 
     useEffect(() => {
@@ -57,9 +62,14 @@ function WalletTransactions() {
                 const res = await axiosClient.get("/payments/get-payment", {
                     params: { page: currentPage, limit: 5 }
                 });
-                setWallet(res.data.data)
-                setPayments(res.data.payment)
-                setTotalPage(res.data.totalPages)
+                setWallet(res.data?.data || 0)
+                setPayments(res.data?.payment || [])
+                setTotalPage(res.data?.totalPages || 1)
+                setTotalAmount(res.data?.totalAmount || 0)
+                setNetAmount(res.data?.netAmount || 0)
+                setPlatformFee(res.data?.platformFee || 0)
+                setPendingAmount(res.data?.pendingAmount || 0)
+                setTotalCount(res.data?.totalCount || 0)
 
             } catch (error) {
                 console.log(error);
@@ -89,9 +99,6 @@ function WalletTransactions() {
         }).format(amount);
     };
 
-    // Payment statistics
-    const getTotalNetAmount = () => payments.reduce((sum, p) => sum + p.netAmount, 0);
-    const getTotalPlatformFees = () => payments.reduce((sum, p) => sum + p.platformFee, 0);
 
     const handleViewDetails = (paymentId: string) => {
         const payment = payments.find(p => p._id === paymentId);
@@ -153,7 +160,7 @@ function WalletTransactions() {
 
                 {/* Wallet Summary */}
                 {wallet && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -173,7 +180,7 @@ function WalletTransactions() {
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Total Earnings</p>
                                     <p className="text-2xl font-bold text-green-600">
-                                        {formatCurrency(getTotalNetAmount())}
+                                        {formatCurrency(netAmount)}
                                     </p>
                                 </div>
                                 <div className="p-3 bg-green-100 rounded-lg">
@@ -187,11 +194,37 @@ function WalletTransactions() {
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Platform Fees</p>
                                     <p className="text-2xl font-bold text-red-600">
-                                        {formatCurrency(getTotalPlatformFees())}
+                                        {formatCurrency(platformFee)}
                                     </p>
                                 </div>
                                 <div className="p-3 bg-red-100 rounded-lg">
                                     <TrendingDown className="w-6 h-6 text-red-600" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Total Amount</p>
+                                    <p className="text-2xl font-bold text-orange-600">
+                                        {formatCurrency(totalAmount)}
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-orange-100 rounded-lg">
+                                    <IndianRupee className="w-6 h-6 text-orange-600" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Pending Amount</p>
+                                    <p className="text-2xl font-bold text-yellow-500">
+                                        {formatCurrency(pendingAmount)}
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-yellow-100 rounded-lg">
+                                    <IndianRupee className="w-6 h-6 text-yellow-600" />
                                 </div>
                             </div>
                         </div>
@@ -201,7 +234,7 @@ function WalletTransactions() {
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Total Payments</p>
                                     <p className="text-2xl font-bold text-purple-600">
-                                        {payments.length}
+                                        {totalCount}
                                     </p>
                                 </div>
                                 <div className="p-3 bg-purple-100 rounded-lg">

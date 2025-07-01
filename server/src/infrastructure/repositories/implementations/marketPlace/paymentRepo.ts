@@ -1,4 +1,4 @@
-import { ClientSession, Types } from "mongoose";
+import mongoose, { ClientSession, Types } from "mongoose";
 import { IpamentRepo } from "../../../../domain/interfaces/IpamentRepo";
 import PaymentModel from "../../../../domain/models/PaymentModel";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
@@ -148,11 +148,11 @@ export class PaymentRepo implements IpamentRepo {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: freelancerId },
       {
-        $inc: { balance: netAmount  },
+        $inc: { balance: netAmount },
         $push: {
           transactions: {
             type: "credit",
-            amount: netAmount ,
+            amount: netAmount,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },
@@ -171,11 +171,11 @@ export class PaymentRepo implements IpamentRepo {
     const freelancerWallet = await WalletModel.findOneAndUpdate(
       { userId: "admin" },
       {
-        $inc: { balance: platformFee  },
+        $inc: { balance: platformFee },
         $push: {
           transactions: {
             type: "credit",
-            amount: platformFee ,
+            amount: platformFee,
             description: `Payment for milestone: ${title}`,
             paymentId: paymentId,
           },
@@ -207,7 +207,71 @@ export class PaymentRepo implements IpamentRepo {
     });
     const totalPages = Math.ceil(totalCount / limit);
 
-    return { wallet, payment, totalPages };
+    const objectId = new mongoose.Types.ObjectId(userId);
+    const totalAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          freelancerId: objectId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    const netAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          freelancerId: objectId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          netAmount: { $sum: "$netAmount" },
+        },
+      },
+    ]);
+    const platformFee = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          freelancerId: objectId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          platformFee: { $sum: "$platformFee" },
+        },
+      },
+    ]);
+    const pendingAmount = await PaymentRequestModel.aggregate([
+      {
+        $match: {
+          freelancerId: objectId,
+          status: "pending",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          pendingAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return {
+      wallet,
+      payment,
+      totalPages,
+      totalCount,
+      totalAmount: totalAmount[0]?.totalAmount || 0,
+      netAmount: netAmount[0]?.netAmount || 0,
+      platformFee: platformFee[0]?.platformFee || 0,
+      pendingAmount: pendingAmount[0]?.pendingAmount || 0,
+    };
   }
 }
 
