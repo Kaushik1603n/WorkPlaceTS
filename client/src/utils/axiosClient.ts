@@ -6,6 +6,7 @@ import type {
   AxiosError,
   AxiosRequestHeaders,
 } from "axios";
+import { toast } from "react-toastify";
 
 type ApiResponse<T = unknown> = {
   data: T;
@@ -47,11 +48,14 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url?.includes("/auth/refresh")) {
         console.error("Refresh token failed - logging out");
-        localStorage.removeItem("access_token");
+        localStorage.removeItem("accessToken");
         window.dispatchEvent(new CustomEvent("logout"));
-        window.location.href = `/login?unauth=true&message=${encodeURIComponent(
-          "Your session has expired."
-        )}`;
+        toast.error("Your session has expired");
+        // window.location.href = `/login`;
+
+        // window.location.href = `/login?unauth=true&message=${encodeURIComponent(
+        //   "Your session has expired."
+        // )}`;
         return Promise.reject(error);
       }
 
@@ -65,10 +69,7 @@ axiosClient.interceptors.response.use(
         );
 
         if (refreshResponse.data.accessToken) {
-          localStorage.setItem(
-            "access_token",
-            refreshResponse.data.accessToken
-          );
+          localStorage.setItem("accessToken", refreshResponse.data.accessToken);
 
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
@@ -78,13 +79,21 @@ axiosClient.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
-        if (isAxiosError(refreshError) && refreshError.response?.data?.shouldLogout) {
+        if (
+          isAxiosError(refreshError) &&
+          refreshError.response?.data?.shouldLogout
+        ) {
           window.dispatchEvent(new CustomEvent("logout"));
-          window.location.href = `/login?unauth=true&message=${encodeURIComponent(
-            "Your session has expired."
-          )}`;
+          // toast.error(
+          //   refreshError.response?.data?.message || "Your session has expired"
+          // );
+          // window.location.href = `/login`;
+
+          // window.location.href = `/login?unauth=true&message=${encodeURIComponent(
+          //   "Your session has expired."
+          // )}`;
         }
-        localStorage.removeItem("access_token");
+        localStorage.removeItem("accessToken");
         return Promise.reject(refreshError);
       }
     }
@@ -93,17 +102,10 @@ axiosClient.interceptors.response.use(
       const errorMessage = "Your account has been blocked.";
 
       if (errorMessage.includes("blocked")) {
-        localStorage.removeItem("access_token");
+        localStorage.removeItem("accessToken");
 
-        window.dispatchEvent(
-          new CustomEvent("auth-blocked", {
-            detail: { message: errorMessage },
-          })
-        );
-
-        window.location.href = `/login?blocked=true&message=${encodeURIComponent(
-          errorMessage
-        )}`;
+        window.dispatchEvent(new CustomEvent("logout"));
+        toast.error("Your account has been blocked.");
 
         return Promise.reject(new Error("USER_BLOCKED"));
       }

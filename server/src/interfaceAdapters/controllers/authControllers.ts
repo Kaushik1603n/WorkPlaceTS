@@ -385,7 +385,26 @@ export class AuthControllers {
       const userId = (req.user as any).userId;
 
       const { user } = await useCase.getUser(userId, role);
-      res.status(200).json({ message: "User role updated", user: user });
+
+        const { accessToken, refreshToken } = await useCase.googleCallback(
+        userId,
+        user.email
+      );
+      
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 15 * 60 * 1000,
+        sameSite: "strict",
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "strict",
+      });
+      res.status(200).json({ message: "User role updated", user: user,accessToken });
     } catch (error) {
       console.error("error during update role", error);
       res

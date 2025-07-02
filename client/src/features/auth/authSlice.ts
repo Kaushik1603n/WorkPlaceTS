@@ -136,7 +136,7 @@ export const loginUser = createAsyncThunk<
   try {
     const response = await authApi.login(credentials);
 
-    localStorage.setItem("access_token", response.data.accessToken);
+    localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
@@ -166,7 +166,7 @@ export const verifyEmail = createAsyncThunk<
 >("auth/verify-otp", async (args, { rejectWithValue }) => {
   try {
     const response = await authApi.verifyEmail(args);
-    localStorage.setItem("access_token", response.data.accessToken);
+    localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -212,7 +212,7 @@ export const passOtp = createAsyncThunk<
 >("auth/verify-reset-otp", async (args, { rejectWithValue }) => {
   try {
     const response = await authApi.passOtp(args);
-    // localStorage.setItem("access_token", response.data.accessToken);
+    // localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -244,7 +244,7 @@ export const fetchUser = createAsyncThunk<
   try {
     const response = await authApi.fetchUser();
 
-    localStorage.setItem("access_token", response.data.accessToken);
+    localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
@@ -272,8 +272,8 @@ export const roleUpdate = createAsyncThunk<
 >("auth/set-role", async (credentials, { rejectWithValue }) => {
   try {
     const response = await authApi.roleUpdate(credentials);
-
-    localStorage.setItem("access_token", response.data.accessToken);
+    
+    localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
@@ -338,7 +338,7 @@ export const logoutUser = createAsyncThunk<LogoutResponse, LogoutCredentials>(
           withCredentials: true,
         }
       );
-      localStorage.removeItem("access_token");
+      localStorage.removeItem("accessToken");
       return response.data;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
