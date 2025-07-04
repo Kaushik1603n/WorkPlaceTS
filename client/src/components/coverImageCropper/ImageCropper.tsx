@@ -143,7 +143,7 @@ function ImageCropper({ updateCover, closeModal }: ImageCropperProps) {
                 <div className="flex flex-col items-center">
                     <ReactCrop
                         crop={crop}
-                        onChange={(pixelCrop: PixelCrop, percentCrop: PercentCrop) => setCrop(percentCrop)}
+                        onChange={(_pixelCrop: PixelCrop, percentCrop: PercentCrop) => setCrop(percentCrop)}
                         keepSelection
                         aspect={ASPECT_RATIO}
                         minWidth={MIN_DIMENSION}

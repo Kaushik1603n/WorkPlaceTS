@@ -34,6 +34,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode; userId: strin
   useEffect(() => {
     // Initialize Socket.IO connection
     const newSocket = io("http://localhost:5000", {
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
       auth: { token: localStorage.getItem("access_token") },

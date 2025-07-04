@@ -67,7 +67,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
 
     setShowAttachMenu(false);
-    
+
     // Clear text input when file is selected
     if (messageInput.trim()) {
       setMessageInput('');
@@ -80,7 +80,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSendWithAttachments = async () => {
     if (isSending) return; // Prevent double sending
-    
+
     try {
       if (attachedFiles.length === 0 && !messageInput.trim()) {
         return; // No files or message to send
@@ -115,7 +115,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
         const result = await response.json();
         fileUrl = result.secure_url;
         fileType = attachedFiles[0].type;
-        setMediaInput(fileUrl);
+        if (fileUrl) {
+          setMediaInput(fileUrl);
+        }
+        // setMediaInput(fileUrl || '');
       }
 
       handleSendMessage(fileUrl, fileType);
@@ -131,7 +134,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setMessageInput(value);
-    
+
     // Close attachment menu if user starts typing
     if (value.trim() && showAttachMenu) {
       setShowAttachMenu(false);
@@ -206,11 +209,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <button
             onClick={handleAttachmentMenuToggle}
             disabled={hasText || isSending}
-            className={`p-3 rounded-full transition-colors ${
-              hasText || isSending
-                ? 'text-gray-300 cursor-not-allowed' 
+            className={`p-3 rounded-full transition-colors ${hasText || isSending
+                ? 'text-gray-300 cursor-not-allowed'
                 : 'text-gray-500 hover:text-green-500 hover:bg-green-50'
-            }`}
+              }`}
             title={hasText ? "Clear text to attach files" : "Attach files"}
           >
             <Paperclip size={18} />
@@ -244,30 +246,28 @@ const MessageInput: React.FC<MessageInputProps> = ({
           onKeyPress={handleKeyPress}
           disabled={hasAttachment || isSending}
           placeholder={
-            hasAttachment 
-              ? "Remove attachment to type message..." 
-              : isSending 
-                ? "Sending..." 
+            hasAttachment
+              ? "Remove attachment to type message..."
+              : isSending
+                ? "Sending..."
                 : "Type your message..."
           }
-          className={`flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[#EFFFF6] transition-colors ${
-            hasAttachment || isSending 
-              ? 'placeholder-gray-400 text-gray-400 cursor-not-allowed' 
+          className={`flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[#EFFFF6] transition-colors ${hasAttachment || isSending
+              ? 'placeholder-gray-400 text-gray-400 cursor-not-allowed'
               : 'placeholder-gray-500 text-gray-900'
-          }`}
+            }`}
         />
 
         {/* Send Button */}
         <button
           onClick={handleSendWithAttachments}
           disabled={isSending || (!hasText && !hasAttachment)}
-          className={`p-3 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all shadow-sm ${
-            isSending
+          className={`p-3 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all shadow-sm ${isSending
               ? 'bg-gray-400 cursor-not-allowed'
               : (!hasText && !hasAttachment)
                 ? 'bg-gray-300 cursor-not-allowed'
                 : 'bg-green-500 text-white hover:bg-green-600'
-          }`}
+            }`}
         >
           {isSending ? (
             <div className="animate-spin rounded-full h-[18px] w-[18px] border-b-2 border-white"></div>

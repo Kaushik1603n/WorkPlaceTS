@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 interface INotification {
     _id: string;
     userId: string;
-    type: "message" | "proposal" | "payment" | "milestone";
+    type: "message" | "proposal" | "payment" | "milestone"|"contract";
     title: string;
     message: string;
     content: string;

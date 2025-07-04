@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 import { ReturnAllProjectsInfoDTO } from "../dto/projectDTO/getProjectAllInformationDTO";
 import { BidRequest } from "../dto/projectDTO/jobProposalDTO";
 import { IUser } from "../types/authTypes";
-import { FeedbackArguments, FeedbackTypes, ReportDataArgument } from "../types/FeedbackTypes";
+import {
+  FeedbackArguments,
+  FeedbackTypes,
+  ReportDataArgument,
+} from "../types/FeedbackTypes";
 import { JobProposalResponseTypes } from "../types/JobProposalTypes";
 
 import {
@@ -42,15 +46,16 @@ export interface IMarketPlace {
     milestoneId: string,
     comments: string,
     links: string[],
-     session: mongoose.ClientSession
+    session: mongoose.ClientSession
   ): Promise<any>;
-submitFeedbackRepo({
+  submitFeedbackRepo({
     ratings,
     feedback,
     overallRating,
     jobId,
-    freelancerId,
-    userId,
+    toUser,
+    fromUser,
+    feedbackType,
   }: FeedbackArguments): Promise<FeedbackTypes>;
-  submitFreelacerReportRepo(reportData: ReportDataArgument):Promise<any>
+  submitFreelacerReportRepo(reportData: ReportDataArgument): Promise<any>;
 }

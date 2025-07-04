@@ -32,7 +32,20 @@ export class App {
     this.httpServer = createServer(this.app);
     this.io = new Server(this.httpServer, {
       cors: {
-        origin: "http://localhost:5173",
+        origin: (origin, callback) => {
+          const allowedOrigins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost",
+            "http://127.0.0.1",
+            "http://client:80",
+          ];
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, origin || "*");
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
         methods: ["GET", "POST"],
         credentials: true,
       },
@@ -50,7 +63,20 @@ export class App {
     this.app.use(morgan("dev"));
     this.app.use(
       cors({
-        origin: "http://localhost:5173",
+        origin: (origin, callback) => {
+          const allowedOrigins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost",
+            "http://127.0.0.1",
+            "http://client:80",
+          ];
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, origin || "*");
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
         credentials: true,
       })
     );
@@ -209,7 +235,7 @@ export class App {
 
   public async listen(port: number) {
     await connectDB();
-    this.httpServer.listen(port, () => {
+    this.httpServer.listen(port, "0.0.0.0", () => {
       console.log(`Server started on port ${port}`);
     });
   }
