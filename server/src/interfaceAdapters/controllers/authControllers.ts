@@ -331,7 +331,7 @@ export class AuthControllers {
       });
 
       res.redirect(
-        `https://mapplestore.shop/success-login?accessToken=${accessToken}`
+        `${process.env.CLIENT_URL}/success-login?accessToken=${accessToken}`
       );
     } catch (error) {
       console.error("error during google callback", error);

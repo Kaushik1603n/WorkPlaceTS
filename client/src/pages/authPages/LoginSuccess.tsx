@@ -40,8 +40,10 @@ const LoginSuccess: React.FC = () => {
   };
 
   const handleJoin = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token || !userType) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get("accessToken");
+
+    if (!accessToken || !userType) return;
 
     try {
       setLoading(true);
