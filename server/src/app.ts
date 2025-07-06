@@ -41,6 +41,8 @@ export class App {
             "http://client:80",
             "http://34.47.233.51",
             "http://34.47.233.51:3000",
+            "https://mapplestore.shop",
+            "https://www.mapplestore.shop/",
             "http://mapplestore.shop",
             "http://www.mapplestore.shop/",
           ];
@@ -75,6 +77,8 @@ export class App {
             "http://127.0.0.1",
             "http://client:80",
             "http://34.47.233.51:3000",
+            "https://mapplestore.shop",
+            "https://www.mapplestore.shop/",
             "http://mapplestore.shop",
             "http://www.mapplestore.shop/",
           ];
