@@ -33,7 +33,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode; userId: strin
 
   useEffect(() => {
     // Initialize Socket.IO connection
-    const newSocket = io(import.meta.env.VITE_API_BASE_URL, {
+    const newSocket = io(import.meta.env.VITE_BASE_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
