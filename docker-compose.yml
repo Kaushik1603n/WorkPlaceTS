@@ -18,6 +18,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./webroot:/usr/share/nginx/html/.well-known/acme-challenge
     env_file:
       - ./client/.env
     depends_on:
@@ -30,6 +34,16 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./webroot:/webroot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /webroot; sleep 12h; done;'"
+    depends_on:
+      - client
 
 volumes:
   mongodb_data:
