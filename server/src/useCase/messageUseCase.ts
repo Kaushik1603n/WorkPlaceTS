@@ -35,6 +35,9 @@ export class MessageUseCase {
   async markMessagesReadUseCase(userId: string, contactId: string): Promise<void> {
     return await this.message.markMessagesRead(userId, contactId);
   }
+  async toggleMessageLikeUseCase(messageId: string, userId: string): Promise<any> {
+    return await this.message.toggleMessageLike(messageId, userId);
+  }
   async deleteMsg(msgId: string): Promise<void> {
     
     return await this.message.findAndDelete(msgId);

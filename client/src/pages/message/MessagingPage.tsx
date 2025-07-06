@@ -33,14 +33,15 @@ const MessagingPage = () => {
           isOnline: false,
           latestMessage: item.latestMessage
             ? {
-              id: item.latestMessage.id,
-              text: item.latestMessage.text ? item.latestMessage.text:item.latestMessage.media?.type,
-              senderId: item.latestMessage.senderId,
-              contactId: item.latestMessage.contactId,
-              timestamp: item.latestMessage.timestamp,
-              isRead: item.latestMessage.isRead,
-              sender: item.latestMessage.senderId === userId ? "user" : "contact",
-            }
+                id: item.latestMessage.id,
+                text: item.latestMessage.text ? item.latestMessage.text : item.latestMessage.media?.type,
+                senderId: item.latestMessage.senderId,
+                contactId: item.latestMessage.contactId,
+                timestamp: item.latestMessage.timestamp,
+                isRead: item.latestMessage.isRead,
+                sender: item.latestMessage.senderId === userId ? "user" : "contact",
+                likes: item.latestMessage.likes || [],
+              }
             : null,
           unreadCount: item.unreadCount || 0,
         }))
@@ -67,6 +68,7 @@ const MessagingPage = () => {
         const fetchedMessages = response.data.data.map((msg: IMessage) => ({
           ...msg,
           sender: msg.senderId === userId ? "user" : "contact",
+          likes: msg.likes || [],
         }));
         setMessages(fetchedMessages);
 
@@ -96,6 +98,7 @@ const MessagingPage = () => {
             ...message,
             sender: message.senderId === userId ? "user" : "contact",
             timestamp: message.timestamp || new Date().toISOString(),
+            likes: message.likes || [],
           };
           return [...prevMessages, newMessage];
         });
@@ -104,16 +107,17 @@ const MessagingPage = () => {
           prevContacts.map((contact) =>
             contact.id === message.senderId || contact.id === message.contactId
               ? {
-                ...contact,
-                latestMessage: {
-                  ...message,
-                  sender: message.senderId === userId ? "user" : "contact",
-                },
-                unreadCount:
-                  contact.id === message.senderId && message.senderId !== userId
-                    ? (contact.unreadCount || 0) + 1
-                    : contact.unreadCount,
-              }
+                  ...contact,
+                  latestMessage: {
+                    ...message,
+                    sender: message.senderId === userId ? "user" : "contact",
+                    likes: message.likes || [],
+                  },
+                  unreadCount:
+                    contact.id === message.senderId && message.senderId !== userId
+                      ? (contact.unreadCount || 0) + 1
+                      : contact.unreadCount,
+                }
               : contact
           )
         );
@@ -124,13 +128,14 @@ const MessagingPage = () => {
             return prevContacts.map((contact) =>
               contact.id === message.senderId
                 ? {
-                  ...contact,
-                  latestMessage: {
-                    ...message,
-                    sender: "contact",
-                  },
-                  unreadCount: (contact.unreadCount || 0) + 1,
-                }
+                    ...contact,
+                    latestMessage: {
+                      ...message,
+                      sender: "contact",
+                      likes: message.likes || [],
+                    },
+                    unreadCount: (contact.unreadCount || 0) + 1,
+                  }
                 : contact
             );
           }
@@ -149,9 +154,9 @@ const MessagingPage = () => {
         prevContacts.map((contact) =>
           contact.id === contactId
             ? {
-              ...contact,
-              unreadCount: 0,
-            }
+                ...contact,
+                unreadCount: 0,
+              }
             : contact
         )
       );
@@ -164,10 +169,7 @@ const MessagingPage = () => {
 
       setContacts((prevContacts) =>
         prevContacts.map((contact) => {
-          if (
-            contact.latestMessage &&
-            contact.latestMessage.id === messageId
-          ) {
+          if (contact.latestMessage && contact.latestMessage.id === messageId) {
             return { ...contact, latestMessage: null };
           }
           return contact;
@@ -175,10 +177,42 @@ const MessagingPage = () => {
       );
     });
 
+    socket.on("messageLiked", ({ messageId, userId: likerId }: { messageId: string; userId: string }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId
+            ? {
+                ...msg,
+                likes: msg.likes.includes(likerId)
+                  ? msg.likes.filter((id) => id !== likerId)
+                  : [...msg.likes, likerId],
+              }
+            : msg
+        )
+      );
+
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.latestMessage && contact.latestMessage.id === messageId
+            ? {
+                ...contact,
+                latestMessage: {
+                  ...contact.latestMessage,
+                  likes: contact.latestMessage.likes.includes(likerId)
+                    ? contact.latestMessage.likes.filter((id) => id !== likerId)
+                    : [...contact.latestMessage.likes, likerId],
+                },
+              }
+            : contact
+        )
+      );
+    });
+
     return () => {
       socket.off("message");
       socket.off("messagesRead");
       socket.off("messageDeleted");
+      socket.off("messageLiked");
     };
   }, [socket, selectedContact, userId, markMessageRead]);
 
@@ -194,11 +228,17 @@ const MessagingPage = () => {
       console.error("Error deleting message:", error);
       toast.error("Error deleting message");
     }
-  }
+  };
 
- 
+  const handleLikeMessage = (messageId: string) => {
+    if (socket && userId) {
+      socket.emit("likeMessage", { messageId, userId });
+    }
+  };
 
-  const handleSendMessage = (fileUrl?: string, fileType?: 'image' | 'pdf' ) => {
+  const
+
+ handleSendMessage = (fileUrl?: string, fileType?: "image" | "pdf") => {
     if (!userId) {
       console.error("User ID is undefined");
       return;
@@ -212,6 +252,7 @@ const MessagingPage = () => {
         contactId: String(selectedContact.id),
         timestamp: new Date().toISOString(),
         isRead: false,
+        likes: [],
       };
 
       socket.emit("sendMessage", newMessage);
@@ -220,9 +261,9 @@ const MessagingPage = () => {
         prevContacts.map((contact) =>
           contact.id === selectedContact.id
             ? {
-              ...contact,
-              latestMessage: newMessage,
-            }
+                ...contact,
+                latestMessage: newMessage,
+              }
             : contact
         )
       );
@@ -239,6 +280,7 @@ const MessagingPage = () => {
         contactId: String(selectedContact.id),
         timestamp: new Date().toISOString(),
         isRead: false,
+        likes: [],
       };
 
       socket.emit("sendMedia", newMessage);
@@ -247,15 +289,15 @@ const MessagingPage = () => {
         prevContacts.map((contact) =>
           contact.id === selectedContact.id
             ? {
-              ...contact,
-              latestMessage: newMessage,
-            }
+                ...contact,
+                latestMessage: newMessage,
+              }
             : contact
         )
       );
       setMediaInput("");
     }
-    getUserLatestMessage()
+    getUserLatestMessage();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -290,8 +332,11 @@ const MessagingPage = () => {
         {selectedContact ? (
           <>
             <ChatHeader contact={selectedContact} />
-            <MessageList messages={messages} userId={userId}
+            <MessageList
+              messages={messages}
+              userId={userId}
               setDeleteMsg={deleteMsg}
+              setLikeMsg={handleLikeMessage}
             />
             <MessageInput
               messageInput={messageInput}

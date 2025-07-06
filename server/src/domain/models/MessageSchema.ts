@@ -11,6 +11,7 @@ export interface IMessage extends Document {
   };
   timestamp: string;
   isRead: boolean;
+  likes: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -24,6 +25,10 @@ const MessageSchema: Schema = new Schema(
       type: { type: String, enum: ["image", "pdf"] },
     },
     senderId: { type: String, required: true },
+    likes: {
+      type: [String],
+      default: [],
+    },
     contactId: { type: String, required: true },
     timestamp: { type: String, default: () => new Date().toISOString() },
     isRead: { type: Boolean, default: false },

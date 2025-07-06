@@ -1,10 +1,9 @@
-
 export interface ApiUser {
   _id: string;
   fullName: string;
   role: string;
-  // Add other user properties if needed
 }
+
 export interface Contact {
   id: string;
   fullName: string;
@@ -26,6 +25,7 @@ export interface Message {
     url: string;
     type: "image" | "pdf";
   };
+  likes: string[];
 }
 
 export interface IMessage {
@@ -39,14 +39,7 @@ export interface IMessage {
     url: string;
     type: "image" | "pdf";
   };
-}
-
-// Add these to your MessagingTypes.ts or wherever you define your types
-
-export interface ApiUser {
-  _id: string;
-  fullName: string;
-  role: string;
+  likes: string[];
 }
 
 export interface ApiMessage {
@@ -60,6 +53,7 @@ export interface ApiMessage {
     url: string;
     type: "image" | "pdf";
   };
+  likes: string[];
 }
 
 export interface LatestMessagedUser {
@@ -70,5 +64,4 @@ export interface LatestMessagedUser {
 
 export interface GetLatestMessagesResponse {
   latestMessagedUsers: LatestMessagedUser[];
-  // Add other response properties if your API returns more
 }

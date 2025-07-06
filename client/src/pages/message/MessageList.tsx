@@ -1,14 +1,15 @@
 import type { Message } from './MessagingTypes';
 import React, { useRef, useEffect } from 'react';
-import { Trash2, FileText, Download } from 'lucide-react';
+import { Trash2, FileText, Download, Heart } from 'lucide-react';
 
 interface MessageListProps {
     messages: Message[];
     userId?: string;
     setDeleteMsg: (id: string) => Promise<void>;
+    setLikeMsg: (id: string) => void;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, userId, setDeleteMsg, setLikeMsg }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -53,7 +54,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) =>
 
         return (
             <div className="">
-                {/* Media Content */}
                 {hasMedia && (
                     <div className="max-w-xs">
                         {message.media!.type === 'image' ? (
@@ -85,21 +85,27 @@ const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) =>
                     </div>
                 )}
 
-                {/* Text Content */}
                 {hasText && (
-                    <p className=" px-6 pt-1 text-sm leading-relaxed break-words overflow-x-hidden">
+                    <p className="px-6 pt-1 text-sm leading-relaxed break-words overflow-x-hidden">
                         {message.text}
                     </p>
                 )}
 
-                {/* Timestamp */}
-                <div className={`px-6 py-1  text-xs transition-opacity duration-200 ${
+                <div className={`px-6 py-1 flex items-center gap-2 text-xs transition-opacity duration-200 ${
                     message.sender === 'user' ? 'text-gray-200 text-right' : 'text-gray-400 text-left'
                 }`}>
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}
+                    <span>
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </span>
+                    {message.likes.length > 0 && (
+                        <span className="flex items-center gap-1">
+                            <Heart size={12} className="text-red-500 fill-red-500" />
+                            <span>{message.likes.length}</span>
+                        </span>
+                    )}
                 </div>
             </div>
         );
@@ -124,7 +130,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) =>
                             <div className={`group relative max-w-xs lg:max-w-md ${
                                 message.sender === 'user' ? 'order-2' : 'order-1'
                             }`}>
-                                <div className={` rounded-2xl shadow-sm transition-all duration-200 ${
+                                <div className={`rounded-2xl shadow-sm transition-all duration-200 ${
                                     message.sender === 'user'
                                         ? 'bg-green-500 text-white rounded-br-md hover:bg-green-600'
                                         : 'bg-white text-gray-800 border border-green-600 rounded-bl-md hover:shadow-md'
@@ -132,8 +138,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) =>
                                     {renderMessageContent(message)}
                                 </div>
 
-                                {message.sender === 'user' && (
-                                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-0 group-hover:scale-100">
+                                <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-0 group-hover:scale-100 flex gap-1">
+                                    {message.sender === 'user' && (
                                         <button
                                             className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110"
                                             title="Delete message"
@@ -141,8 +147,19 @@ const MessageList: React.FC<MessageListProps> = ({ messages,  setDeleteMsg }) =>
                                         >
                                             <Trash2 size={12} />
                                         </button>
-                                    </div>
-                                )}
+                                    )}
+                                    <button
+                                        className={`rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110 ${
+                                            message.likes.includes(userId || '')
+                                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        }`}
+                                        title={message.likes.includes(userId || '') ? 'Unlike message' : 'Like message'}
+                                        onClick={() => setLikeMsg(message.id)}
+                                    >
+                                        <Heart size={12} className={message.likes.includes(userId || '') ? 'fill-current' : ''} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

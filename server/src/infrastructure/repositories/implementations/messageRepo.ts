@@ -36,6 +36,31 @@ export class MessageRepo implements IMessageRepo {
       { $set: { isRead: true } }
     );
   }
+  async toggleMessageLike(messageId: string, userId: string): Promise<any> {
+   const message = await MessageModel.findOne({ id: messageId });
+  
+  if (!message) {
+    throw new Error("Message not found");
+  }
+
+  const hasLiked = message.likes.includes(userId);
+
+  const update = hasLiked
+    ? { $pull: { likes: userId } }
+    : { $addToSet: { likes: userId } };
+
+  const updatedMessage = await MessageModel.findOneAndUpdate(
+    { id: messageId },
+    update,
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedMessage) {
+    throw new Error("Failed to update message likes");
+  }
+
+  return updatedMessage;
+  }
   async findAndDelete(msgId: string): Promise<void> {
     await MessageModel.deleteOne({ id: msgId });
   }

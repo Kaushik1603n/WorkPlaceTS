@@ -134,6 +134,7 @@ export class App {
           contactId: string;
           timestamp: string;
           isRead: boolean;
+          likes: string[];
         }) => {
           if (!message.senderId || !message.contactId) {
             console.log("Error: Invalid message format", message);
@@ -173,6 +174,7 @@ export class App {
           contactId: string;
           timestamp: string;
           isRead: boolean;
+          likes: string[];
         }) => {
           if (!message.senderId || !message.contactId) {
             console.log("Error: Invalid message format", message);
@@ -224,6 +226,37 @@ export class App {
             }
           } catch (error) {
             console.error("Error marking messages as read:", error);
+          }
+        }
+      );
+
+      socket.on(
+        "likeMessage",
+        async ({
+          messageId,
+          userId,
+        }: {
+          messageId: string;
+          userId: string;
+        }) => {
+          try {
+            const updatedMessage =
+              await messageUseCase.toggleMessageLikeUseCase(messageId, userId);
+            const recipientSocketId = connectedUsers[updatedMessage.contactId];
+            const senderSocketId = connectedUsers[updatedMessage.senderId];
+
+            if (recipientSocketId) {
+              this.io
+                .to(recipientSocketId)
+                .emit("messageLiked", { messageId, userId });
+            }
+            if (senderSocketId && senderSocketId !== recipientSocketId) {
+              this.io
+                .to(senderSocketId)
+                .emit("messageLiked", { messageId, userId });
+            }
+          } catch (error) {
+            console.error("Error toggling message like:", error);
           }
         }
       );
