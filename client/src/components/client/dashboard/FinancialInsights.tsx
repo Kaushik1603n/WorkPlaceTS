@@ -29,7 +29,6 @@ function FinancialInsights() {
                 setFinancialData(res.data.weeklySpending);
                 setTotalSpend(res.data.totalSpent)
                 setCostPerProject(res.data.avgCostPerProject)
-                console.log(res.data.weeklySpending)
             } catch (err) {
                 const error = err as AxiosError;
                 console.error("Failed to fetch projects:", error);

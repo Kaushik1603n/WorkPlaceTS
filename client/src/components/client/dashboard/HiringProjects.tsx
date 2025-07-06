@@ -22,7 +22,6 @@ function HiringProjects() {
                 const res = await axiosClient.get("client/hiringprojects");
                 setHiringData(res.data.result);
                 setJobCount(res.data.jobCount)
-                console.log(res.data.jobCount)
             } catch (err) {
                 const error = err as AxiosError;
                 console.error("Failed to fetch projects:", error);
