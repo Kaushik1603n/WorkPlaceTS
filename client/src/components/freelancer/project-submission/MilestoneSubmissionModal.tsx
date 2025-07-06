@@ -42,25 +42,69 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
   });
 
 
-  const handleLinkChange = (index: number, value: string) => {
-    if (deliverables.links.includes(value)) {
-      toast.error("not duplicate links allowed")
-      return "not duplicate links allowed"
-    }
-    const newLinks = [...deliverables.links];
+  // const handleLinkChange = (index: number, value: string) => {
+  //   if (deliverables.links.includes(value)) {
+  //     toast.error("not duplicate links allowed")
+  //     return "not duplicate links allowed"
+  //   }
+  //   const newLinks = [...deliverables.links];
 
-    newLinks[index] = value;
-    setDeliverables({ ...deliverables, links: newLinks });
-  };
+  //   newLinks[index] = value;
+  //   setDeliverables({ ...deliverables, links: newLinks });
+  // };
+const handleLinkChange = (index: number, value: string) => {
+  const normalizedValue = value.trim().toLowerCase();
+  
+  const isDuplicate = deliverables.links.some(
+    (link, i) => i !== index && link.trim().toLowerCase() === normalizedValue && normalizedValue !== ''
+  );
+  
+  if (isDuplicate) {
+    toast.error("Duplicate links are not allowed");
+    return;
+  }
+  
+  const newLinks = [...deliverables.links];
+  newLinks[index] = value;
+  setDeliverables({ ...deliverables, links: newLinks });
+};
 
+
+  // const addLinkField = () => {
+  //   setDeliverables({ ...deliverables, links: [...deliverables.links, ''] });
+  // };
   const addLinkField = () => {
-    setDeliverables({ ...deliverables, links: [...deliverables.links, ''] });
-  };
+  if (deliverables.links[deliverables.links.length - 1].trim() === '') {
+    toast.error("Please fill the current link field before adding another");
+    return;
+  }
+  setDeliverables({ ...deliverables, links: [...deliverables.links, ''] });
+};
 
+  // const handleSubmit = () => {
+  //   onSubmit(milestone._id, deliverables);
+  //   onClose();
+  // };
   const handleSubmit = () => {
-    onSubmit(milestone._id, deliverables);
-    onClose();
-  };
+  // Filter out empty links
+  const nonEmptyLinks = deliverables.links.filter(link => link.trim() !== '');
+  
+  if (nonEmptyLinks.length === 0) {
+    toast.error("Please provide at least one valid link");
+    return;
+  }
+  
+  if (!deliverables.comments.trim()) {
+    toast.error("Please add some comments about your work");
+    return;
+  }
+  
+  onSubmit(milestone._id, {
+    ...deliverables,
+    links: nonEmptyLinks
+  });
+  onClose();
+};
 
   return (
     <div className="fixed inset-0 backdrop-blur bg-opacity-50 flex items-center justify-center z-50">

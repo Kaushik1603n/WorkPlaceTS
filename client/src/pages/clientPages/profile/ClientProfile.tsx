@@ -253,9 +253,9 @@ export default function ClientProfile() {
 
 
                             <div className="mt-6">
-                                <button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-2 px-4 rounded-md font-medium transition-colors">
+                                {/* <button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-2 px-4 rounded-md font-medium transition-colors">
                                     Create new Job
-                                </button>
+                                </button> */}
                                 <button
                                     onClick={() => setIsEmailVerificationOpen(true)}
                                     className="w-full mt-3 border border-[#2ECC71] text-[#2ECC71] hover:bg-[#EFFFF6] hover:text-[#27AE60] py-2 px-4 rounded-md font-medium transition-colors duration-200"
