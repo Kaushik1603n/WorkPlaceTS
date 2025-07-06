@@ -253,8 +253,6 @@ export class AuthControllers {
   };
 
   changeEmail: RequestHandler = async (req, res) => {
-    console.log("jdbdbsbjsdbj");
-
     const { email } = req.body;
     try {
       if (!email) {

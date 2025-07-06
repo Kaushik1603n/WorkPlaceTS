@@ -28,7 +28,6 @@ export class ClientProfileUserCase {
       coverPromise = cloudinary.uploader.upload(coverPic, {
         folder: "cover_uploads",
       });
-      console.log((await coverPromise).url);
     } else {
       coverPromise = Promise.resolve({ secure_url: coverPic });
     }

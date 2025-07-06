@@ -35,7 +35,7 @@ function AdminProjectDetails() {
                 setJob(res.data.data);
             } catch (err) {
                 setError("Failed to load project Details. Please try again later.");
-                console.log(err);
+                console.error(err);
             } finally {
                 setLoading(false);
             }

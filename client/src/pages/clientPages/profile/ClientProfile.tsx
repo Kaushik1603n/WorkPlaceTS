@@ -55,9 +55,7 @@ export default function ClientProfile() {
             try {
 
                 const res = await axiosClient.get("client/project/get-project");
-                setAllProjects(res.data.data);
-                console.log(res.data.data);
-                
+                setAllProjects(res.data.data);                
             } catch (err) {
                 const error = err as AxiosError;
                 toast.error("Failed to fetch projects")

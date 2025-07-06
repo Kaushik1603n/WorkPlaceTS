@@ -49,9 +49,7 @@ function JobDetails() {
     useEffect(() => {
         setLoading(true);
         dispatch(getJobDetails({ jobId })).unwrap().then((res) => {setLoading(false);
-            setJob(res.data)
-            console.log(res.data);
-            
+            setJob(res.data)            
         })
     }, [dispatch, jobId]);
 

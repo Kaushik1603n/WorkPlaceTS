@@ -112,9 +112,8 @@ export class ProposalUseCase {
           },
           createdAt: new Date().toISOString(),
         });
-        console.log(`Notification sent to freelancer ${proposal.freelancerId}`);
       } else {
-        console.log(`Freelancer ${proposal.freelancerId} is not connected`);
+        console.error(`Freelancer ${proposal.freelancerId} is not connected`);
       }
 
       await session.commitTransaction();
@@ -259,9 +258,8 @@ export class ProposalUseCase {
           },
           createdAt: new Date().toISOString(),
         });
-        console.log(`Notification sent to client ${contractDetails.clientId}`);
       } else {
-        console.log(`Client ${contractDetails.clientId} is not connected`);
+        console.error(`Client ${contractDetails.clientId} is not connected`);
       }
 
       await session.commitTransaction();
@@ -403,9 +401,8 @@ export class ProposalUseCase {
           },
           createdAt: new Date().toISOString(),
         });
-        console.log(`Notification sent to freelancer ${proposal.freelancerId}`);
       } else {
-        console.log(`Freelancer ${proposal.freelancerId} is not connected`);
+        console.error(`Freelancer ${proposal.freelancerId} is not connected`);
       }
 
       await session.commitTransaction();

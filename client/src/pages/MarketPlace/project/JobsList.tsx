@@ -18,9 +18,6 @@ interface JobsListProps {
 }
 
 function JobsList({ currentPage, jobs, totalPages, onPageChange, searchQuery, setSearchQuery, handleSubmit, isLoading }: JobsListProps) {
-    // If jobs is null/undefined (not yet loaded), show loading skeleton
-
-    console.log(jobs);
     
     if (jobs === null || jobs === undefined) {
         return (

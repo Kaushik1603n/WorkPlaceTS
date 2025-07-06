@@ -143,7 +143,7 @@ export class MessageRepo implements IMessageRepo {
         unreadCount,
       }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new Error("Failed to fetch latest messaged users");
     }

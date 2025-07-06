@@ -230,7 +230,6 @@ export class AuthUseCase {
   }
 
   async changeEmailUseCase(userId: string, email: string) {
-    console.log(email);
 
     const user = await this.user.findByEmail(email);
     if (user) throw new Error("User already exist");

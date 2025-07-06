@@ -69,8 +69,6 @@ const MessagingPage = () => {
                 '/message/getlatest'
             );
             // setLatestMessagedUsers(response.data.data.latestMessagedUsers);
-            console.log(response.data.data.user);
-
             setContact(response.data.data.user)
 
         } catch (error) {

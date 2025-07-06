@@ -40,7 +40,6 @@ export const sendPasswordResetOtpEmail = async (email: string, name: string, otp
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Password reset OTP email sent successfully");
   } catch (error) {
     console.error("Error sending password reset OTP email:", error);
     throw error;

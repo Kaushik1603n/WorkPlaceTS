@@ -137,7 +137,7 @@ function JobPostingForm() {
         )
       })
       .catch((error) => {
-        console.log(error?.error);
+        console.error(error?.error);
         toast.error(error?.error);
       });
   };

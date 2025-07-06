@@ -217,7 +217,6 @@ export default function EditFreelancerProfile() {
       coverPic: coverPhoto, 
       profilePic: profilePhotoBase64 || profilePhoto, 
     };
-    console.log(formData.coverPic);
 
 
     dispatch(updateFreelancerProfile(formData as FreelancerProfile))

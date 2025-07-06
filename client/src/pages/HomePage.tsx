@@ -12,12 +12,10 @@ export default function HomePage() {
   const navigate= useNavigate()
 
   useEffect(() => {
-    // Trigger loading animation
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
 
-    // Intersection Observer for scroll animations
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -32,7 +30,6 @@ export default function HomePage() {
       }
     );
 
-    // Observe sections after component mounts
     const sections = document.querySelectorAll('[data-animate]');
     sections.forEach(section => observer.observe(section));
 
@@ -66,7 +63,6 @@ export default function HomePage() {
         }`}>
         <NavigationBar />
 
-        {/* Hero Section */}
         <section
           id="hero"
           data-animate
@@ -107,7 +103,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section */}
         <section
           id="features"
           data-animate
@@ -149,7 +144,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Additional animated section for demonstration */}
         <section
           id="cta"
           data-animate

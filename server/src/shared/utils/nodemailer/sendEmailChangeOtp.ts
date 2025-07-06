@@ -40,7 +40,6 @@ export const sendEmailChangeOtp = async (email: string, name: string, otp: strin
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email verification OTP email sent successfully");
   } catch (error) {
     console.error("Error sending Email verification OTP email:", error);
     throw error;

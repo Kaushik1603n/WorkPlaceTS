@@ -162,8 +162,6 @@ export default function ClientProfileEdit() {
       coverPic: coverPhoto, 
       profilePic: profilePhotoBase64 || profilePhoto, 
     };
-    console.log(formData.coverPic);
-
 
     dispatch(updateClientProfile(formData as ClientProfile))
       .unwrap()

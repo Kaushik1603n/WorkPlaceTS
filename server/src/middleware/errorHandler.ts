@@ -16,13 +16,11 @@ export const errorHandler = (
   let statusCode = err.statusCode || 500;
   let message = err.message || "Something went wrong";
 
-  // Handle Mongoose validation errors
   if (err instanceof mongoose.Error.ValidationError) {
     statusCode = 400;
     message = Object.values(err.errors).map((val) => val.message).join(", ");
   }
 
-  // Handle Mongoose duplicate key errors
   if (err.code === "11000") {
     statusCode = 400;
     message = "Duplicate key error: Resource already exists";

@@ -263,8 +263,6 @@ const ProjectDashboard: React.FC = () => {
 
   const handleSubmitFeedback = async (data: FeedbackData) => {
     try {
-      console.log(data);
-
       const res = await axiosClient.post("/jobs/feedback", {
         ...data,
         jobId,
@@ -284,7 +282,6 @@ const ProjectDashboard: React.FC = () => {
     }
   };
 
-  console.log(proposalDetails.milestones);
 
   const milestoneCompleted = proposalDetails.milestones.reduce(
     (acc, mil) => (mil.status === "accepted" || mil.status === "paid") ? acc + 1 : acc,

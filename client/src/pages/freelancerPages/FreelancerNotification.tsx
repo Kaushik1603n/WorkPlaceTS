@@ -27,8 +27,6 @@ function FreelancerNotification() {
     const [allNotifications, setAllNotifications] = useState<INotification[]>([]);
     const [loading, setLoading] = useState(false);
 
-console.log(socketNotifications);
-
     useEffect(() => {
         setLoading(true)
         const fetchNotifications = async () => {
