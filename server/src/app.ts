@@ -40,7 +40,9 @@ export class App {
             "http://127.0.0.1",
             "http://client:80",
             "http://34.47.233.51",
-            "http://34.47.233.51:3000"
+            "http://34.47.233.51:3000",
+            "http://mapplestore.shop",
+            "http://www.mapplestore.shop/",
           ];
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, origin || "*");
@@ -73,6 +75,8 @@ export class App {
             "http://127.0.0.1",
             "http://client:80",
             "http://34.47.233.51:3000",
+            "http://mapplestore.shop",
+            "http://www.mapplestore.shop/",
           ];
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, origin || "*");
