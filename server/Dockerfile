@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
+RUN npm install --omit=dev
+
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]

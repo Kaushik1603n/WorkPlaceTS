@@ -71,7 +71,7 @@ export class App {
             "http://localhost",
             "http://127.0.0.1",
             "http://client:80",
-            "http://34.47.233.51",
+            "http://34.47.233.51:3000",
           ];
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, origin || "*");
