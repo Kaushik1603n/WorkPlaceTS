@@ -50,7 +50,7 @@ axiosClient.interceptors.response.use(
         console.error("Refresh token failed - logging out");
         localStorage.removeItem("accessToken");
         window.dispatchEvent(new CustomEvent("logout"));
-        toast.error("Your session has expired");
+        // toast.error("Your session has expired");
         // window.location.href = `/login`;
 
         // window.location.href = `/login?unauth=true&message=${encodeURIComponent(
