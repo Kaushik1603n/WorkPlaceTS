@@ -230,7 +230,6 @@ export class AuthUseCase {
   }
 
   async changeEmailUseCase(userId: string, email: string) {
-
     const user = await this.user.findByEmail(email);
     if (user) throw new Error("User already exist");
 
@@ -262,7 +261,12 @@ export class AuthUseCase {
 
     const userData = await this.user.updateEmail(userId, email);
 
-    return userData as UserDTO;
+    return {
+      id: userData._id,
+      fullName: userData.fullName,
+      email: userData.email,
+      role: userData.role,
+    } as UserDTO;
   }
 
   async refresh(userId: string, checkRefreshToken: string) {
