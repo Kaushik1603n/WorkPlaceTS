@@ -384,11 +384,11 @@ export class AuthControllers {
 
       const { user } = await useCase.getUser(userId, role);
 
-        const { accessToken, refreshToken } = await useCase.googleCallback(
+      const { accessToken, refreshToken } = await useCase.googleCallback(
         userId,
         user.email
       );
-      
+
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -402,7 +402,9 @@ export class AuthControllers {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
       });
-      res.status(200).json({ message: "User role updated", user: user,accessToken });
+      res
+        .status(200)
+        .json({ message: "User role updated", user: user, accessToken });
     } catch (error) {
       console.error("error during update role", error);
       res
@@ -454,11 +456,17 @@ export class AuthControllers {
         sameSite: "strict",
       });
       res.status(200).json({ success: true, accessToken });
-    } catch (error) {
-      console.error("error during update role", error);
-      res
-        .status(500)
-        .json({ message: "internal server error during update role" });
+    } catch (error: any) {
+      if (error.message === "Invalid refresh token") {
+        res.status(401).json({
+          success: false,
+          message: "Your session has expired.",
+          shouldLogout: true,
+        });
+        return;
+      }
+      console.error("Refresh Tocken Error", error);
+      res.status(500).json({ message: "internal server " });
     }
   };
 

@@ -3,12 +3,17 @@ import UserModel from "../../../domain/models/User";
 
 export class UserRepo implements userRepoI {
   async findById(_id: string): Promise<any> {
+    const result = await UserModel.findById(_id);
+    return result;
+  }
+  async findByIdRefresh(_id: string): Promise<any> {
     const result = await UserModel.findById(_id, {
       _id: 1,
       email: 1,
       role: 1,
       fullName: 1,
       isVerification: 1,
+      refreshToken: 1,
       createdAt: 1,
     });
     return result;

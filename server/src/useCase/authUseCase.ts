@@ -270,7 +270,7 @@ export class AuthUseCase {
   }
 
   async refresh(userId: string, checkRefreshToken: string) {
-    const user = await this.user.findById(userId);
+    const user = await this.user.findByIdRefresh(userId);
 
     if (!user || user.refreshToken !== checkRefreshToken) {
       throw new Error("Invalid refresh token");
@@ -302,7 +302,14 @@ export class AuthUseCase {
     if (!user) {
       throw new Error("Already Does Not Exists");
     }
-    return user;
+    return {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+      isVerification: user.isVerification,
+      createdAt: user.createdAt,
+    };
   }
 
   // async updateNameAndEmail(fullName:string,email:string){
