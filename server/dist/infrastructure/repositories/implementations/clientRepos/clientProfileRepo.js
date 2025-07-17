@@ -83,7 +83,6 @@ class ClientRepo {
             ]);
             const totalCount = yield User_1.default.countDocuments({ role: "freelancer" });
             const totalPages = Math.ceil(totalCount / limit);
-            console.log(freelancers === null || freelancers === void 0 ? void 0 : freelancers[0]);
             return {
                 freelancers,
                 pagination: {

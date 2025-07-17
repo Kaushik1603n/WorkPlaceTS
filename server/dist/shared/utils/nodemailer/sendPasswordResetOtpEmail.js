@@ -52,7 +52,6 @@ const sendPasswordResetOtpEmail = (email, name, otp) => __awaiter(void 0, void 0
           `,
         };
         yield transporter.sendMail(mailOptions);
-        console.log("Password reset OTP email sent successfully");
     }
     catch (error) {
         console.error("Error sending password reset OTP email:", error);

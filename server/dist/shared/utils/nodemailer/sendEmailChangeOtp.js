@@ -52,7 +52,6 @@ const sendEmailChangeOtp = (email, name, otp) => __awaiter(void 0, void 0, void 
           `,
         };
         yield transporter.sendMail(mailOptions);
-        console.log("Email verification OTP email sent successfully");
     }
     catch (error) {
         console.error("Error sending Email verification OTP email:", error);

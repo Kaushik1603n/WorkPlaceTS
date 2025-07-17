@@ -21,6 +21,20 @@ class UserRepo {
             return result;
         });
     }
+    findByIdRefresh(_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield User_1.default.findById(_id, {
+                _id: 1,
+                email: 1,
+                role: 1,
+                fullName: 1,
+                isVerification: 1,
+                refreshToken: 1,
+                createdAt: 1,
+            });
+            return result;
+        });
+    }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield User_1.default.findOne({ email });

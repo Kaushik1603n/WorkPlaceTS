@@ -209,7 +209,6 @@ class AuthUseCase {
     }
     changeEmailUseCase(userId, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(email);
             const user = yield this.user.findByEmail(email);
             if (user)
                 throw new Error("User already exist");
@@ -237,12 +236,17 @@ class AuthUseCase {
                 throw new Error("Invalid or expired OTP");
             }
             const userData = yield this.user.updateEmail(userId, email);
-            return userData;
+            return {
+                id: userData._id,
+                fullName: userData.fullName,
+                email: userData.email,
+                role: userData.role,
+            };
         });
     }
     refresh(userId, checkRefreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.user.findById(userId);
+            const user = yield this.user.findByIdRefresh(userId);
             if (!user || user.refreshToken !== checkRefreshToken) {
                 throw new Error("Invalid refresh token");
             }
@@ -274,7 +278,14 @@ class AuthUseCase {
             if (!user) {
                 throw new Error("Already Does Not Exists");
             }
-            return user;
+            return {
+                _id: user._id,
+                email: user.email,
+                role: user.role,
+                fullName: user.fullName,
+                isVerification: user.isVerification,
+                createdAt: user.createdAt,
+            };
         });
     }
 }

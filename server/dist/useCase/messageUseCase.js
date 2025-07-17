@@ -55,6 +55,11 @@ class MessageUseCase {
             return yield this.message.markMessagesRead(userId, contactId);
         });
     }
+    toggleMessageLikeUseCase(messageId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.message.toggleMessageLike(messageId, userId);
+        });
+    }
     deleteMsg(msgId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.message.findAndDelete(msgId);

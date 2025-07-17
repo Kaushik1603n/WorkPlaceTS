@@ -284,7 +284,6 @@ class AuthControllers {
             configurable: true,
             writable: true,
             value: (req, res) => __awaiter(this, void 0, void 0, function* () {
-                console.log("jdbdbsbjsdbj");
                 const { email } = req.body;
                 try {
                     if (!email) {
@@ -440,7 +439,9 @@ class AuthControllers {
                         maxAge: 7 * 24 * 60 * 60 * 1000,
                         sameSite: "strict",
                     });
-                    res.status(200).json({ message: "User role updated", user: user, accessToken });
+                    res
+                        .status(200)
+                        .json({ message: "User role updated", user: user, accessToken });
                 }
                 catch (error) {
                     console.error("error during update role", error);
@@ -493,10 +494,16 @@ class AuthControllers {
                     res.status(200).json({ success: true, accessToken });
                 }
                 catch (error) {
-                    console.error("error during update role", error);
-                    res
-                        .status(500)
-                        .json({ message: "internal server error during update role" });
+                    if (error.message === "Invalid refresh token") {
+                        res.status(401).json({
+                            success: false,
+                            message: "Your session has expired.",
+                            shouldLogout: true,
+                        });
+                        return;
+                    }
+                    console.error("Refresh Tocken Error", error);
+                    res.status(500).json({ message: "internal server " });
                 }
             })
         });

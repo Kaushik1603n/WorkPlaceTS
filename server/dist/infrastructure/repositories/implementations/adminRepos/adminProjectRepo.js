@@ -29,7 +29,7 @@ class AdminProjectRepo {
                 return { result, totalPage: totalPages };
             }
             catch (error) {
-                console.log(`find${status}Project error`, error);
+                console.error(`find${status}Project error`, error);
                 throw new Error(`Fetching ${status} Project Error`);
             }
         });
@@ -75,7 +75,7 @@ class AdminProjectRepo {
                 return result;
             }
             catch (error) {
-                console.log("Project Details Db Error", error);
+                console.error("Project Details Db Error", error);
                 throw new Error("Project Details Db Error");
             }
         });

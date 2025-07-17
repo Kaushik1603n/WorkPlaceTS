@@ -43,6 +43,10 @@ const MessageSchema = new mongoose_1.Schema({
         type: { type: String, enum: ["image", "pdf"] },
     },
     senderId: { type: String, required: true },
+    likes: {
+        type: [String],
+        default: [],
+    },
     contactId: { type: String, required: true },
     timestamp: { type: String, default: () => new Date().toISOString() },
     isRead: { type: Boolean, default: false },

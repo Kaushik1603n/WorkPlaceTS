@@ -169,10 +169,9 @@ class MarketPlaceUseCase {
                             },
                             createdAt: new Date().toISOString(),
                         });
-                        console.log(`Notification sent to client ${job.clientId}`);
                     }
                     else {
-                        console.log(`Client ${job.clientId} is not connected`);
+                        console.error(`Client ${job.clientId} is not connected`);
                     }
                 }
                 return result;
@@ -306,10 +305,9 @@ class MarketPlaceUseCase {
                         },
                         createdAt: new Date().toISOString(),
                     });
-                    console.log(`Notification sent to client ${job.clientId}`);
                 }
                 else {
-                    console.log(`Client ${job.clientId} is not connected`);
+                    console.error(`Client ${job.clientId} is not connected`);
                 }
                 yield session.commitTransaction();
                 return {

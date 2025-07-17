@@ -53,6 +53,23 @@ class MessageRepo {
             yield MessageSchema_1.MessageModel.updateMany({ senderId: contactId, contactId: userId, isRead: false }, { $set: { isRead: true } });
         });
     }
+    toggleMessageLike(messageId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const message = yield MessageSchema_1.MessageModel.findOne({ id: messageId });
+            if (!message) {
+                throw new Error("Message not found");
+            }
+            const hasLiked = message.likes.includes(userId);
+            const update = hasLiked
+                ? { $pull: { likes: userId } }
+                : { $addToSet: { likes: userId } };
+            const updatedMessage = yield MessageSchema_1.MessageModel.findOneAndUpdate({ id: messageId }, update, { new: true, runValidators: true });
+            if (!updatedMessage) {
+                throw new Error("Failed to update message likes");
+            }
+            return updatedMessage;
+        });
+    }
     findAndDelete(msgId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield MessageSchema_1.MessageModel.deleteOne({ id: msgId });
@@ -130,7 +147,7 @@ class MessageRepo {
                 }));
             }
             catch (error) {
-                console.log(error);
+                console.error(error);
                 throw new Error("Failed to fetch latest messaged users");
             }
         });

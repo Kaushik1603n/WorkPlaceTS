@@ -60,7 +60,27 @@ class App {
         this.httpServer = (0, http_1.createServer)(this.app);
         this.io = new socket_io_1.Server(this.httpServer, {
             cors: {
-                origin: "http://localhost:5173",
+                origin: (origin, callback) => {
+                    const allowedOrigins = [
+                        "http://localhost:5173",
+                        "http://localhost:3000",
+                        "http://localhost",
+                        "http://127.0.0.1",
+                        "http://client:80",
+                        "http://34.47.233.51",
+                        "http://34.47.233.51:3000",
+                        "https://mapplestore.shop",
+                        "https://www.mapplestore.shop/",
+                        "http://mapplestore.shop",
+                        "http://www.mapplestore.shop/",
+                    ];
+                    if (!origin || allowedOrigins.includes(origin)) {
+                        callback(null, origin || "*");
+                    }
+                    else {
+                        callback(new Error("Not allowed by CORS"));
+                    }
+                },
                 methods: ["GET", "POST"],
                 credentials: true,
             },
@@ -76,7 +96,26 @@ class App {
         this.app.use((0, cookie_parser_1.default)());
         this.app.use((0, morgan_1.default)("dev"));
         this.app.use((0, cors_1.default)({
-            origin: ["http://localhost:5173", "http://localhost:3000", "http://localhost", "http://127.0.0.1"],
+            origin: (origin, callback) => {
+                const allowedOrigins = [
+                    "http://localhost:5173",
+                    "http://localhost:3000",
+                    "http://localhost",
+                    "http://127.0.0.1",
+                    "http://client:80",
+                    "http://34.47.233.51:3000",
+                    "https://mapplestore.shop",
+                    "https://www.mapplestore.shop/",
+                    "http://mapplestore.shop",
+                    "http://www.mapplestore.shop/",
+                ];
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, origin || "*");
+                }
+                else {
+                    callback(new Error("Not allowed by CORS"));
+                }
+            },
             credentials: true,
         }));
         this.app.use(passport_1.default.initialize());
@@ -159,6 +198,26 @@ class App {
                     console.error("Error marking messages as read:", error);
                 }
             }));
+            socket.on("likeMessage", (_a) => __awaiter(this, [_a], void 0, function* ({ messageId, userId, }) {
+                try {
+                    const updatedMessage = yield messageUseCase.toggleMessageLikeUseCase(messageId, userId);
+                    const recipientSocketId = connectedUsers[updatedMessage.contactId];
+                    const senderSocketId = connectedUsers[updatedMessage.senderId];
+                    if (recipientSocketId) {
+                        this.io
+                            .to(recipientSocketId)
+                            .emit("messageLiked", { messageId, userId });
+                    }
+                    if (senderSocketId && senderSocketId !== recipientSocketId) {
+                        this.io
+                            .to(senderSocketId)
+                            .emit("messageLiked", { messageId, userId });
+                    }
+                }
+                catch (error) {
+                    console.error("Error toggling message like:", error);
+                }
+            }));
             socket.on("disconnect", () => {
                 console.log("Client disconnected:", socket.id);
                 for (const userId in connectedUsers) {
@@ -176,7 +235,7 @@ class App {
     listen(port) {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, db_1.default)();
-            this.httpServer.listen(port, () => {
+            this.httpServer.listen(port, "0.0.0.0", () => {
                 console.log(`Server started on port ${port}`);
             });
         });
