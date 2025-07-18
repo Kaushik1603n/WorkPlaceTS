@@ -93,12 +93,6 @@ const NotificationList: React.FC = () => {
                                             className={`flex items-center justify-between p-4 rounded-xl border border-[#27AE60] ${notification.isRead ? "bg-white" : "bg-blue-50"}`}
                                         >
                                             <div className="flex items-center space-x-4">
-
-                                                {/* <div className="w-29 h-12 bg-yellow-200 rounded-full flex items-center justify-center">
-                                                    <span className="text-yellow-600 font-semibold text-lg">👤</span>
-                                                </div> */}
-
-                                                {/* Content */}
                                                 <div>
                                                     <div className="flex items-center space-x-2">
                                                         <span className="font-semibold text-gray-900">{notification.title}</span>

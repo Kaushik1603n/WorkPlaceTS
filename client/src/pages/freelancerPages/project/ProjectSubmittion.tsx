@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-// import { DollarSign } from 'lucide-react';
 import axiosClient from '../../../utils/axiosClient';
 import type { AxiosError } from 'axios';
 import { useParams } from 'react-router-dom';
 import { ProjectHeader } from '../../../components/freelancer/project-submission/ProjectHeader';
 import { ProjectOverview } from '../../../components/freelancer/project-submission/ProjectOverview';
 import { MilestonesDeliverables } from '../../../components/freelancer/project-submission/MilestonesDeliverables';
-// import { Timeline } from '../../../components/freelancer/project-submission/Timeline';
 import { MilestoneSubmissionModal } from '../../../components/freelancer/project-submission/MilestoneSubmissionModal';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';

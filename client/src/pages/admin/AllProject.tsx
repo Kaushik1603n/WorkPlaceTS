@@ -63,7 +63,6 @@ function AllProjectListing() {
 
   const navigate = useNavigate();
 
-  // Fetch Active Projects
   useEffect(() => {
     const fetchActiveProjects = async () => {
       try {
@@ -86,7 +85,6 @@ function AllProjectListing() {
     fetchActiveProjects();
   }, [activeCurrentPage]);
 
-  // Fetch Posted Projects
   useEffect(() => {
     const fetchPostedProjects = async () => {
       try {
@@ -109,7 +107,6 @@ function AllProjectListing() {
     fetchPostedProjects();
   }, [postedCurrentPage]);
 
-  // Fetch Completed Projects
   useEffect(() => {
     const fetchCompletedProjects = async () => {
       try {

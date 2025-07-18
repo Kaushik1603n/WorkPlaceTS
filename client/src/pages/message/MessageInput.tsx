@@ -45,7 +45,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
     } else if (file.type === 'application/pdf') {
       fileType = 'pdf';
     } else {
-      // Handle unexpected file types or reject them
       return;
     }
 
@@ -54,7 +53,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
       type: fileType
     };
 
-    // Create preview for images
     if (fileType === 'image') {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -68,7 +66,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     setShowAttachMenu(false);
 
-    // Clear text input when file is selected
     if (messageInput.trim()) {
       setMessageInput('');
     }
@@ -79,11 +76,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   const handleSendWithAttachments = async () => {
-    if (isSending) return; // Prevent double sending
+    if (isSending) return;
 
     try {
       if (attachedFiles.length === 0 && !messageInput.trim()) {
-        return; // No files or message to send
+        return; 
       }
 
       setIsSending(true);
@@ -135,14 +132,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
     const value = e.target.value;
     setMessageInput(value);
 
-    // Close attachment menu if user starts typing
     if (value.trim() && showAttachMenu) {
       setShowAttachMenu(false);
     }
   };
 
   const handleAttachmentMenuToggle = () => {
-    // Only allow opening attachment menu if no text is typed
     if (!hasText) {
       setShowAttachMenu(!showAttachMenu);
     }
@@ -167,7 +162,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   return (
     <div className="p-4 bg-[#EFFFF6] border-t border-[#27AE60] rounded-b-lg">
-      {/* File Attachments Preview */}
       {attachedFiles.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
           {attachedFiles.map((attachedFile, index) => (
@@ -204,7 +198,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
       )}
 
       <div className="flex items-center space-x-3">
-        {/* Attachment Menu */}
         <div className="relative">
           <button
             onClick={handleAttachmentMenuToggle}
@@ -238,7 +231,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
           )}
         </div>
 
-        {/* Message Input */}
         <input
           type="text"
           value={messageInput}
@@ -258,7 +250,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
             }`}
         />
 
-        {/* Send Button */}
         <button
           onClick={handleSendWithAttachments}
           disabled={isSending || (!hasText && !hasAttachment)}
@@ -277,7 +268,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         </button>
       </div>
 
-      {/* Hidden File Inputs */}
       <input
         ref={imageInputRef}
         type="file"

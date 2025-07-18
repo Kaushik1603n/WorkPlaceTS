@@ -13,7 +13,6 @@ export default function ForgotPassword() {
 
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
-    //   const { loading, error } = useSelector((state) => state.auth);
 
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();

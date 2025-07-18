@@ -40,25 +40,11 @@ const MessagingPage = () => {
     const [messageInput, setMessageInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    // const [latestMessagedUsers, setLatestMessagedUsers] = useState([]);
     const [contacts, setContact] = useState<Contact[]>([]);
 
     const { user } = useSelector((state: RootState) => state.auth);
     const userId = user?.id
 
-    // const contacts: Contact[] = [
-    //     { id: "68260956ec6ff5b5ef769b40", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "2", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "3", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "4", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "5", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "6", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "7", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "8", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true },
-    //     { id: "9", name: 'Mr Jam', role: 'MERN STACK Developer', avatar: '👨‍💻', isOnline: true }
-    // ];
-
-    // Scroll to bottom of messages
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -68,7 +54,6 @@ const MessagingPage = () => {
             const response = await axiosClient.get(
                 '/message/getlatest'
             );
-            // setLatestMessagedUsers(response.data.data.latestMessagedUsers);
             setContact(response.data.data.user)
 
         } catch (error) {
@@ -78,7 +63,6 @@ const MessagingPage = () => {
     useEffect(() => {
         getUserLatestMessage();
     }, []);
-    // Socket.IO message handlers
     useEffect(() => {
         if (!socket || !userId || !selectedContact) return;
         const fetchMessages = async () => {
@@ -103,7 +87,6 @@ const MessagingPage = () => {
         };
         fetchMessages();
 
-        // Listen for incoming messages
         socket.on('message', (message: Message) => {
             if (selectedContact && (message.contactId === String(selectedContact.id) || message.senderId === String(selectedContact.id))) {
                 setMessages((prevMessages) => {
@@ -130,17 +113,9 @@ const MessagingPage = () => {
         };
     }, [socket, selectedContact, userId]);
 
-    // Scroll to bottom when messages update
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-
-    // Set initial contact
-    // useEffect(() => {
-    //     if (contacts.length > 0 && !selectedContact) {
-    //         setSelectedContact(contacts[0]);
-    //     }
-    // }, [selectedContact]);
 
     const handleSendMessage = () => {
         if (!userId) {
@@ -160,7 +135,6 @@ const MessagingPage = () => {
 
             socket.emit('sendMessage', newMessage);
 
-            // Update local messages
             setMessages([...messages, newMessage]);
             setMessageInput('');
         }

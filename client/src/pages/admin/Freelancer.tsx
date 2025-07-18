@@ -10,8 +10,6 @@ import { toast } from 'react-toastify';
 import UserVerifyTable from '../../components/admin/tables/UserVerifyTable';
 import { useNavigate } from 'react-router-dom';
 
-
-
 function Freelancer() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -41,7 +39,6 @@ function Freelancer() {
                 dispatch(getFreelancerData({ page: currentPage, limit: 5, search: debouncedSearchTerm }));
             })
             .catch((error) => {
-                // Handle error
                 toast.error(error)
                 console.error(error);
             });

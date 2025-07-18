@@ -52,21 +52,16 @@ export default function FreelancerProfile() {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-
                 const res = await axiosClient.get("jobs/get-all-freelancer-jobs");
                 setAllProjects(res.data.data);
             } catch (err) {
                 const error = err as AxiosError;
                 toast.error("Failed to fetch projects")
                 console.error("Failed to fetch projects:", error);
-
             }
         };
-
         fetchProjects();
     }, []);
-
-
 
     useEffect(() => {
         setPendingPrg(
@@ -128,11 +123,7 @@ export default function FreelancerProfile() {
                 toast.error(errorMessage);
                 setIsEmailVerificationOpen(false)
             });
-
-
     };
-
-
 
     return (
         <div className="container mx-auto px-4 pb-8 ">

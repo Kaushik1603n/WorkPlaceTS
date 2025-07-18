@@ -6,7 +6,6 @@ import ProfilePhotoUpload from "../../../components/client/profile/profileForm/P
 import CoverPhotoUpload from "../../../components/client/profile/profileForm/CoverPhotoUpload";
 import FormField from "../../../components/client/profile/profileForm/FormField";
 import CoverModal from "../../../components/coverImageCropper/CoverModal";
-// import { getClientProfile, updateClientProfile, type ClientProfile } from "../../../features/clientFeatures/profile/clientProfileSlice";
 import { useDispatch } from "react-redux";
 import { getUserDetails } from "../../../features/auth/authSlice";
 import type { FreelancerProfile } from "../../../features/freelancerFeatures/profile/freelancerProfileSlice";
@@ -156,10 +155,7 @@ export default function EditFreelancerProfile() {
       toast.error("location is required.");
       return;
     }
-    // if (skills?.length > 0) {
-    //   toast.error("Minimum One skill is required.");
-    //   return;
-    // }
+    
     if (!reference?.trim()) {
       toast.error("Website is required.");
       return;
@@ -261,15 +257,6 @@ export default function EditFreelancerProfile() {
           onChange={handleChange}
           placeholder="Enter your full name"
         />
-
-        {/* <FormField
-          label="Email Address"
-          name="email"
-          value={profileData.email ?? ""}
-          onChange={handleChange}
-          type="email"
-          placeholder="Enter your email"
-        /> */}
 
         <div>
           <label className="block font-medium text-gray-700 mb-1">

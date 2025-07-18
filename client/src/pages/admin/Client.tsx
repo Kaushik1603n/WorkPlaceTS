@@ -38,7 +38,6 @@ function Client() {
                 toast.success("Updated user status")
             })
             .catch((error) => {
-                // Handle error
                 toast.error(error.error)
                 console.error(error);
             });
@@ -54,7 +53,6 @@ function Client() {
 
     return (
         <div className="flex-1 p-6">
-            {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div className="relative flex-1 max-w-2xl">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500 w-5 h-5" />

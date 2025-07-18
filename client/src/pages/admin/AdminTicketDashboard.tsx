@@ -86,7 +86,7 @@ const AdminTicketDashboard = () => {
                 {selectedTicket && (
                     <TicketDetailsModal
                         ticket={selectedTicket}
-                        setTicket={setTicket} // Pass the setter function directly
+                        setTicket={setTicket} 
                         onClose={closeModal}
                         onStatusUpdate={handleStatusUpdate}
                     />

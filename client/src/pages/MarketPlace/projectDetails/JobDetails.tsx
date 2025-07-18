@@ -10,12 +10,10 @@ import { getJobDetails } from "../../../features/marketPlace/marketPlaceSlice";
 interface User {
     role: string;
 }
-
 interface Client {
     fullName?: string;
     email?: string;
 }
-
 interface Job {
     title?: string;
     description?: string;
@@ -28,13 +26,11 @@ interface Job {
     experienceLevel?: string;
     clientId?: Client;
 }
-
 interface AuthState {
     auth: {
         user: User;
     };
 }
-
 
 function JobDetails() {
     const { jobId } = useParams<{ jobId: string }>();
@@ -42,7 +38,6 @@ function JobDetails() {
     const [loading, setLoading] = useState(true); // Add loading state
 
     const { user } = useSelector((store: AuthState) => store.auth);
-    // const baseURL: string = import.meta.env.VITE_API_BASE_URL;
     const dispatch: AppDispatch = useDispatch();
 
 
@@ -56,7 +51,6 @@ function JobDetails() {
     if (loading) {
         return <JobDetailsSkeleton />
     }
-
 
     return (
         <>

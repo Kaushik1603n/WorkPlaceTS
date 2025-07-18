@@ -69,10 +69,6 @@ const ProposalSidebar = ({ skills, status, onHire }: ProposalSidebarProps) => {
               Accepted Your Contract
             </button>
           )}
-
-          {/* <button className="bg-red-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 font-semibold hover:bg-red-700 transition">
-            Reject
-          </button> */}
         </div>
       </div>
 

@@ -222,14 +222,6 @@ const FreelancerPaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentL
             <p className="text-sm text-gray-500">
               Payment record version: 1.0
             </p>
-            {/* <div className="flex space-x-3">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Process Payment
-              </button>
-              <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                View History
-              </button>
-            </div> */}
           </div>
         </div>
       </div>

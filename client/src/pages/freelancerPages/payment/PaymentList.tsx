@@ -267,9 +267,6 @@ function WalletTransactions() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Platform Fee
                                     </th>
-                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Method
-                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
@@ -304,11 +301,6 @@ function WalletTransactions() {
                                                 {payment.platformFee}
                                             </div>
                                         </td>
-                                        {/* <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">
-                                                {payment.paymentMethod}
-                                            </span>
-                                        </td> */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(payment.status)}`}>
                                                 {getStatusIcon(payment.status)}

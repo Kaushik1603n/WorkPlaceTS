@@ -165,9 +165,6 @@ export default function Registration() {
     <div className="min-h-screen bg-green-50 flex items-center justify-center">
       <div className="w-full max-w-6xl mx-auto flex rounded-lg overflow-hidden shadow-lg">
         <div className="w-full lg:w-1/2 bg-white px-12 py-5">
-          {/* <h2 className="text-2xl font-bold mb-4">
-            Complete your {userType === 'client' ? 'Client' : 'Freelancer'} Registration
-            </h2> */}
 
           <div className="flex mb-4 border-b">
             <div className="flex-1">
@@ -290,20 +287,6 @@ export default function Registration() {
             >
               {loading ? "Get OTP..." : "Get OTP"}
             </button>
-
-            {/* <button
-              type="button"
-              className="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-2 rounded-md font-medium transition duration-200"
-            >
-              <svg
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z" />
-              </svg>
-              Sign up with Google
-            </button> */}
           </form>
         </div>
 

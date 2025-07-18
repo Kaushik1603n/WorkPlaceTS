@@ -102,32 +102,6 @@ const AdminDashboard: React.FC = () => {
     />
   }
 
-
-  // const revenueData: RevenueData[] = [
-  //   {
-  //     platformFee: 30,
-  //     week: 'Week ,262025',
-  //     dateRange: '2025-06-24 to 2025-06-30'
-  //   },
-  //   {
-  //     platformFee: 300,
-  //     week: 'Week ,262025',
-  //     dateRange: '2025-06-24 to 2025-06-30'
-  //   },
-  //   {
-  //     platformFee: 100,
-  //     week: 'Week ,262025',
-  //     dateRange: '2025-06-24 to 2025-06-30'
-  //   },
-  //   {
-  //     platformFee: 50,
-  //     week: 'Week ,262025',
-  //     dateRange: '2025-06-24 to 2025-06-30'
-  //   },
-
-  // ];
-
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import axiosClient from "../../utils/axiosClient";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../../utils/axiosClient";
@@ -56,11 +55,11 @@ function FreelancerNotification() {
         fetchNotifications();
         markNotificationsAsRead();
 
-    return () => {
-        if (clearNotifications) {
-            clearNotifications();
-        }
-    };
+        return () => {
+            if (clearNotifications) {
+                clearNotifications();
+            }
+        };
     }, []);
 
     useEffect(() => {
@@ -101,10 +100,6 @@ function FreelancerNotification() {
                                             className={`flex items-center justify-between p-4 rounded-xl border border-[#27AE60] ${notification.isRead ? "bg-white" : "bg-blue-50"}`}
                                         >
                                             <div className="flex items-center space-x-4">
-
-                                                {/* <div className="w-29 h-12 bg-yellow-200 rounded-full flex items-center justify-center">
-                                                    <span className="text-yellow-600 font-semibold text-lg">👤</span>
-                                                </div> */}
 
                                                 {/* Content */}
                                                 <div>

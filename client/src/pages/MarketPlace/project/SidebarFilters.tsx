@@ -33,10 +33,7 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
     const [experienceLevel, setExperienceLevel] = useState<string[]>(
         initialFilters?.experienceLevel || []
     );
-    // const [projectDuration, setProjectDuration] = useState<string[]>(
-    //     initialFilters?.projectDuration || []
-    // );
-
+  
      useEffect(() => {
       onFiltersChange({
         priceRange,
@@ -47,7 +44,6 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
       });
     }, [priceRange, selectedJobTypes, selectedSkills, experienceLevel,  onFiltersChange]);
 
-    // Expanded states for filter sections
     const [expandedSections, setExpandedSections] = useState<Record<FilterSection, boolean>>({
         priceRange: true,
         jobType: true,
@@ -56,11 +52,9 @@ const SidebarFilters: React.FC<SidebarFiltersProps> = ({
         duration: true
     });
 
-    // Sample data
     const skills: string[] = ['React', 'Node.js', 'Python', 'JavaScript', 'PHP', 'Laravel', 'Vue.js', 'Angular', 'MongoDB', 'Express.js'];
     const jobTypes: string[] = ['Fixed', 'Hourly'];
     const experienceLevels: string[] = ['Entry', 'Intermediate', 'Expert'];
-    // const durations: string[] = ['Less than 1 month', '1-3 months', '3-6 months', '6+ months'];
 
     const toggleSection = (section: FilterSection) => {
         setExpandedSections(prev => ({

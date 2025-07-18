@@ -39,7 +39,6 @@ function ApplyJob() {
     const dispatch = useDispatch<AppDispatch>();
     const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const { user } = useSelector((state: RootState) => state.auth);
-    // const baseURL = import.meta.env.VITE_API_BASE_URL as string;
     const { jobId } = useParams<{ jobId: string }>();
 
     useEffect(() => {

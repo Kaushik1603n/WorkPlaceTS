@@ -225,9 +225,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
                         >
                             Close
                         </button>
-                        {/* <button className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                            Contact Freelancer
-                        </button> */}
+                        
                     </div>
                 </div>
             </div>

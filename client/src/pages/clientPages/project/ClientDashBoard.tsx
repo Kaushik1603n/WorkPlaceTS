@@ -5,7 +5,6 @@ export default function ClientDashBoard() {
 
     return (
         <main className="flex-1 p-4">
-
             <ClientAnalyticsDashboard />
         </main>
     );

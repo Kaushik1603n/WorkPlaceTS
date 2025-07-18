@@ -2,10 +2,6 @@ import { useEffect, useState, type ChangeEvent, type FormEvent, } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { type AppDispatch, type RootState } from "../../../app/store";
-// import {
-//   getClientProfile,
-//   updateClientProfile,
-// } from "../../../features/clientProgile/clientProgileSlice";
 import ProfilePhotoUpload from "../../../components/client/profile/profileForm/ProfilePhotoUpload";
 import CoverPhotoUpload from "../../../components/client/profile/profileForm/CoverPhotoUpload";
 import FormField from "../../../components/client/profile/profileForm/FormField";
@@ -206,16 +202,6 @@ export default function ClientProfileEdit() {
           onChange={handleChange}
           placeholder="Enter your company name"
         />
-
-        {/* <FormField
-          label="Email Address"
-          name="email"
-          value={profileData.email}
-          onChange={handleChange}
-          type="email"
-          placeholder="Enter your email"
-        /> */}
-
         <FormField
           label="Location"
           name="location"

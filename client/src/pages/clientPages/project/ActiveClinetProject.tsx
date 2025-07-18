@@ -32,14 +32,13 @@ function ActiveClinetProject() {
             try {
                 setLoading(true);
                 setError(null);
-                
-                // Fetch all data in parallel
+
                 const [activeRes, pendingRes, completedRes] = await Promise.all([
                     axiosClient.get("jobs/active-jobs"),
                     axiosClient.get("jobs/pending-jobs"),
                     axiosClient.get("jobs/completed-jobs")
                 ]);
-                
+
                 setAllActiveProject(activeRes.data.data);
                 setAllPendingProject(pendingRes.data.data);
                 setAllCompletedProject(completedRes.data.data);
@@ -81,7 +80,6 @@ function ActiveClinetProject() {
 
     return (
         <div className="flex-1 p-4 md:p-6 max-w-7xl mx-auto space-y-12">
-            {/* Active Projects Section */}
             <section>
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
@@ -114,8 +112,6 @@ function ActiveClinetProject() {
                     </div>
                 )}
             </section>
-
-            {/* Pending Projects Section */}
             <section>
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
@@ -149,7 +145,6 @@ function ActiveClinetProject() {
                 )}
             </section>
 
-            {/* Completed Projects Section */}
             <section>
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">

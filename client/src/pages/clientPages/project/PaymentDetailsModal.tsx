@@ -44,7 +44,6 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-50">
-      {/* Close Button */}
       {onClose && (
         <button
           onClick={onClose}
@@ -77,9 +76,7 @@ const PaymentDetailsModal = ({ paymentData, onClose }: PendingPaymentListingProp
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="p-6">
-          {/* Payment Summary */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <div className="bg-green-50 rounded-lg p-4 border border-green-200">
               <div className="flex items-center justify-between">

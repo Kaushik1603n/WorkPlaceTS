@@ -1,4 +1,3 @@
-// import axios from "axios";
 import { Briefcase, UserCheck } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +58,6 @@ const LoginSuccess: React.FC = () => {
           toast.error(error?.message || "Google Login failed");
         });
 
-      // navigate("/home");
     } catch (error) {
       console.error("Error setting role", error);
       setLoading(false);

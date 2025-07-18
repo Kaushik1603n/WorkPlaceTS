@@ -36,7 +36,6 @@ function AllUsers() {
                 toast.success("Updated user status")
             })
             .catch((error) => {
-                // Handle error
                 toast.error(error.error)
                 console.error(error.error);
             });

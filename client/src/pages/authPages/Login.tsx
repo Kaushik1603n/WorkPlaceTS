@@ -17,7 +17,6 @@ export default function LoginPage() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
-    // const [load, setLoad] = useState<boolean>(false);
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('blocked') === 'true') {

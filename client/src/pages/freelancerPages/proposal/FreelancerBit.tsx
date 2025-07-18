@@ -126,16 +126,7 @@ function FreelancerBit() {
                                         </button>
                                     </div>
                                 )}
-                                {/* {proposal?.status === "submitted" && (
-                                    <div className="absolute bottom-4 right-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm">
-                                        Submitted
-                                    </div>
-                                )}
-                                {proposal?.status === "rejected" && (
-                                    <div className="absolute bottom-4 right-4 bg-red-200 text-red-800 px-3 py-1 rounded-md text-sm">
-                                        Rejected
-                                    </div>
-                                )} */}
+                               
                             </div>
                         ))}
                 </div>

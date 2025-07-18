@@ -3,8 +3,7 @@ import JobSkills from "./JobSkills";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { createNewJob } from "../../../features/clientFeatures/project/projectSlice";
-import { type AppDispatch } from "../../../app/store"; // You may need to adjust this path based on your store setup
-
+import { type AppDispatch } from "../../../app/store";
 interface FormData {
   jobTitle: string;
   description: string;
