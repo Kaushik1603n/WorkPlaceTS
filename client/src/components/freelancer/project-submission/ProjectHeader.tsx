@@ -28,7 +28,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
       </div>
       <div className="text-right">
         <p className="text-sm text-gray-600 mb-1">Progress:</p>
-        <p className="text-lg font-semibold text-gray-900">{progress}% Complete</p>
+        <p className="text-lg font-semibold text-gray-900">{progress.toFixed(2)}% Complete</p>
         <div className="w-32 bg-gray-200 rounded-full h-2 mt-2">
           <div className="bg-green-500 h-2 rounded-full" style={{width: `${progress}%`}}></div>
         </div>
