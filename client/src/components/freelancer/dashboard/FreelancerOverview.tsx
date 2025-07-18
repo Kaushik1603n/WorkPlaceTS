@@ -44,7 +44,6 @@ function FreelancerOverview() {
     }
     return (
         <div className="space-y-8">
-            {/* Performance Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
                     title="Total Job"
@@ -66,7 +65,6 @@ function FreelancerOverview() {
             </div>
 
 
-            {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h4 className="font-semibold text-gray-900 mb-3">Proposals </h4>

@@ -1,5 +1,4 @@
 import React from 'react';
-// import { DollarSign } from 'lucide-react';
 
 interface FinancialDetailsProps {
   agreedPrice: number;

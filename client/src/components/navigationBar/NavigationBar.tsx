@@ -16,7 +16,6 @@ export default function NavigationBar() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Function to check if a link is active
   const isActive = (path: string) => {
     return pathname === path;
   };
@@ -45,13 +44,7 @@ export default function NavigationBar() {
           >
             Home
           </Link>
-          {/* <Link
-            to="/about"
-            className={`${isActive('/about') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}
-          >
-            About
-          </Link> */}
-
+          
           <Link
             to="/market-place"
             className={`${isActive('/market-place') ? 'text-green-600 font-semibold' : 'text-gray-700'} hover:text-green-600 transition-colors`}

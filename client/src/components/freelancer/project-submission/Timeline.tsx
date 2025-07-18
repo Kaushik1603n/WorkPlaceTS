@@ -7,10 +7,6 @@ interface TimelineItem {
   status: 'completed' | 'current' | 'upcoming';
   type: 'started' | 'deadline' | 'milestone' | 'delivery';
 }
-// interface TimelineProps {
-//   timeline: TimelineItem[];
-// //   onRequestExtension: () => void;
-// }
 
 export const Timeline: React.FC = () => {
   const [timelineItems] = useState<TimelineItem[]>([
@@ -51,7 +47,6 @@ export const Timeline: React.FC = () => {
       
       <button 
         className="w-full mt-4 border border-orange-300 text-orange-600 hover:bg-orange-50 font-medium py-2 px-4 rounded-lg transition-colors"
-        // onClick={onRequestExtension}
       >
         Request Deadline Extension
       </button>

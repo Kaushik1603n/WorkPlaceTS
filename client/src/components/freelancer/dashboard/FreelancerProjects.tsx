@@ -75,7 +75,6 @@ function FreelancerProjects() {
         }
     };
 
-    // Format currency
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -95,10 +94,8 @@ function FreelancerProjects() {
 
     return (
         <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-            {/* Header */}
 
 
-            {/* Enhanced Project Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
                     title="Total Projects"
@@ -118,9 +115,7 @@ function FreelancerProjects() {
 
             </div>
 
-            {/* Project History */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                {/* Table Header */}
                 <div className="p-6 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
@@ -132,7 +127,6 @@ function FreelancerProjects() {
                     </div>
                 </div>
 
-                {/* Table */}
                 <div className="overflow-x-auto">
                     {allProject.length === 0 ? (
                         <div className="text-center py-12">
@@ -153,7 +147,6 @@ function FreelancerProjects() {
                                     <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Client</th>
                                     <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Status</th>
                                     <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Budget</th>
-                                    {/* <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Rating</th> */}
                                     <th className="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Date</th>
                                 </tr>
                             </thead>
@@ -167,7 +160,7 @@ function FreelancerProjects() {
                                             </div>
                                         </td>
                                         <td className="py-4 px-6">
-                                            <div className="max-w-[200px]"> 
+                                            <div className="max-w-[200px]">
                                                 <p className="font-semibold text-gray-900 line-clamp-2">
                                                     {project.title || `Project #${index + 1}`}
                                                 </p>
@@ -200,12 +193,6 @@ function FreelancerProjects() {
                                                 {formatCurrency(project.budget)}
                                             </span>
                                         </td>
-                                        {/* <td className="py-4 px-6">
-                                            <div className="flex items-center">
-                                                <Star className="w-4 h-4 text-gray-300 mr-1" />
-                                                <span className="text-gray-400 text-sm">Pending</span>
-                                            </div>
-                                        </td> */}
                                         <td className="py-4 px-6">
                                             <div className="flex items-center text-gray-500">
                                                 <Calendar className="w-4 h-4 mr-2" />

@@ -51,9 +51,6 @@ function FreelancerEarnings() {
             } catch (err) {
                 const error = err as AxiosError;
                 console.error("Failed to fetch projects:", error);
-                // setError(
-                //     "Failed to load projects. Please try again later."
-                // );
             } finally {
                 setLoading(false);
 

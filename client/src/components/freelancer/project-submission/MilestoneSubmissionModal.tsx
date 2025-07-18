@@ -45,7 +45,6 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
     const trimmedValue = value.trim();
     const newLinks = [...deliverables.links];
 
-    // Check for duplicates (excluding empty strings and the current field)
     if (trimmedValue) {
       const isDuplicate = deliverables.links.some(
         (link, i) => i !== index && link.trim() === trimmedValue
@@ -62,7 +61,6 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
   };
 
   const addLinkField = () => {
-    // Don't add new field if last link is empty
     if (deliverables.links[deliverables.links.length - 1].trim() === '') {
       toast.error("Please fill the current link before adding another");
       return;
@@ -82,24 +80,20 @@ export const MilestoneSubmissionModal: React.FC<MilestoneSubmissionModalProps> =
   const handleSubmit = () => {
     setIsSubmitting(true);
     
-    // Filter out empty links
     const nonEmptyLinks = deliverables.links.filter(link => link.trim() !== '');
     
-    // Validate at least one link
     if (nonEmptyLinks.length === 0) {
       toast.error("Please provide at least one valid link");
       setIsSubmitting(false);
       return;
     }
     
-    // Validate comments
     if (!deliverables.comments.trim()) {
       toast.error("Please add a description of your deliverables");
       setIsSubmitting(false);
       return;
     }
 
-    // Validate each URL format (basic check)
     const invalidLinks = nonEmptyLinks.filter(link => {
       try {
         new URL(link);

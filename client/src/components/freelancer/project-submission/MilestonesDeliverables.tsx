@@ -52,7 +52,6 @@ export const MilestonesDeliverables: React.FC<MilestonesDeliverablesProps> = ({
     }
   };
 
-  // Filter out empty milestones (your data has an empty object)
   const validMilestones = milestones.filter(m => m._id);
 
   return (

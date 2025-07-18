@@ -1,4 +1,3 @@
-// components/ClientRequirements.tsx
 import React from "react";
 
 interface ClientRequirementsProps {

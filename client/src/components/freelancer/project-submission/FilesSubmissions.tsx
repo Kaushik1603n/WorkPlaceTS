@@ -4,12 +4,10 @@ import type{ FileItem } from './types/project';
 
 interface FilesSubmissionsProps {
   files: FileItem[];
-//   onUpload: (file: File) => void;
 }
 
 export const FilesSubmissions: React.FC<FilesSubmissionsProps> = ({
   files,
-//   onUpload
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -21,7 +19,6 @@ export const FilesSubmissions: React.FC<FilesSubmissionsProps> = ({
 
   const handleUpload = () => {
     if (selectedFile) {
-    //   onUpload(selectedFile);
       setSelectedFile(null);
     }
   };

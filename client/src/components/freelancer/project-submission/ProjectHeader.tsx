@@ -14,7 +14,6 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   clientName,
   status,
   jobId,
-  // acceptedDate,
   progress
 }) => (
   <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

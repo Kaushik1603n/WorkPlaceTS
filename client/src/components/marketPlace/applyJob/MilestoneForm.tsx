@@ -8,16 +8,8 @@ interface Milestone {
   amount: string;
 }
 
-// interface MilestoneErrors {
-//   title?: string;
-//   description?: string;
-//   dueDate?: string;
-//   amount?: string;
-// }
-
 interface MilestoneFormProps {
   newMilestone: Milestone;
-//   milestoneErrors: MilestoneErrors;
   onMilestoneChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onAddMilestone: () => void;
   milestones: Milestone[];
@@ -26,7 +18,6 @@ interface MilestoneFormProps {
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({
   newMilestone,
-//   milestoneErrors,
   onMilestoneChange,
   onAddMilestone,
   milestones,
