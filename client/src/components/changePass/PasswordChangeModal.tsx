@@ -79,7 +79,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
     return (
         <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4 ">
             <div className="rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto border border-[#2ECC71] bg-[#EFFFF6]">
-                {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-800">
                         Change Password
@@ -94,10 +93,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     </button>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6">
                     <div className="space-y-4">
-                        {/* Current Password */}
                         <div>
                             <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
                                 Current Password *
@@ -134,7 +131,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                             )}
                         </div>
 
-                        {/* New Password */}
                         <div>
                             <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
                                 New Password *
@@ -171,7 +167,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                             )}
                         </div>
 
-                        {/* Confirm Password */}
                         <div>
                             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                                 Confirm New Password *
@@ -209,7 +204,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                         </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex space-x-3 mt-6">
                         <button
                             type="button"

@@ -23,8 +23,6 @@ function FinancialInsights() {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                // setLoading(true);
-                // setError(null);
                 const res = await axiosClient.get("client/financialdata");
                 setFinancialData(res.data.weeklySpending);
                 setTotalSpend(res.data.totalSpent)
@@ -32,12 +30,8 @@ function FinancialInsights() {
             } catch (err) {
                 const error = err as AxiosError;
                 console.error("Failed to fetch projects:", error);
-                // setError(
-                //     "Failed to load projects. Please try again later."
-                // );
             } finally {
                 // setLoading(false);
-
             }
         };
 

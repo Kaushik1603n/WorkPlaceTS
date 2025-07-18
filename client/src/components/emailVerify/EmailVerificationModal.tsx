@@ -68,7 +68,7 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
         e.preventDefault();
 
         if (validateEmailForm()) {
-            onOtpVerify(email); // Call the email verification function
+            onOtpVerify(email);
             setStep('otp');
             setResendTimer(60);
         }

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import TabButton from './TabButton';
 import HiringProjects from './HiringProjects';
 import FinancialInsights from './FinancialInsights';
-// import FreelancerPerformance from './FreelancerPerformance';
 
 const ClientAnalyticsDashboard = () => {
   const [activeTab, setActiveTab] = useState('hiring');
@@ -20,7 +19,6 @@ const ClientAnalyticsDashboard = () => {
         <div className="flex space-x-4 mb-8 overflow-x-auto">
           <TabButton id="hiring" label="Hiring & Projects" active={activeTab === 'hiring'} onClick={setActiveTab} />
           <TabButton id="financial" label="Financial Insights" active={activeTab === 'financial'} onClick={setActiveTab} />
-          {/* <TabButton id="performance" label="Freelancer Performance" active={activeTab === 'performance'} onClick={setActiveTab} /> */}
         </div>
 
         {activeTab === 'hiring' && (
@@ -30,11 +28,6 @@ const ClientAnalyticsDashboard = () => {
         {activeTab === 'financial' && (
           <FinancialInsights/>    
         )}
-
-        {/* Freelancer Performance */}
-        {/* {activeTab === 'performance' && (
-         <FreelancerPerformance/>
-        )} */}
       </div>
     </div>
   );
