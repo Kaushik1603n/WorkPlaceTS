@@ -54,7 +54,7 @@ function FreelancerOverview() {
 
                 <MetricCard
                     title="Avg. Earnings/Project"
-                    value={(count.avgEarnings * 80).toString()}
+                    value={(count.avgEarnings * 80).toFixed(2).toString()}
                     icon={DollarSign}
                 />
                 <MetricCard
