@@ -15,7 +15,7 @@ interface ApiResponse {
 
 export const clientProgileApi = {
   updateProfile: (clientData: ClientProfile) => 
-    axiosClient.post<ApiResponse>('/client/edit-profile', clientData),
+    axiosClient.put<ApiResponse>('/client/profile', clientData),
   getProfile: () => 
-    axiosClient.get<ApiResponse>('/client/get-profile'),
+    axiosClient.get<ApiResponse>('/client/profile'),
 };

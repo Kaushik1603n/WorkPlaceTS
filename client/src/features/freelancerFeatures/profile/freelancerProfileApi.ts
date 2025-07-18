@@ -22,6 +22,6 @@ interface ApiResponse {
 
 export const freelancerProgileApi = {
   updateProfile: (clientData: FreelancerProfile) =>
-    axiosClient.post<ApiResponse>("/freelancer/edit-profile", clientData),
-  getProfile: () => axiosClient.get<ApiResponse>("/freelancer/get-profile"),
+    axiosClient.put<ApiResponse>("/freelancer/profile", clientData),
+  getProfile: () => axiosClient.get<ApiResponse>("/freelancer/profile"),
 };

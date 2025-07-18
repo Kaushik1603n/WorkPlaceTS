@@ -5,8 +5,8 @@ import authenticate from "../../../middleware/authMiddleware";
 const profile =new profileCondroller()
 const profileRoute = express.Router();
 
-profileRoute.post("/edit-profile",authenticate, profile.profileEdit);
-profileRoute.get("/get-profile",authenticate, profile.profileDetails);
+profileRoute.put("/profile",authenticate, profile.profileEdit);
+profileRoute.get("/profile",authenticate, profile.profileDetails);
 
 profileRoute.get("/freelancer",authenticate, profile.freelancer);
 
