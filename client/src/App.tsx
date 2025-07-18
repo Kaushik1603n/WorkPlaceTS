@@ -48,9 +48,6 @@ function App() {
             <Route path="/market-place/job-details/:jobId" element={<JobDetails />}></Route>
             <Route path="/market-place/job-details/:jobId/apply-job" element={<ApplyJob />}></Route>
 
-            {/* <Route path="/admin-dashboard" element={<AdminLayout/>} /> */}
-
-
             {AuthRoutes()}
             {ClientRoutes()}
             {FreelancerRoutes()}

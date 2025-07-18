@@ -20,7 +20,6 @@ import PaymentsTable from "../pages/clientPages/project/PaymentPage";
 
 function ClientRoutes() {
   return (
-  
     <>
       <Route element={<ProtectedClientRoute />}>
         <Route path="/client-dashboard" element={<ClientLayout />}>

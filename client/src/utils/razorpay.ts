@@ -1,5 +1,3 @@
-// src/utils/razorpay.ts
-
 import { toast } from "react-toastify";
 import axiosClient from "./axiosClient";
 

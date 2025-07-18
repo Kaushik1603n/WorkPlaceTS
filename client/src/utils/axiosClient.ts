@@ -35,7 +35,6 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
 axiosClient.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     return response;
@@ -50,12 +49,6 @@ axiosClient.interceptors.response.use(
         console.error("Refresh token failed - logging out");
         localStorage.removeItem("accessToken");
         window.dispatchEvent(new CustomEvent("logout"));
-        // toast.error("Your session has expired");
-        // window.location.href = `/login`;
-
-        // window.location.href = `/login?unauth=true&message=${encodeURIComponent(
-        //   "Your session has expired."
-        // )}`;
         return Promise.reject(error);
       }
 
@@ -84,14 +77,6 @@ axiosClient.interceptors.response.use(
           refreshError.response?.data?.shouldLogout
         ) {
           window.dispatchEvent(new CustomEvent("logout"));
-          // toast.error(
-          //   refreshError.response?.data?.message || "Your session has expired"
-          // );
-          // window.location.href = `/login`;
-
-          // window.location.href = `/login?unauth=true&message=${encodeURIComponent(
-          //   "Your session has expired."
-          // )}`;
         }
         localStorage.removeItem("accessToken");
         return Promise.reject(refreshError);
