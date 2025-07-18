@@ -16,7 +16,6 @@ export interface AuthState {
   createdAt?: string | null;
 }
 
-// Initial state
 const initialState: AuthState = {
   user: null,
   userId: null,
@@ -122,12 +121,6 @@ interface ChangeEmailOtpResponse {
   };
 }
 
-// export interface AuthResponse {
-//   accessToken: string;
-//   refreshToken?: string;
-//   user?: object;
-// }
-
 export const loginUser = createAsyncThunk<
   LoginResponse,
   LoginCredentials,
@@ -176,7 +169,6 @@ export const verifyEmail = createAsyncThunk<
   }
 });
 
-// resendOtp thunk
 export const resendOtp = createAsyncThunk<
   { message: string },
   ResendOtpArgs,
@@ -212,7 +204,6 @@ export const passOtp = createAsyncThunk<
 >("auth/verify-reset-otp", async (args, { rejectWithValue }) => {
   try {
     const response = await authApi.passOtp(args);
-    // localStorage.setItem("accessToken", response.data.accessToken);
     return response.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -398,7 +389,6 @@ const authSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
 
-      // Verify Email
       .addCase(verifyEmail.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -416,7 +406,6 @@ const authSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
 
-      // forgotPass
       .addCase(forgotPass.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -549,7 +538,6 @@ const authSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
 
-      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.userId = null;

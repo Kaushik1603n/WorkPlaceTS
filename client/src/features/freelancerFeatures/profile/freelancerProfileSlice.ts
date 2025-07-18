@@ -22,11 +22,6 @@ export interface FreelancerProfile {
   bio?: string;
   createdAt?:string;
 }
-
-// interface ApiResponse {
-//   client: FreelancerProfile;
-// }
-
 interface FreelancerProfileState {
   freelancer: FreelancerProfile | null;
   loading: boolean;
@@ -57,7 +52,7 @@ export const updateFreelancerProfile = createAsyncThunk<
 
 export const getFreelancerProfile = createAsyncThunk<
   { freelancer: FreelancerProfile },
-  void, // No argument
+  void, 
   { rejectValue: { error: string } }
 >("freelancer/get-profile", async (_, { rejectWithValue }) => {
   try {

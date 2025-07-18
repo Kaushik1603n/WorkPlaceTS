@@ -6,7 +6,6 @@ import type {
   VerifyResponse,
 } from "./authSlice";
 
-// Define types for your data structures
 interface UserData {
   joinAs: string;
   fullName: string;

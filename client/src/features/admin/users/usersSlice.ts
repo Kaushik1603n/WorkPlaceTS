@@ -280,7 +280,6 @@ const usersProfileDataSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Freelancer profile cases
     builder.addCase(getFreelancerData.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -300,7 +299,6 @@ const usersProfileDataSlice = createSlice({
       state.error = action.payload?.error || "Unknown error occurred";
     });
 
-    // Client profile cases
     builder.addCase(getClientData.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -321,7 +319,6 @@ const usersProfileDataSlice = createSlice({
       state.error = action.payload?.error || "Unknown error occurred";
     });
 
-    // User profile cases
     builder.addCase(getUserData.pending, (state) => {
       state.loading = true;
       state.error = null;

@@ -1,4 +1,3 @@
-// types/proposalTypes.ts
 export interface Milestone {
   id?: number;
   title: string;

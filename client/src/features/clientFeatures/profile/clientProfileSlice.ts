@@ -17,10 +17,6 @@ export interface ClientProfile {
   website?: string;
 }
 
-// interface ApiResponse {
-//   client: ClientProfile;
-// }
-
 interface ClientProfileState {
   client: ClientProfile | null;
   loading: boolean;
@@ -34,8 +30,8 @@ const initialState: ClientProfileState = {
 };
 
 export const updateClientProfile = createAsyncThunk<
-  { client: ClientProfile }, // Return type
-  ClientProfile, // Argument type
+  { client: ClientProfile },
+  ClientProfile,
   { rejectValue: { error: string } }
 >("client/edit-profile", async (credentials, { rejectWithValue }) => {
   try {
@@ -51,7 +47,7 @@ export const updateClientProfile = createAsyncThunk<
 
 export const getClientProfile = createAsyncThunk<
   { client: ClientProfile },
-  void, // No argument
+  void,
   { rejectValue: { error: string } }
 >("client/get-profile", async (_, { rejectWithValue }) => {
   try {
@@ -66,7 +62,7 @@ export const getClientProfile = createAsyncThunk<
 });
 
 const clientProfileSlice = createSlice({
-  name: "clientProfile", // Changed from "auth" to be more descriptive
+  name: "clientProfile", 
   initialState,
   reducers: {
     clearError: (state) => {
