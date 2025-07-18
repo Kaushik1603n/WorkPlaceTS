@@ -1,7 +1,6 @@
 export interface MetricCardProps {
   title: string;
   value: number;
-  // change: number;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   format?: "number" | "currency" | "percentage";
 }

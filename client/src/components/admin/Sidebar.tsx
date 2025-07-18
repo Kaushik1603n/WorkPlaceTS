@@ -21,8 +21,6 @@ function Sidebar() {
         { icon: <FileText size={18} />, label: "Projects", path: "/admin-dashboard/projects" },
         { icon: <FileText size={18} />, label: "Payments", path: "/admin-dashboard/payments" },
         { icon: <Shield size={18} />, label: "Report Resolution", path: "/admin-dashboard/Report-Resolution" },
-        // { icon: <Briefcase size={18} />, label: "Analytics Dashboard ", path: "/admin-dashboard/analytics-dashboard" },
-        // { icon: <Bell size={18} />, label: "Notification", path: "/admin-dashboard/notification" },
         { icon: <User size={18} />, label: "Freelancer", path: "/admin-dashboard/freelancer" },
         { icon: <User size={18} />, label: "Client", path: "/admin-dashboard/client" },
         { icon: <User size={18} />, label: "Users", path: "/admin-dashboard/users" },

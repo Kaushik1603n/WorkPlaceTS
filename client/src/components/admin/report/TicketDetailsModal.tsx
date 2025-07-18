@@ -181,9 +181,6 @@ const TicketDetailsModal = ({ ticket, onClose, onStatusUpdate, setTicket }: Tick
                                             Close Ticket
                                         </button>
                                     )}
-                                    {/* <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                                        Edit Ticket
-                                    </button> */}
                                 </div>
                             </div>
                         </div>

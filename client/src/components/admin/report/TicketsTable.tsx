@@ -1,4 +1,4 @@
-import { Eye,  User } from 'lucide-react';
+import { Eye, User } from 'lucide-react';
 import type { Ticket, Status } from './types';
 
 interface TicketsTableProps {
@@ -97,12 +97,6 @@ const TicketsTable = ({ tickets, onViewTicket }: TicketsTableProps) => {
                                         >
                                             <Eye className="h-4 w-4" />
                                         </button>
-                                        {/* <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50" title="Edit">
-                                            <Edit className="h-4 w-4" />
-                                        </button>
-                                        <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" title="Delete">
-                                            <Trash2 className="h-4 w-4" />
-                                        </button> */}
                                     </div>
                                 </td>
                             </tr>

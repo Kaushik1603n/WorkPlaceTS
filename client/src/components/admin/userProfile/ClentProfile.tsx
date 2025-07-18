@@ -91,7 +91,6 @@ function ClentVerifyProfile() {
 
         <div className="min-h-screen bg-[#f5fff9] from-blue-50 to-indigo-100 py-8 px-4">
           <div className="max-w-6xl mx-auto">
-            {/* Header Card */}
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-[#27AE60]">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div className="h-30 w-30 border border-[#27AE60] rounded-full bg-white p-1 shadow-md">
@@ -121,9 +120,7 @@ function ClentVerifyProfile() {
               </div>
             </div>
 
-            {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Contact Information */}
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#27AE60]" >
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                   <User className="h-5 w-5 mr-2 text-blue-500" />
@@ -157,7 +154,6 @@ function ClentVerifyProfile() {
                 </div>
               </div>
 
-              {/* Professional Details */}
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#27AE60]">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                   <Briefcase className="h-5 w-5 mr-2 text-indigo-500" />
@@ -196,7 +192,6 @@ function ClentVerifyProfile() {
               </div>
             </div>
 
-            {/* Additional Information Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
                 <h3 className="text-lg font-semibold mb-2">Projects</h3>

@@ -4,8 +4,6 @@ export interface Client {
   name?: string;
 }
 
-
-
 export type Status = 'open' | 'pending' | 'resolved' | 'closed';
 export type Priority = 'low' | 'medium' | 'high' | 'critical';
 

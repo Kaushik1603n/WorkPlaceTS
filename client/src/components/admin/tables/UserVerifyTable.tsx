@@ -1,8 +1,5 @@
 import { ChevronDown } from 'lucide-react';
 import React, { useState, } from 'react'
-// import { useOnClickOutside } from 'usehooks-ts'; // Install via npm/yarn
-
-
 interface User {
     _id?: string;
     fullName?: string;
@@ -20,9 +17,6 @@ interface UserVerifyTableProps {
 
 function UserVerifyTable({ users, onActionChange, onVerify }: UserVerifyTableProps) {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-
-    // const ref = useRef<HTMLDivElement>(null);
-    // useOnClickOutside(ref as RefObject<HTMLDivElement>, () => setOpenDropdownId(null))
 
     const toggleDropdown = (userId: string) => {
         setOpenDropdownId(prev => prev === userId ? null : userId);
