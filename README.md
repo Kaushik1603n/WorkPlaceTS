@@ -1,4 +1,4 @@
-﻿# WorkPlaceTS
+﻿# WorkPlace
 # 💼 Freelancer Job Portal – Connect Clients and Freelancers
 
 A full-featured platform where **clients can post jobs** and **freelancers can apply**, communicate, and complete work through a milestone-based system. This portal streamlines the freelance workflow from job posting to payment, helping skilled developers and clients connect easily.
