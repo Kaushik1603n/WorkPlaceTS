@@ -33,7 +33,7 @@ const adminAuthenticate: RequestHandler = async (req, res, next) => {
         });
       return;
     }
-    if (userData?.role === "admin") {
+    if (userData?.role !== "admin") {
       res
         .status(403)
         .json({
