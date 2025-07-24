@@ -178,6 +178,62 @@ export class MarketPlaceProjectController {
       });
     }
   };
+  setProjectStatus: RequestHandler = async (req, res): Promise<void> => {
+    try {
+      const { jobId } = req.params;
+      const { status } = req.query;
+
+      if (!jobId) {
+        res.status(400).json({
+          success: false,
+          error: "Job ID is required",
+        });
+        return;
+      }
+
+      if (
+        typeof status !== "string" ||
+        !["posted", "De-active"].includes(status)
+      ) {
+        res.status(400).json({
+          success: false,
+          error: "Invalid or missing status",
+        });
+        return;
+      }
+
+      const result = await marketPlace.getProjectDetails(jobId);
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        });
+        return;
+      }
+
+      if (result?.status && !["posted", "De-active"].includes(result?.status)) {
+        res.status(400).json({
+          success: false,
+          error: "Job status cannot update this stage",
+        });
+        return;
+      }
+
+      const updated = await marketPlace.updateJobStatus(jobId, status);
+
+      res.status(200).json({ success: true, data: updated });
+    } catch (error) {
+      console.error("Job status update error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update job status";
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+      });
+    }
+  };
 
   jobProposal: RequestHandler = async (req, res): Promise<void> => {
     try {
@@ -434,7 +490,8 @@ export class MarketPlaceProjectController {
         throw new Error("Missing required fields");
       }
 
-       const feedbackType= user==="client"?"client-to-freelancer":"freelancer-to-client"
+      const feedbackType =
+        user === "client" ? "client-to-freelancer" : "freelancer-to-client";
 
       const feedbackData: {
         ratings: {
@@ -451,7 +508,6 @@ export class MarketPlaceProjectController {
         fromUser: string;
         toUser: string;
         feedbackType: string;
-
       } = {
         ratings,
         feedback,
@@ -461,8 +517,6 @@ export class MarketPlaceProjectController {
         toUser: receverId,
         feedbackType,
       };
-
-      
 
       const data = await marketPlace.submitFeedbackCase(feedbackData);
 
@@ -476,7 +530,7 @@ export class MarketPlaceProjectController {
       });
     }
   };
- 
+
   freelacerReport: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };

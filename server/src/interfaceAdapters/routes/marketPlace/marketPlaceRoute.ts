@@ -10,6 +10,7 @@ marketPlaceRoute.get("/active-jobs",authenticate, project.activeClientProject);
 marketPlaceRoute.get("/pending-jobs",authenticate, project.pendingClientProject);
 marketPlaceRoute.get("/completed-jobs",authenticate, project.completedClientProject);
 marketPlaceRoute.get("/job-details/:jobId", project.getProjectDetails);
+marketPlaceRoute.patch("/job-status/:jobId", project.setProjectStatus);
 marketPlaceRoute.post("/apply-job-proposal",authenticate, project.jobProposal);
 marketPlaceRoute.get("/get-proposal-details/:proposalId",authenticate, project.getProposalDetails);
 

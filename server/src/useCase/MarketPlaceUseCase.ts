@@ -95,6 +95,24 @@ export class MarketPlaceUseCase {
     }
   }
 
+  async updateJobStatus(jobId: string, rawStatus:string) {
+    if (!jobId || typeof jobId !== "string") {
+      throw new Error("Invalid Job ID");
+    }
+    try {
+      const result = await this.market.findUpdateJobStatus(jobId, rawStatus);
+
+      if (!result) {
+        throw new Error("Job not found");
+      }
+
+      return result;
+    } catch (error) {
+      console.error(`[getProjectDetails] Error fetching job ${jobId}:`, error);
+      throw error;
+    }
+  }
+
   async getActiveProjectUseCase(userId: string) {
     try {
       const result = await this.market.findClientActiveProject(userId);

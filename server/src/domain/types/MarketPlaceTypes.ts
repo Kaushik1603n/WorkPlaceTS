@@ -56,6 +56,7 @@ export interface ProjectDetailsTypes {
   budgetType?: string;
   budget?: string | number;
   experienceLevel?: string;
+  status?: string;
   clientId?: Client;
 }
 

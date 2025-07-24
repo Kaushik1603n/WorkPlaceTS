@@ -14,7 +14,7 @@ export interface IJob extends Document {
   budget?: number;
   time?: string;
   experienceLevel?: "entry" | "intermediate" | "expert";
-  status?: "draft" | "posted" | "in-progress" | "completed" | "cancelled";
+  status?: "draft" | "posted" | "in-progress" | "completed" | "cancelled" | "De-active";
   proposals?: Types.ObjectId[];
   visibility?: "public" | "private";
   reference?: string;
@@ -56,7 +56,7 @@ const JobSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ["draft", "posted", "in-progress", "completed", "cancelled"],
+      enum: ["draft", "posted", "in-progress", "completed", "cancelled" , "De-active"],
       default: "posted",
     },
     proposals: [{ 

@@ -1,7 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Job } from "../../../../domain/interfaces/entities/Job";
 import { IMarketPlace } from "../../../../domain/interfaces/IMarketPlaceRepo";
-import ProjectModel from "../../../../domain/models/Projects";
+import ProjectModel, { IJob } from "../../../../domain/models/Projects";
 import UserModel from "../../../../domain/models/User";
 import { BidRequest } from "../../../../domain/dto/projectDTO/jobProposalDTO";
 import ProposalModel from "../../../../domain/models/Proposal";
@@ -82,6 +82,7 @@ export class marketPlaceRepo implements IMarketPlace {
 
       const result: ProjectDetailsTypes = {
         title: project?.title,
+        status: project?.status,
         description: project?.description,
         stack: project?.stack,
         time: project?.time,
@@ -95,6 +96,62 @@ export class marketPlaceRepo implements IMarketPlace {
           email: client?.email,
         },
       };
+      return result;
+    } catch (error) {
+      console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
+      throw error;
+    }
+  }
+  async findUpdateJobStatus(
+    jobId: string,
+    rawStatus: string
+  ): Promise<ProjectDetailsTypes> {
+    if (!isValidObjectId(jobId)) {
+      throw new Error("Invalid Job ID format");
+    }
+
+    try {
+      const project = await ProjectModel.findById(jobId);
+      
+      if (!project) {
+        throw new Error("Job not found");
+      }
+      
+      const validStatuses: IJob["status"][] = [
+        "draft",
+        "posted",
+        "in-progress",
+        "completed",
+        "cancelled",
+        "De-active",
+      ];
+      
+      if (!validStatuses.includes(rawStatus as IJob["status"])) {
+        throw new Error("Invalid status value provided");
+      }
+      
+      project.status = rawStatus as IJob["status"];
+      project.save()
+      
+      const client = await UserModel.findById(project?.clientId);
+            
+      const result: ProjectDetailsTypes = {
+        title: project.title,
+        status: project.status,
+        description: project.description,
+        stack: project.stack,
+        time: project.time,
+        reference: project.reference,
+        requiredFeatures: project.requiredFeatures,
+        budgetType: project.budgetType,
+        budget: project.budget,
+        experienceLevel: project.experienceLevel,
+        clientId: {
+          fullName: client?.fullName,
+          email: client?.email,
+        },
+      };
+      
       return result;
     } catch (error) {
       console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);

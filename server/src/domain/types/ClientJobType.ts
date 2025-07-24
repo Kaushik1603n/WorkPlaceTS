@@ -13,7 +13,7 @@ export interface ClientProjectType {
   budget?: number;
   time?: string;
   experienceLevel?: "entry" | "intermediate" | "expert";
-  status?: "draft" | "posted" | "in-progress" | "completed" | "cancelled";
+  status?: "draft" | "posted" | "in-progress" | "completed" | "cancelled" | "De-active";
   proposals?: Types.ObjectId[];
   visibility?: "public" | "private";
   reference?: string;
