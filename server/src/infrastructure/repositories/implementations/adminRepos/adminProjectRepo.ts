@@ -50,6 +50,7 @@ export class AdminProjectRepo implements IAdminProjectRepo {
         title: project?.title,
         description: project?.description,
         stack: project?.stack,
+        status: project?.stack,
         time: project?.time,
         reference: project?.reference,
         requiredFeatures: project?.requiredFeatures,

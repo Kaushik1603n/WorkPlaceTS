@@ -8,6 +8,7 @@ interface JobDetails {
     title: string;
     description: string;
     stack: string;
+    status: string;
     time: string;
     reference: string;
     requiredFeatures: string[];
