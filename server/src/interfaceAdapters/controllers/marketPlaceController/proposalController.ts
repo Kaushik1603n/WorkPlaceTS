@@ -41,10 +41,15 @@ export class ProposalController {
       });
     } catch (error) {
       console.error("Hire request error:", error);
-      const statusCode =
-        error instanceof Error && error.message.includes("not found")
-          ? 404
-          : 500;
+      
+      const message = error instanceof Error ? error.message.toLowerCase() : "";
+
+      const statusCode = message.includes("not found")
+        ? 404
+        : message.includes("de-active")
+        ? 400
+        : 500;
+
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -323,7 +328,7 @@ export class ProposalController {
         totalAmount,
         netAmount,
         platformFee,
-        pendingAmount
+        pendingAmount,
       } = await proposalCase.pendingPamentsUseCase(userId, page, limit);
 
       res.status(200).json({
@@ -334,7 +339,7 @@ export class ProposalController {
         totalAmount,
         netAmount,
         platformFee,
-        pendingAmount
+        pendingAmount,
       });
     } catch (error) {
       console.error(error);

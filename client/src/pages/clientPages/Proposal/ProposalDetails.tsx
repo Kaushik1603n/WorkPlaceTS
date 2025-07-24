@@ -72,7 +72,7 @@ const ProposalDetails: React.FC = () => {
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(
-                    error.response?.data?.message || "Failed to hire request"
+                    error.response?.data?.error || "Failed to hire request"
                 );
             } else {
                 toast.error("An unexpected error occurred");

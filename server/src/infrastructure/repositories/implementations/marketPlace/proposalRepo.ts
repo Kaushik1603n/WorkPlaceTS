@@ -9,6 +9,9 @@ import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 import { IProposalMilestones } from "../../../../domain/dto/proposalMilstoneDTO";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import { IProposalMilestonesType } from "../../../../domain/types/proposalMilstoneTypes";
+import { ProjectDetailsTypes } from "../../../../domain/types/MarketPlaceTypes";
+import { isValidObjectId } from "mongoose";
+import UserModel from "../../../../domain/models/User";
 
 export class ProposalRepo implements IProposalRepo {
   async findProposalAndUpdateStatus(
@@ -66,6 +69,38 @@ export class ProposalRepo implements IProposalRepo {
       throw new Error("Failed to find proposal");
     }
   }
+
+  async findProjectDetails(jobId: string): Promise<ProjectDetailsTypes> {
+      if (!isValidObjectId(jobId)) {
+        throw new Error("Invalid Job ID format");
+      }
+  
+      try {
+        const project = await ProjectModel.findById(jobId);
+        const client = await UserModel.findById(project?.clientId);
+  
+        const result: ProjectDetailsTypes = {
+          title: project?.title,
+          status: project?.status,
+          description: project?.description,
+          stack: project?.stack,
+          time: project?.time,
+          reference: project?.reference,
+          requiredFeatures: project?.requiredFeatures,
+          budgetType: project?.budgetType,
+          budget: project?.budget,
+          experienceLevel: project?.experienceLevel,
+          clientId: {
+            fullName: client?.fullName,
+            email: client?.email,
+          },
+        };
+        return result;
+      } catch (error) {
+        console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
+        throw error;
+      }
+    }
 
   async createProposalContract(
     contract: object,

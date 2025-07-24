@@ -24,6 +24,14 @@ export class ProposalUseCase {
       }
 
       const proposal = await this.proposal.findProposalById(proposalId);
+      const jobId= proposal?.jobId;
+
+      const jobDetais = await this.proposal.findProjectDetails(jobId)
+
+      if(jobDetais?.status ==="De-active"){
+        throw new Error("Job Status is De-active");
+      }
+      
 
       if (!proposal) {
         throw new Error("Proposal not found");
