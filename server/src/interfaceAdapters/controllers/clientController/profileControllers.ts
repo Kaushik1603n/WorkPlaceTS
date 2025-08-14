@@ -1,15 +1,21 @@
 import { RequestHandler } from "express";
-import { ClientProfileUserCase } from "../../../useCase/clientProfileUseCase";
-import { UserRepo } from "../../../infrastructure/repositories/implementations/userRepo";
-import { ClientRepo } from "../../../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
+import { IClinetProfileUseCase } from "../../../useCase/Interface/IClientProfileUseCase";
+// import { ClientProfileUserCase } from "../../../useCase/clientProfileUseCase";
+// import { UserRepo } from "../../../infrastructure/repositories/implementations/userRepo";
+// import { ClientRepo } from "../../../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
 // import { AuthUseCase } from "../../../useCase/authUseCase";
 
-const user = new UserRepo();
-const client = new ClientRepo();
-const clientUseCase = new ClientProfileUserCase(client, user);
+// const user = new UserRepo();
+// const client = new ClientRepo();
+// const clientUseCase = new ClientProfileUserCase(client, user);
 // const useCase = new AuthUseCase(user);
 
 export class profileCondroller {
+  private clientProfileUserCase: IClinetProfileUseCase;
+  constructor(usecase: IClinetProfileUseCase) {
+    this.clientProfileUserCase = usecase;
+  }
+
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
@@ -17,7 +23,6 @@ export class profileCondroller {
         return;
       }
 
-      // Get userId from authenticated user
       const userId = "userId" in req.user ? req.user.userId : req.user;
       if (!userId) {
         res.status(400).json({ message: "User ID not found" });
@@ -43,15 +48,14 @@ export class profileCondroller {
         return;
       }
 
-      // Update user name and email
-      const updatedUser = await clientUseCase.updateNameAndEmail(
+      const updatedUser = await this.clientProfileUserCase.updateNameAndEmail(
         userId,
         fullName,
         email
       );
 
       // Update client profile
-      const updatedClient = await clientUseCase.clientProfileEdit(
+      const updatedClient = await this.clientProfileUserCase.clientProfileEdit(
         userId,
         companyName,
         description,
@@ -61,7 +65,6 @@ export class profileCondroller {
         profilePic
       );
       // console.log(updatedClient);
-      
 
       res.status(200).json({
         message: "Profile updated successfully",
@@ -88,7 +91,7 @@ export class profileCondroller {
         return;
       }
 
-      const client = await clientUseCase.profileDetails(userId);
+      const client = await this.clientProfileUserCase.profileDetails(userId);
 
       res.status(200).json({
         success: true,
@@ -111,7 +114,7 @@ export class profileCondroller {
       const pageNum = parseInt(String(page), 10);
       const limitNum = parseInt(String(limit), 10);
 
-      const { freelancers, pagination } = await clientUseCase.freelancerUseCase(
+      const { freelancers, pagination } = await this.clientProfileUserCase.freelancerUseCase(
         pageNum,
         limitNum
       );
@@ -135,7 +138,7 @@ export class profileCondroller {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-      const { result, jobCount } = await clientUseCase.HiringProjectsUseCase(
+      const { result, jobCount } = await this.clientProfileUserCase.HiringProjectsUseCase(
         userId
       );
 
@@ -159,7 +162,7 @@ export class profileCondroller {
         return;
       }
       const { weeklySpending, avgCostPerProject, totalSpent } =
-        await clientUseCase.FinancialDataUseCase(userId);
+        await this.clientProfileUserCase.FinancialDataUseCase(userId);
 
       res.status(200).json({
         success: true,
