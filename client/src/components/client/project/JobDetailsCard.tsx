@@ -47,7 +47,6 @@ export const JobDetailsCard: React.FC<JobDetailsCardProps> = ({ job }) => {
   const { jobId } = useParams<{ jobId: string }>();
 
 
-
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
   const handleStatusChange = async (newStatus: string) => {
