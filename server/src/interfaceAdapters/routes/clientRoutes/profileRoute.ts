@@ -1,8 +1,8 @@
 import express from "express";
 // import { profileCondroller } from "../../controllers/clientController/profileControllers";
 import authenticate from "../../../middleware/authMiddleware";
-import { createMarketplaceDependencies } from "../../dependencies/clientProfileDependencies";
-const profile =createMarketplaceDependencies()
+import { clientProfileDependencies } from "../../dependencies/clientProfileDependencies";
+const profile =clientProfileDependencies()
 const profileRoute = express.Router();
 
 profileRoute.put("/profile",authenticate, profile.profileEdit.bind(profile));

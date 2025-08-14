@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
 import { MarketPlaceUseCase } from "../../../useCase/MarketPlaceUseCase";
-import { marketPlaceRepo } from "../../../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
+import { MarketPlaceRepo } from "../../../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
 import { BidRequest } from "../../../domain/dto/projectDTO/jobProposalDTO";
 // import ProjectModel from "../../../domain/models/Projects";
 import { Server } from "socket.io";
 
-const marketRepo = new marketPlaceRepo();
+const marketRepo = new MarketPlaceRepo();
 const marketPlace = new MarketPlaceUseCase(marketRepo);
 
 type JobQueryParams = {

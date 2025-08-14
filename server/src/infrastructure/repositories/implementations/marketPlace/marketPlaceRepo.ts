@@ -26,7 +26,7 @@ import {
   FeedbackTypes,
   ReportDataArgument,
 } from "../../../../domain/types/FeedbackTypes";
-export class marketPlaceRepo implements IMarketPlace {
+export class MarketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
     page: number,

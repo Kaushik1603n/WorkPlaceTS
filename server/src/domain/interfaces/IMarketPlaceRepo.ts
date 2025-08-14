@@ -23,11 +23,18 @@ export interface IMarketPlace {
     limit: number
   ): Promise<PaginatedJobResponseTypes>;
   findProjectDetails(jobId: string): Promise<ProjectDetailsTypes>;
+  findUpdateJobStatus(
+    jobId: string,
+    rawStatus: string
+  ): Promise<ProjectDetailsTypes>;
   createNewJobProposal(
     proposalData: BidRequest,
     userId: string
   ): Promise<JobProposalResponseTypes>;
   findClientActiveProject(
+    userId: string
+  ): Promise<MarketPlaceClientProjectTypes>;
+  findClientPendingProject(
     userId: string
   ): Promise<MarketPlaceClientProjectTypes>;
   findClientCompletedProject(
@@ -57,5 +64,7 @@ export interface IMarketPlace {
     fromUser,
     feedbackType,
   }: FeedbackArguments): Promise<FeedbackTypes>;
+  findFeedbackRepo(toUser: string, feedbackType: string): Promise<any>;
+  findUserAndUpdateFeedback(toUser: string, updateData: object): Promise<any>;
   submitFreelacerReportRepo(reportData: ReportDataArgument): Promise<any>;
 }

@@ -19,6 +19,12 @@ export interface IfreelancerRepo {
   ): Promise<FreelancerProfileTypes>;
   findOne(userId: string | unknown): Promise<FreelancerProfileTypes>;
   findFreelancer(page: number, limit: number): Promise<PaginatedClientResult>;
+  findFreelancerTicket(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<any> 
   findCounts(userId: string): Promise<any>;
   findTotalEarnings(userId: string): Promise<any>;
+  findTotalProject(userId: string): Promise<any>
 }

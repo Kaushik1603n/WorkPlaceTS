@@ -2,13 +2,13 @@ import { Server } from "socket.io";
 import { BidRequest } from "../domain/dto/projectDTO/jobProposalDTO";
 import { JobQueryParamsDTO } from "../domain/dto/projectDTO/marketPlaceDTO";
 import ProjectModel from "../domain/models/Projects";
-import { marketPlaceRepo } from "../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
+import { MarketPlaceRepo } from "../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
 import mongoose, { FilterQuery } from "mongoose";
 import UserModel from "../domain/models/User";
 import NotificationModel from "../domain/models/Notification";
 
 export class MarketPlaceUseCase {
-  constructor(private market: marketPlaceRepo) {
+  constructor(private market: MarketPlaceRepo) {
     this.market = market;
   }
   async getAllProjectDetails({
