@@ -1,6 +1,10 @@
 import {
+  FreelacerTotalEarningsResponse,
+  FreelancerCounts,
   FreelancerProfileTypes,
+  FreelancerTicketWithPagination,
   PaginatedClientResult,
+  TotalProjectResponse,
 } from "../types/FreelancerProfileTypes";
 
 export interface IfreelancerRepo {
@@ -17,14 +21,14 @@ export interface IfreelancerRepo {
     coverResult: { secure_url: string },
     profileResult: { secure_url: string }
   ): Promise<FreelancerProfileTypes>;
-  findOne(userId: string | unknown): Promise<FreelancerProfileTypes>;
+  findOne(userId: string | unknown): Promise<FreelancerProfileTypes| null>;
   findFreelancer(page: number, limit: number): Promise<PaginatedClientResult>;
   findFreelancerTicket(
     userId: string,
     page: number,
     limit: number
-  ): Promise<any> 
-  findCounts(userId: string): Promise<any>;
-  findTotalEarnings(userId: string): Promise<any>;
-  findTotalProject(userId: string): Promise<any>
+  ): Promise<FreelancerTicketWithPagination> 
+  findCounts(userId: string): Promise<FreelancerCounts>;
+  findTotalEarnings(userId: string): Promise<FreelacerTotalEarningsResponse>;
+  findTotalProject(userId: string): Promise<TotalProjectResponse>
 }

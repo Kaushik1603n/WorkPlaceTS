@@ -1,5 +1,6 @@
 import { IfreelancerRepo } from "../domain/interfaces/IfreelancerRepo";
 import { userRepoI } from "../domain/interfaces/IuserRepo";
+import { FreelacerTotalEarningsResponse, FreelancerCounts, FreelancerProfileTypes, FreelancerTicketWithPagination, PaginatedClientResult, TotalProjectResponse } from "../domain/types/FreelancerProfileTypes";
 import cloudinary from "../infrastructure/cloudinary";
 export class FreelancerProfileUseCase {
   constructor(private freelancer: IfreelancerRepo, private user: userRepoI) {
@@ -19,7 +20,7 @@ export class FreelancerProfileUseCase {
     bio: string,
     coverPic: string,
     profilePic: string
-  ) {
+  ): Promise<FreelancerProfileTypes> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
@@ -68,7 +69,11 @@ export class FreelancerProfileUseCase {
     return freelancerProfileData;
   }
 
-  async updateNameAndEmail(userId: string, fullName: string, email: string) {
+  async updateNameAndEmail(
+    userId: string,
+    fullName: string,
+    email: string
+  ): Promise<any> {
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
     }
@@ -88,7 +93,10 @@ export class FreelancerProfileUseCase {
 
     return userData ?? user;
   }
-  async profileDetails(userId: string | unknown) {
+
+  async profileDetails(
+    userId: string | unknown
+  ): Promise<FreelancerProfileTypes | null> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
@@ -96,23 +104,35 @@ export class FreelancerProfileUseCase {
     return result;
   }
 
-  async clientUseCase(page: number, limit: number) {
+  async clientUseCase(page: number, limit: number):Promise<PaginatedClientResult> {
     const result = await this.freelancer.findFreelancer(page, limit);
     return result;
   }
-  async freelancerTicketUseCase(userId:string,page: number, limit: number) {
-    const result = await this.freelancer.findFreelancerTicket(userId,page, limit);
+
+  async freelancerTicketUseCase(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<FreelancerTicketWithPagination> {
+    const result = await this.freelancer.findFreelancerTicket(
+      userId,
+      page,
+      limit
+    );
     return result;
   }
-  async totalcountUseCase(userId: string) {
+
+  async totalcountUseCase(userId: string): Promise<FreelancerCounts> {
     const result = await this.freelancer.findCounts(userId);
     return result;
   }
-  async totalEarningsUseCase(userId: string) {
+
+  async totalEarningsUseCase(userId: string): Promise<FreelacerTotalEarningsResponse> {
     const result = await this.freelancer.findTotalEarnings(userId);
     return result;
   }
-  async dashboardProjectUseCase(userId: string) {
+
+  async dashboardProjectUseCase(userId: string): Promise<TotalProjectResponse> {
     const result = await this.freelancer.findTotalProject(userId);
     return result;
   }

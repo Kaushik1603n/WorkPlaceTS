@@ -106,6 +106,7 @@ export class freelancerProfileControllers {
       }
     }
   };
+  
   client: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {

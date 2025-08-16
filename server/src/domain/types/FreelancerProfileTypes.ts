@@ -1,3 +1,5 @@
+import { TicketType } from "./ClientJobType";
+
 export interface FreelancerProfileTypes {
   _id: string;
   userId: string;
@@ -47,3 +49,52 @@ export interface PaginatedClientResult {
     totalCount: number;
   };
 }
+
+export interface FreelancerTicketWithPagination {
+  result: TicketType[];
+  totalPages: number;
+}
+
+export interface FreelancerCounts {
+  totalJob: number;
+  completedJob: number;
+  activeJob: number;
+  avgEarnings: number;
+  totalProposal: number;
+}
+
+
+export interface WeeklyPayment {
+  earnings: number;
+  projects: number;
+  week: string;
+}
+
+export interface MonthlyStats {
+  totalMonthlyEarnings: number;
+  paymentCount: number;
+}
+
+export interface FreelacerTotalEarningsResponse {
+  totalPayments: number;
+  pendingPayments: number;
+  weeklyPayments: WeeklyPayment[];
+  monthlyStats: MonthlyStats;
+}
+
+export interface ProjectSummary {
+  _id: string;             
+  clientId: string;        
+  title: string;
+  budget: number;
+  status?: string; 
+  createdAt: Date;
+}
+
+export interface TotalProjectResponse {
+  allProject: ProjectSummary[];
+  totalProject: number;
+  completedProject: number;
+  activeProject: number;
+}
+

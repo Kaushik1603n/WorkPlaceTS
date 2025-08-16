@@ -1,3 +1,5 @@
+import { FreelacerTotalEarningsResponse, FreelancerCounts, FreelancerProfileTypes, FreelancerTicketWithPagination, PaginatedClientResult, TotalProjectResponse } from "../../domain/types/FreelancerProfileTypes";
+
 export interface IFreelancerProfileUseCase {
   freelancerProfileEdit(
     userId: string,
@@ -11,14 +13,12 @@ export interface IFreelancerProfileUseCase {
     bio: string,
     coverPic: string,
     profilePic: string
-  ) : Promise<any>;
+  ) : Promise<FreelancerProfileTypes>;
   updateNameAndEmail(userId: string, fullName: string, email: string): Promise<any>;
-  profileDetails(userId: string | unknown): Promise<any>;
-  clientUseCase(page: number, limit: number) : Promise<any>;
-  freelancerTicketUseCase(userId:string,page: number, limit: number): Promise<any>;
-  totalcountUseCase(userId: string): Promise<any>;
-  freelancerTicketUseCase(userId:string,page: number, limit: number): Promise<any>;
-  totalcountUseCase(userId: string): Promise<any>;
-  totalEarningsUseCase(userId: string) : Promise<any>;
-  dashboardProjectUseCase(userId: string): Promise<any>;
+  profileDetails(userId: string | unknown): Promise<FreelancerProfileTypes| null>;
+  clientUseCase(page: number, limit: number) : Promise<PaginatedClientResult>;
+  freelancerTicketUseCase(userId:string,page: number, limit: number): Promise<FreelancerTicketWithPagination>;
+  totalcountUseCase(userId: string): Promise<FreelancerCounts>;
+  totalEarningsUseCase(userId: string) : Promise<FreelacerTotalEarningsResponse>;
+  dashboardProjectUseCase(userId: string): Promise<TotalProjectResponse>;
 }

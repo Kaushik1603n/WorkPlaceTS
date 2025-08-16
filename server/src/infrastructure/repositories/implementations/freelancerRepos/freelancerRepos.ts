@@ -8,7 +8,12 @@ import ProposalModel from "../../../../domain/models/Proposal";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import {
   ClientResultType,
+  FreelacerTotalEarningsResponse,
+  FreelancerCounts,
+  FreelancerProfileTypes,
+  FreelancerTicketWithPagination,
   PaginatedClientResult,
+  TotalProjectResponse,
 } from "../../../../domain/types/FreelancerProfileTypes";
 import ReportModel from "../../../../domain/models/ReportModel";
 
@@ -25,38 +30,83 @@ export class FreelancerRepo implements IfreelancerRepo {
     bio: string,
     coverResult: { secure_url: string },
     profileResult: { secure_url: string }
-  ): Promise<any> {
+  ): Promise<FreelancerProfileTypes> {
     if (!userId || typeof userId !== "string") {
       throw new Error("Invalid user ID format");
     }
     const userIdObj = new mongoose.Types.ObjectId(userId);
 
-    const result = await freelancerModal.findOneAndUpdate(
-      { userId: userIdObj },
-      {
-        availability,
-        experienceLevel: experience,
-        education,
-        hourlyRate,
-        skills,
-        location,
-        reference,
-        bio,
-        profilePic: profileResult.secure_url,
-        coverPic: coverResult.secure_url,
-      },
-      {
-        new: true,
-        upsert: true,
-      }
-    );
+    const result = await freelancerModal
+      .findOneAndUpdate(
+        { userId: userIdObj },
+        {
+          availability,
+          experienceLevel: experience,
+          education,
+          hourlyRate,
+          skills,
+          location,
+          reference,
+          bio,
+          profilePic: profileResult.secure_url,
+          coverPic: coverResult.secure_url,
+        },
+        {
+          new: true,
+          upsert: true,
+        }
+      )
+      .lean();
 
-    return result;
+    return {
+      _id: result._id.toString(),
+      userId: result.userId.toString(),
+      profilePic: result.profilePic,
+      coverPic: result.coverPic,
+      headline: result.headline,
+      bio: result.bio,
+      skills: result.skills,
+      hourlyRate: result.hourlyRate,
+      location: result.location,
+      availability: result.availability,
+      experienceLevel: result.experienceLevel,
+      education: result.education,
+      languages: result.languages,
+      reference: result.reference,
+      rating: result.rating,
+      totalJobs: result.totalJobs,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
-  async findOne(userId: string | unknown): Promise<any> {
-    const result = await freelancerModal.findOne({ userId });
-    return result;
+  async findOne(
+    userId: string | unknown
+  ): Promise<FreelancerProfileTypes | null> {
+    const result = await freelancerModal.findOne({ userId }).lean();
+
+    if (!result) return null;
+
+    return {
+      _id: result._id.toString(),
+      userId: result.userId.toString(),
+      profilePic: result.profilePic,
+      coverPic: result.coverPic,
+      headline: result.headline,
+      bio: result.bio,
+      skills: result.skills,
+      hourlyRate: result.hourlyRate,
+      location: result.location,
+      availability: result.availability,
+      experienceLevel: result.experienceLevel,
+      education: result.education,
+      languages: result.languages,
+      reference: result.reference,
+      rating: result.rating,
+      totalJobs: result.totalJobs,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
   async findFreelancer(
@@ -115,11 +165,12 @@ export class FreelancerRepo implements IfreelancerRepo {
       },
     };
   }
+
   async findFreelancerTicket(
     userId: string,
     page: number,
     limit: number
-  ): Promise<any> {
+  ): Promise<FreelancerTicketWithPagination> {
     const result = await ReportModel.find({ reportedBy: userId })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -130,7 +181,7 @@ export class FreelancerRepo implements IfreelancerRepo {
     return { result, totalPages };
   }
 
-  async findCounts(userId: string): Promise<any> {
+  async findCounts(userId: string): Promise<FreelancerCounts> {
     const totalJob = await ProjectModel.countDocuments({
       hiredFreelancer: userId,
     });
@@ -167,7 +218,9 @@ export class FreelancerRepo implements IfreelancerRepo {
     return { totalJob, completedJob, activeJob, avgEarnings, totalProposal };
   }
 
-  async findTotalEarnings(userId: string): Promise<any> {
+  async findTotalEarnings(
+    userId: string
+  ): Promise<FreelacerTotalEarningsResponse> {
     const Earnings = await PaymentModel.aggregate([
       {
         $match: {
@@ -260,15 +313,24 @@ export class FreelancerRepo implements IfreelancerRepo {
       paymentCount: 0,
     };
 
+    console.log({
+      totalPayments,
+      pendingPayments,
+      weeklyPayments,
+      monthlyStats,
+    });
+
     return { totalPayments, pendingPayments, weeklyPayments, monthlyStats };
   }
-  async findTotalProject(userId: string): Promise<any> {
+
+  async findTotalProject(userId: string): Promise<TotalProjectResponse> {
     const allProject = await ProjectModel.find(
       { hiredFreelancer: userId },
       { _id: 1, title: 1, clientId: 1, budget: 1, status: 1, createdAt: 1 }
     )
       .sort({ createdAt: -1 })
-      .limit(5);
+      .limit(5)
+      .lean();
 
     const totalProject = await ProjectModel.countDocuments({
       hiredFreelancer: userId,
@@ -282,8 +344,16 @@ export class FreelancerRepo implements IfreelancerRepo {
       status: "in-progress",
     });
 
+    const Projects = allProject.map((p) => ({
+      _id: p._id.toString(),
+      clientId: p.clientId.toString(), // <-- convert
+      title: p.title,
+      budget: p.budget ?? 0,
+      status: p.status,
+      createdAt: p.createdAt,
+    }));
     return {
-      allProject: allProject || [],
+      allProject: Projects || [],
       totalProject,
       completedProject,
       activeProject,
