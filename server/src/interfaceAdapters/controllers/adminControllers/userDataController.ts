@@ -1,17 +1,23 @@
 import { RequestHandler } from "express";
-import { UserUseCase } from "../../../useCase/admin/userUseCase";
-import { UserDataRepo } from "../../../infrastructure/repositories/implementations/adminRepos/userDataRepo";
+// import { UserUseCase } from "../../../useCase/admin/userUseCase";
+// import { UserDataRepo } from "../../../infrastructure/repositories/implementations/adminRepos/userDataRepo";
+import { IAdminUserUseCase } from "../../../useCase/Interface/IAdminUserUseCase";
 
-const userRepo = new UserDataRepo();
-const userData = new UserUseCase(userRepo);
+// const userRepo = new UserDataRepo();
+// const userData = new UserUseCase(userRepo);
 
 export class UserDataController {
+  private userData: IAdminUserUseCase;
+  constructor(usecasse: IAdminUserUseCase) {
+    this.userData = usecasse;
+  }
+
   getFreelancerData: RequestHandler = async (req, res): Promise<any> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
-      const data = await userData.getFreelancerData(page, limit, search);
+      const data = await this.userData.getFreelancerData(page, limit, search);
 
       res.status(200).json({ success: true, message: "success", data });
     } catch (error) {
@@ -29,7 +35,7 @@ export class UserDataController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
-      const data = await userData.getClientData(page, limit, search);
+      const data = await this.userData.getClientData(page, limit, search);
 
       res.status(200).json({ success: true, message: "success", data });
     } catch (error) {
@@ -48,7 +54,7 @@ export class UserDataController {
       const limit = parseInt(req.query.limit as string) || 5;
       const search = (req.query.search as string) || "";
 
-      const data = await userData.getUsersData(page, limit, search);
+      const data = await this.userData.getUsersData(page, limit, search);
 
       res.status(200).json({ success: true, message: "success", data });
     } catch (error) {
@@ -63,7 +69,7 @@ export class UserDataController {
 
   userAction: RequestHandler = async (req, res): Promise<any> => {
     const { userId, status } = req.body;
-    await userData.userAction(userId, status);
+    await this.userData.userAction(userId, status);
 
     res.status(200).json({ success: true, message: "success" });
   };
@@ -75,7 +81,7 @@ export class UserDataController {
         throw new Error("UserId not Found");
       }
 
-      const clientDetails = await userData.clientDetails(userId);
+      const clientDetails = await this.userData.clientDetails(userId);
 
       res.status(200).json({ data: clientDetails });
     } catch (error) {
@@ -95,7 +101,7 @@ export class UserDataController {
         throw new Error("UserId not Found");
       }
 
-      const freelancerDetails = await userData.freelancerDetails(userId);
+      const freelancerDetails = await this.userData.freelancerDetails(userId);
 
       res.status(200).json({ data: freelancerDetails });
     } catch (error) {
@@ -119,7 +125,7 @@ export class UserDataController {
         throw new Error("Status not Found");
       }
 
-      await userData.userVerification(userId, status);
+      await this.userData.userVerification(userId, status);
 
       res
         .status(200)
@@ -143,12 +149,15 @@ export class UserDataController {
         return;
       }
 
-       const page = parseInt(req.query.page as string) || 1;
+      const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const {result,totalPages} = await userData.AllReportUseCase(page,limit);
+      const { result, totalPages } = await this.userData.AllReportUseCase(
+        page,
+        limit
+      );
 
-      res.status(200).json({ data: result || [] ,totalPages});
+      res.status(200).json({ data: result || [], totalPages });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
@@ -170,7 +179,7 @@ export class UserDataController {
 
       const { status } = req.body;
 
-      const report = await userData.TicketStatusUseCase(
+      const report = await this.userData.TicketStatusUseCase(
         status,
         ticketId,
         userId
@@ -197,7 +206,7 @@ export class UserDataController {
       const ticketId = req.params.ticketId;
       const { text } = req.body;
 
-      const report = await userData.TicketStatusCommentUseCase(
+      const report = await this.userData.TicketStatusCommentUseCase(
         text,
         ticketId,
         userId
@@ -223,7 +232,8 @@ export class UserDataController {
         return;
       }
 
-      const { result, totalUsers } = await userData.UserGrowthDataUseCase();
+      const { result, totalUsers } =
+        await this.userData.UserGrowthDataUseCase();
 
       res.status(200).json({ success: true, data: result || [], totalUsers });
     } catch (error) {
@@ -244,7 +254,7 @@ export class UserDataController {
         return;
       }
 
-      const result = await userData.TopFreelancerUseCase();
+      const result = await this.userData.TopFreelancerUseCase();
 
       res.status(200).json({ success: true, data: result || [] });
     } catch (error) {
@@ -265,7 +275,7 @@ export class UserDataController {
         return;
       }
 
-      const result = await userData.AllJobcountUseCase();
+      const result = await this.userData.AllJobcountUseCase();
 
       res.status(200).json({ success: true, data: result || [] });
     } catch (error) {
@@ -286,7 +296,7 @@ export class UserDataController {
         return;
       }
 
-      const result = await userData.AllJobDetailsUseCase();
+      const result = await this.userData.AllJobDetailsUseCase();
 
       res.status(200).json({ success: true, data: result || [] });
     } catch (error) {
@@ -308,7 +318,7 @@ export class UserDataController {
       }
 
       const { revenueData, revenueDetails } =
-        await userData.RevenueDataUseCase();
+        await this.userData.RevenueDataUseCase();
 
       res
         .status(200)
@@ -330,14 +340,12 @@ export class UserDataController {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-       const page = parseInt(req.query.page as string) || 1;
+      const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const payment = await userData.PaymentsUseCase(page,limit);
+      const payment = await this.userData.PaymentsUseCase(page, limit);
 
-      res
-        .status(200)
-        .json({ success: true, payment:payment||[] });
+      res.status(200).json({ success: true, payment: payment || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {

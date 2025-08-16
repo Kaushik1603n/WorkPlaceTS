@@ -1,7 +1,7 @@
-import { UserDataRepo } from "../../infrastructure/repositories/implementations/adminRepos/userDataRepo";
-
+// import { UserDataRepo } from "../../infrastructure/repositories/implementations/adminRepos/userDataRepo";
+import { userDataRepoI } from "../../domain/interfaces/admin/userDataRepoI";
 export class UserUseCase {
-  constructor(private user: UserDataRepo) {
+  constructor(private user: userDataRepoI) {
     this.user = user;
   }
 

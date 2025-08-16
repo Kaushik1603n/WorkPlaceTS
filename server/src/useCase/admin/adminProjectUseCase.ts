@@ -1,7 +1,7 @@
-import { AdminProjectRepo } from "../../infrastructure/repositories/implementations/adminRepos/adminProjectRepo";
-
+// import { AdminProjectRepo } from "../../infrastructure/repositories/implementations/adminRepos/adminProjectRepo";
+import { IAdminProjectRepo } from "../../domain/interfaces/admin/adminProjectRepoI";
 export class AdminProjectUseCase {
-  constructor(private project: AdminProjectRepo) {
+  constructor(private project: IAdminProjectRepo) {
     this.project = project;
   }
 

@@ -1,8 +1,9 @@
 import express from "express";
-import { AdminProjectController } from "../../controllers/adminControllers/adminProjectController";
+// import { AdminProjectController } from "../../controllers/adminControllers/adminProjectController";
 import adminAuthenticate from "../../../middleware/adminMiddleware";
+import { createAdminProjectDependencies } from "../../dependencies/adminProjectDependencies";
 
-const adminProject = new AdminProjectController();
+const adminProject = createAdminProjectDependencies();
 const adminProjectRoute = express.Router();
 
 adminProjectRoute.get("/active-projects", adminAuthenticate, adminProject.getActiveProject);

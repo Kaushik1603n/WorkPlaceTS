@@ -1,10 +1,15 @@
 import { RequestHandler } from "express";
-import { AdminProjectRepo } from "../../../infrastructure/repositories/implementations/adminRepos/adminProjectRepo";
-import { AdminProjectUseCase } from "../../../useCase/admin/adminProjectUseCase";
-
-const projectRepo = new AdminProjectRepo();
-const adminProject = new AdminProjectUseCase(projectRepo);
+import { IAdminProjectUseCase } from "../../../useCase/Interface/IAdminProjectUseCase";
+// import { AdminProjectRepo } from "../../../infrastructure/repositories/implementations/adminRepos/adminProjectRepo";
+// import { AdminProjectUseCase } from "../../../useCase/admin/adminProjectUseCase";
+// const projectRepo = new AdminProjectRepo();
+// const adminProject = new AdminProjectUseCase(projectRepo);
 export class AdminProjectController {
+  private adminProject: IAdminProjectUseCase;
+  constructor(usecase: IAdminProjectUseCase) {
+    this.adminProject = usecase;
+  }
+
   getActiveProject: RequestHandler = async (req, res): Promise<any> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -16,10 +21,8 @@ export class AdminProjectController {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-      const { result, totalPage } = await adminProject.getAciveProjectUseCase(
-        page,
-        limit
-      );
+      const { result, totalPage } =
+        await this.adminProject.getAciveProjectUseCase(page, limit);
 
       res
         .status(200)
@@ -44,10 +47,8 @@ export class AdminProjectController {
         res.status(401).json({ success: false, error: "Unauthorized" });
         return;
       }
-      const { result, totalPage } = await adminProject.getPostedProjectUseCase(
-        page,
-        limit
-      );
+      const { result, totalPage } =
+        await this.adminProject.getPostedProjectUseCase(page, limit);
 
       res
         .status(200)
@@ -73,7 +74,7 @@ export class AdminProjectController {
         return;
       }
       const { result, totalPage } =
-        await adminProject.getCompletedProjectUseCase(page, limit);
+        await this.adminProject.getCompletedProjectUseCase(page, limit);
 
       res
         .status(200)
@@ -105,7 +106,7 @@ export class AdminProjectController {
         });
         return;
       }
-      const result = await adminProject.ProjectDetailsUseCase(jobId);
+      const result = await this.adminProject.ProjectDetailsUseCase(jobId);
 
       res.status(200).json({ success: true, message: "success", data: result });
     } catch (error) {

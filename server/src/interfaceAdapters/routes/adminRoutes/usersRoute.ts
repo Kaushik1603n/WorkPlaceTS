@@ -1,8 +1,8 @@
 import express from "express";
-import { UserDataController } from "../../controllers/adminControllers/userDataController";
+// import { UserDataController } from "../../controllers/adminControllers/userDataController";
 import adminAuthenticate from "../../../middleware/adminMiddleware";
-
-const userData = new UserDataController();
+import { createAdminUserDataDependencies } from "../../dependencies/adminUserDataDependencies";
+const userData = createAdminUserDataDependencies();
 const userRoutes = express.Router();
 
 userRoutes.get(
