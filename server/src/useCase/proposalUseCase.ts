@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import { ProposalRepo } from "../infrastructure/repositories/implementations/marketPlace/proposalRepo";
 import { Server } from "socket.io";
 import UserModel from "../domain/models/User";
 import NotificationModel from "../domain/models/Notification";
 import ProjectModel from "../domain/models/Projects";
+import { IProposalRepo } from "../domain/interfaces/IProposalRepo";
 
 export class ProposalUseCase {
-  constructor(private proposal: ProposalRepo) {
+  constructor(private proposal: IProposalRepo) {
     this.proposal = proposal;
   }
 

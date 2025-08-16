@@ -1,11 +1,13 @@
 import { RequestHandler } from "express";
-import { ProposalUseCase } from "../../../useCase/proposalUseCase";
-import { ProposalRepo } from "../../../infrastructure/repositories/implementations/marketPlace/proposalRepo";
 import { Server } from "socket.io";
+import { IProposalUseCase } from "../../../useCase/Interface/IProposalUseCase";
 
-const proposal = new ProposalRepo();
-const proposalCase = new ProposalUseCase(proposal);
 export class ProposalController {
+  private proposalCase:IProposalUseCase;
+  constructor(usecase:IProposalUseCase){
+    this.proposalCase=usecase
+  }
+
   hireRequest: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -28,7 +30,7 @@ export class ProposalController {
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
 
-      await proposalCase.hireRequestUseCase(
+      await this.proposalCase.hireRequestUseCase(
         userId,
         proposalId,
         io,
@@ -75,7 +77,7 @@ export class ProposalController {
         return;
       }
 
-      const proposals = await proposalCase.getAllFreelancerProposalsUseCase(
+      const proposals = await this.proposalCase.getAllFreelancerProposalsUseCase(
         userId
       );
 
@@ -107,7 +109,7 @@ export class ProposalController {
         return;
       }
 
-      const proposals = await proposalCase.getAllProjectProposalsUseCase(jobId);
+      const proposals = await this.proposalCase.getAllProjectProposalsUseCase(jobId);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
@@ -134,7 +136,7 @@ export class ProposalController {
         return;
       }
 
-      const contractDetails = await proposalCase.getContractDetailsUseCase(
+      const contractDetails = await this.proposalCase.getContractDetailsUseCase(
         contractId
       );
 
@@ -167,7 +169,7 @@ export class ProposalController {
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
 
-      const contractDetails = await proposalCase.acceptProposalUseCase(
+      const contractDetails = await this.proposalCase.acceptProposalUseCase(
         userId,
         contractId,
         io,
@@ -200,7 +202,7 @@ export class ProposalController {
       const userId = user.userId;
       const contractId = req.params.id;
 
-      const contractDetails = await proposalCase.rejectProposalUseCase(
+      const contractDetails = await this.proposalCase.rejectProposalUseCase(
         userId,
         contractId
       );
@@ -227,7 +229,7 @@ export class ProposalController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
-      const data = await proposalCase.proposalMilestonesUseCase(jobId);
+      const data = await this.proposalCase.proposalMilestonesUseCase(jobId);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
@@ -259,7 +261,7 @@ export class ProposalController {
       const io: Server = req.app.get("io");
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
-      const data = await proposalCase.proposalMilestonesApproveUseCase(
+      const data = await this.proposalCase.proposalMilestonesApproveUseCase(
         milestoneId,
         userId,
         io,
@@ -291,7 +293,7 @@ export class ProposalController {
       if (!userId) {
         throw new Error("User Not Authenticated");
       }
-      const data = await proposalCase.proposalMilestonesRejectUseCase(
+      const data = await this.proposalCase.proposalMilestonesRejectUseCase(
         milestoneId
       );
 
@@ -329,7 +331,7 @@ export class ProposalController {
         netAmount,
         platformFee,
         pendingAmount,
-      } = await proposalCase.pendingPamentsUseCase(userId, page, limit);
+      } = await this.proposalCase.pendingPamentsUseCase(userId, page, limit);
 
       res.status(200).json({
         message: "Proposals fetched successfully",
