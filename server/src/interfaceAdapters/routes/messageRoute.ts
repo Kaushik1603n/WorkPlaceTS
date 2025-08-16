@@ -1,9 +1,9 @@
 import express from "express";
-import { MessageController } from "../controllers/messageController";
 import authenticate from "../../middleware/authMiddleware";
+import { createMessageDependencies } from "../dependencies/messageDependencies";
 
 const messageRoute = express.Router();
-const message = new MessageController();
+const message = createMessageDependencies();
 
 messageRoute.post("/newMessage", authenticate, message.sendMessage);
 messageRoute.post("/getMessage", authenticate, message.getMessage);

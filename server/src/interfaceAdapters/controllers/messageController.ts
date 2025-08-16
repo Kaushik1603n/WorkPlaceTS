@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
-import { MessageUseCase } from "../../useCase/messageUseCase";
-import { MessageRepo } from "../../infrastructure/repositories/implementations/messageRepo";
-
-const message = new MessageRepo();
-const messageCase = new MessageUseCase(message);
+import { IMessageUseCase } from "../../useCase/Interface/IMessageUseCase";
 
 export class MessageController {
+  private messageCase:IMessageUseCase;
+  constructor(usecase:IMessageUseCase){
+    this.messageCase=usecase
+  }
   sendMessage: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { id, text, senderId, contactId, timestamp, isRead } = req.body;
@@ -25,7 +25,7 @@ export class MessageController {
         isRead: isRead || false,
       };
 
-      const savedMessage = await messageCase.sendMessageUseCase(message);
+      const savedMessage = await this.messageCase.sendMessageUseCase(message);
       res.status(200).json({
         message: "Message sent successfully",
         data: savedMessage,
@@ -61,7 +61,7 @@ export class MessageController {
         return;
       }
 
-      const messages = await messageCase.getMessageUseCase(senderId, contactId);
+      const messages = await this.messageCase.getMessageUseCase(senderId, contactId);
       res.status(200).json({
         message: "Messages retrieved successfully",
         data: messages,
@@ -85,9 +85,9 @@ export class MessageController {
         return;
       }
 
-      const unreadMessages = await messageCase.getUnreadMessagesUseCase(userId);
+      const unreadMessages = await this.messageCase.getUnreadMessagesUseCase(userId);
       const latestMessagedUsers =
-        await messageCase.getLatestMessagedUsersUseCase(userId);
+        await this.messageCase.getLatestMessagedUsersUseCase(userId);
 
       res.status(200).json({
         message: "Latest messages and users retrieved successfully",
@@ -118,7 +118,7 @@ export class MessageController {
         return;
       }
 
-      await messageCase.markMessagesReadUseCase(userId, contactId);
+      await this.messageCase.markMessagesReadUseCase(userId, contactId);
       res.status(200).json({
         message: "Messages marked as read successfully",
       });
@@ -149,7 +149,7 @@ export class MessageController {
       const msgId = req.params.id.trim().replace(/^:/, "");
       const io = req.app.get("io");
       const connectedUsers = req.app.get("connectedUsers");
-      const message = await messageCase.getMessageById(msgId); // Assume you have a method to fetch message details
+      const message = await this.messageCase.getMessageById(msgId); // Assume you have a method to fetch message details
       if (message) {
         const { senderId, contactId } = message;
 
@@ -163,7 +163,7 @@ export class MessageController {
           io.to(recipientSocketId).emit("messageDeleted", { messageId: msgId });
         }
       }
-      await messageCase.deleteMsg(msgId);
+      await this.messageCase.deleteMsg(msgId);
       res.status(200).json({ success: true });
     } catch (error) {
       console.error(error);
