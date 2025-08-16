@@ -1,20 +1,22 @@
 import { RequestHandler } from "express";
-import { AuthUseCase } from "../../useCase/authUseCase";
-import { UserRepo } from "../../infrastructure/repositories/implementations/userRepo";
 import mongoose from "mongoose";
 import { verifyRefreshToken } from "../../shared/utils/jwt";
+import { IAuthUseCase } from "../../useCase/Interface/IAuthUseCase";
 
-const user = new UserRepo();
-const useCase = new AuthUseCase(user);
 
 export class AuthControllers {
+  private useCase: IAuthUseCase;
+  constructor(usecase: IAuthUseCase) {
+    this.useCase = usecase;
+  }
+
   login: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { email, password } = req.body;
       if (!email || !password) {
         throw new Error("Email and password are required");
       }
-      const { user, accessToken, refreshToken } = await useCase.login(
+      const { user, accessToken, refreshToken } = await this.useCase.login(
         email,
         password
       );
@@ -46,7 +48,7 @@ export class AuthControllers {
       throw new Error("Missing details");
     }
     try {
-      const result = await useCase.registerUser(
+      const result = await this.useCase.registerUser(
         joinAs,
         fullName,
         email,
@@ -72,7 +74,7 @@ export class AuthControllers {
     }
 
     try {
-      const result = await useCase.verifyOtp(userId, otp);
+      const result = await this.useCase.verifyOtp(userId, otp);
 
       res.cookie("accessToken", result.accessToken, {
         httpOnly: true,
@@ -110,7 +112,7 @@ export class AuthControllers {
     }
 
     try {
-      const result = await useCase.resendOtp(userId);
+      const result = await this.useCase.resendOtp(userId);
       res.status(200).json({
         success: true,
         message: "New OTP sent to your email",
@@ -135,7 +137,7 @@ export class AuthControllers {
         throw new Error("Email is required");
       }
 
-      const result = await useCase.forgotPass(email);
+      const result = await this.useCase.forgotPass(email);
       res.status(200).json({
         success: true,
         message: "New OTP sent to your email",
@@ -152,7 +154,7 @@ export class AuthControllers {
       if (!userId || !otp) {
         throw new Error("User ID and OTP are required");
       }
-      const result = await useCase.resetPassVerifyOtp(userId, otp);
+      const result = await this.useCase.resetPassVerifyOtp(userId, otp);
       res.status(200).json({
         success: true,
         message: "New OTP sent to your email",
@@ -186,7 +188,7 @@ export class AuthControllers {
         return;
       }
 
-      await useCase.changePassword(userId, newPassword);
+      await this.useCase.changePassword(userId, newPassword);
       res.status(200).json({
         success: true,
         message: "Password updated successfully",
@@ -236,7 +238,7 @@ export class AuthControllers {
         return;
       }
 
-      await useCase.changePasswordUseCase(userId, currentPassword, newPassword);
+      await this.useCase.changePasswordUseCase(userId, currentPassword, newPassword);
       res.status(200).json({
         success: true,
         message: "Password updated successfully",
@@ -266,7 +268,7 @@ export class AuthControllers {
         return;
       }
 
-      const result = await useCase.changeEmailUseCase(userId, email);
+      const result = await this.useCase.changeEmailUseCase(userId, email);
       res.status(200).json({
         success: true,
         message: "New OTP sent to your email",
@@ -291,7 +293,7 @@ export class AuthControllers {
         throw new Error("Email and OTP are required");
       }
 
-      const result = await useCase.changeEmailOtpUseCase(userId, email, otp);
+      const result = await this.useCase.changeEmailOtpUseCase(userId, email, otp);
       res.status(200).json({
         success: true,
         message: "Email Change successfully",
@@ -309,7 +311,7 @@ export class AuthControllers {
       throw new Error("User Details required");
     }
     try {
-      const { accessToken, refreshToken } = await useCase.googleCallback(
+      const { accessToken, refreshToken } = await this.useCase.googleCallback(
         user._id,
         user.email
       );
@@ -367,7 +369,7 @@ export class AuthControllers {
       }
 
       try {
-        const result = await useCase.getUserDetails(userId);
+        const result = await this.useCase.getUserDetails(userId);
         res.status(200).json({ success: true, user: result });
       } catch (error) {}
     } catch (error) {
@@ -382,9 +384,9 @@ export class AuthControllers {
       const { role } = req.body;
       const userId = (req.user as any).userId;
 
-      const { user } = await useCase.getUser(userId, role);
+      const { user } = await this.useCase.getUser(userId, role);
 
-      const { accessToken, refreshToken } = await useCase.googleCallback(
+      const { accessToken, refreshToken } = await this.useCase.googleCallback(
         userId,
         user.email
       );
@@ -437,7 +439,7 @@ export class AuthControllers {
 
       const decoded = verifyRefreshToken(checkRefreshToken);
 
-      const { accessToken, refreshToken } = await useCase.refresh(
+      const { accessToken, refreshToken } = await this.useCase.refresh(
         decoded.userId,
         checkRefreshToken
       );
@@ -483,7 +485,7 @@ export class AuthControllers {
         throw new Error("Invalid user ID");
       }
 
-      await useCase.logout(userId);
+      await this.useCase.logout(userId);
 
       res.clearCookie("accessToken", {
         httpOnly: true,

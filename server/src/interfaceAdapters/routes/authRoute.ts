@@ -1,10 +1,10 @@
 import express from "express";
-import { AuthControllers } from "../controllers/authControllers";
 import passport from "passport";
 import authenticate from "../../middleware/authMiddleware";
+import { createAuthDependencies } from "../dependencies/authControllersDependencies";
 
 const authouter = express.Router();
-const auth = new AuthControllers();
+const auth = createAuthDependencies();
 
 authouter.post("/register", auth.register);
 authouter.post("/verify-otp", auth.verifyOtp);

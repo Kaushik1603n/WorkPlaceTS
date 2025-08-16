@@ -25,5 +25,6 @@ export interface IAuthUseCase {
     otp: number
   ): Promise<any>;
   refresh(userId: string, checkRefreshToken: string): Promise<any>;
+  logout(userId: string): Promise<any>;
   getUserDetails(userId: string | unknown): Promise<any>;
 }
