@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IProposalMilestonesType } from "../types/proposalMilstoneTypes";
+import { ProjectDetailsTypes } from "../types/MarketPlaceTypes";
 
 export interface IProposalRepo {
   findProposalAndUpdateStatus(
@@ -8,16 +9,19 @@ export interface IProposalRepo {
     session: mongoose.ClientSession
   ): Promise<any>;
   findProposalById(proposalId: string): Promise<any>;
+  findProjectDetails(jobId: string): Promise<ProjectDetailsTypes>
   getProjectProposalbyId(jobId: string): Promise<any>;
   createProposalContract(
     contract: object,
     session: mongoose.ClientSession
   ): Promise<any>;
+  getContractDetailsNormal(contractId: string): Promise<any>
   getProposalbyId(userId: string): Promise<any>;
-  getContractDetails(
-    contractId: string,
-    session: mongoose.ClientSession
-  ): Promise<any>;
+getContractDetails(contractId: string): Promise<any>
+  getContractDetailsWithSession(
+      contractId: string,
+      session: mongoose.ClientSession
+    ): Promise<any>
   getJobStatus(jobId: string, session: mongoose.ClientSession): Promise<any>;
   acceptProposalContract(
     userId: string,
@@ -65,6 +69,10 @@ interface IPaymentRequestWithPagination {
   data: IPaymentRequest[];
   totalPages: number;
   totalCount: number;
+  totalAmount: number;
+  netAmount: number;
+  platformFee: number;
+  pendingAmount: number;
 }
 export interface Proposal {
   _id: string;
