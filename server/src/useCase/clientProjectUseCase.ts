@@ -1,5 +1,6 @@
 import { IProjectRepo } from "../domain/interfaces/IProjectRepo";
 import { v4 as uuidv4 } from "uuid";
+import { ClientProjectWithPaginationType, TicketType, TicketWithPageinationType } from "../domain/types/ClientJobType";
 
 export class ClientProjectUserCase {
   constructor(private project: IProjectRepo) {
@@ -41,7 +42,8 @@ export class ClientProjectUserCase {
       throw error;
     }
   }
-  async getProjectUseCase(userId: string,page:number,limit:number) {
+
+  async getProjectUseCase(userId: string,page:number,limit:number):Promise<ClientProjectWithPaginationType> {
     try {
       const result = await this.project.findProjects(userId,page,limit);
       return result;
@@ -50,7 +52,8 @@ export class ClientProjectUserCase {
       throw error;
     }
   }
-  async getAllTicketUseCase(userId:string,page: number, limit: number) {
+
+  async getAllTicketUseCase(userId:string,page: number, limit: number) :Promise<TicketWithPageinationType>{
     try {
       const result = await this.project.findAllTicket(userId, page, limit);
       return result;
@@ -59,7 +62,8 @@ export class ClientProjectUserCase {
       throw error;
     }
   }
-  async TicketStatusCommentUseCase(text:string,ticketId:string,userId:string) {
+
+  async TicketStatusCommentUseCase(text:string,ticketId:string,userId:string):Promise<TicketType | null> {
     return this.project.updateTicketComment(text,ticketId,userId);
   }
 }

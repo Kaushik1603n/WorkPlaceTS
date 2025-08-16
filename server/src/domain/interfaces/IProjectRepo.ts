@@ -1,5 +1,6 @@
 import {
   ClientProjectWithPaginationType,
+  TicketType,
   TicketWithPageinationType,
 } from "../types/ClientJobType";
 
@@ -32,5 +33,5 @@ export interface IProjectRepo {
     text: string,
     ticketId: string,
     userId: string
-  ): Promise<any>;
+  ): Promise<TicketType | null>;
 }

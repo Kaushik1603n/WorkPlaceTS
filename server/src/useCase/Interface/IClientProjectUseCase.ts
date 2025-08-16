@@ -1,3 +1,9 @@
+import {
+  ClientProjectWithPaginationType,
+  TicketType,
+  TicketWithPageinationType,
+} from "../../domain/types/ClientJobType";
+
 export interface IClinetProjectUseCase {
   newProject(
     userId: string,
@@ -12,15 +18,19 @@ export interface IClinetProjectUseCase {
     experienceLevel: "entry" | "intermediate" | "expert",
     reference: string
   ): Promise<any>;
-  getProjectUseCase(userId: string, page: number, limit: number): Promise<any>;
+  getProjectUseCase(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<ClientProjectWithPaginationType>;
   getAllTicketUseCase(
     userId: string,
     page: number,
     limit: number
-  ): Promise<any>;
+  ): Promise<TicketWithPageinationType>;
   TicketStatusCommentUseCase(
     text: string,
     ticketId: string,
     userId: string
-  ): Promise<any>;
+  ): Promise<TicketType | null>;
 }

@@ -3,6 +3,7 @@ import ProjectModel from "../../../../domain/models/Projects";
 import ReportModel from "../../../../domain/models/ReportModel";
 import {
   ClientProjectWithPaginationType,
+  TicketType,
   TicketWithPageinationType,
 } from "../../../../domain/types/ClientJobType";
 
@@ -41,6 +42,7 @@ export class ProjectRepo implements IProjectRepo {
       throw new Error("Failed to create project in database");
     }
   }
+
   async findProjects(
     userId: string,
     page: number,
@@ -75,21 +77,22 @@ export class ProjectRepo implements IProjectRepo {
         .limit(limit)
         .sort({ createdAt: -1 });
       const totalCount = await ReportModel.countDocuments({
-       "client.id": userId
+        "client.id": userId,
       });
       const totalPages = Math.ceil(totalCount / limit);
-      
+
       return { result, totalPages };
     } catch (error) {
       console.error("Repository error:", error);
       throw new Error("Failed to create project in database");
     }
   }
+  
   async updateTicketComment(
     text: string,
     ticketId: string,
     userId: string
-  ): Promise<any> {
+  ): Promise<TicketType | null> {
     try {
       return await ReportModel.findByIdAndUpdate(
         ticketId,
