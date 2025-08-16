@@ -3,13 +3,14 @@ import { ProjectDetails } from "../../../../domain/dto/projectDTO/marketPlaceDTO
 import { IAdminProjectRepo } from "../../../../domain/interfaces/admin/adminProjectRepoI";
 import ProjectModel from "../../../../domain/models/Projects";
 import UserModel from "../../../../domain/models/User";
+import { AdminPaginatedProjects } from "../../../../domain/types/adminType";
 
 export class AdminProjectRepo implements IAdminProjectRepo {
    async findProjectsByStatus(
     status: string,
     page: number,
     limit: number
-  ): Promise<any> {
+  ): Promise<AdminPaginatedProjects> {
     try {
       const result = await ProjectModel.find({ status })
         .skip((page - 1) * limit)
@@ -26,18 +27,18 @@ export class AdminProjectRepo implements IAdminProjectRepo {
     }
   }
 
-  async findActiveProject(page: number, limit: number) : Promise<any>{
+  async findActiveProject(page: number, limit: number) :Promise<AdminPaginatedProjects>{
     return this.findProjectsByStatus("in-progress", page, limit);
   }
 
-  async findPostedProject(page: number, limit: number): Promise<any> {
+  async findPostedProject(page: number, limit: number):Promise<AdminPaginatedProjects> {
     return this.findProjectsByStatus("posted", page, limit);
   }
 
-  async findCompletedProject(page: number, limit: number): Promise<any> {
+  async findCompletedProject(page: number, limit: number):Promise<AdminPaginatedProjects>{
     return this.findProjectsByStatus("completed", page, limit);
   }
-  async findProjectDetails(jobId: string): Promise<any> {
+  async findProjectDetails(jobId: string): Promise<ProjectDetails> {
     if (!isValidObjectId(jobId)) {
       throw new Error("Invalid Job ID format");
     }
