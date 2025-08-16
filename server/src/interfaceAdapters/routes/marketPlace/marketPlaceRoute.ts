@@ -1,8 +1,8 @@
 import express from "express";
-import { MarketPlaceProjectController } from "../../controllers/marketPlaceController/marketProjectController";
 import authenticate from "../../../middleware/authMiddleware";
+import { createMrketPlaceDependencies } from "../../dependencies/marketplaceDependencies";
 
-const project =new MarketPlaceProjectController()
+const project =createMrketPlaceDependencies()
 const marketPlaceRoute = express.Router();
 
 marketPlaceRoute.get("/get-jobs", project.getAllMarketProjects);

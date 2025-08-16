@@ -1,12 +1,8 @@
 import { RequestHandler } from "express";
-import { MarketPlaceUseCase } from "../../../useCase/MarketPlaceUseCase";
-import { MarketPlaceRepo } from "../../../infrastructure/repositories/implementations/marketPlace/marketPlaceRepo";
 import { BidRequest } from "../../../domain/dto/projectDTO/jobProposalDTO";
 // import ProjectModel from "../../../domain/models/Projects";
 import { Server } from "socket.io";
-
-const marketRepo = new MarketPlaceRepo();
-const marketPlace = new MarketPlaceUseCase(marketRepo);
+import { IMarketPlaceUseCase } from "../../../useCase/Interface/IMarketPlaceUseCase";
 
 type JobQueryParams = {
   search?: string;
@@ -18,6 +14,11 @@ type JobQueryParams = {
   duration?: string;
 };
 export class MarketPlaceProjectController {
+  private marketPlace:IMarketPlaceUseCase;
+  constructor(usecase:IMarketPlaceUseCase){
+    this.marketPlace=usecase;
+  }
+
   getAllMarketProjects: RequestHandler = async (req, res): Promise<void> => {
     try {
       const {
@@ -31,7 +32,7 @@ export class MarketPlaceProjectController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { result, pagination } = await marketPlace.getAllProjectDetails({
+      const { result, pagination } = await this.marketPlace.getAllProjectDetails({
         search,
         minPrice,
         maxPrice,
@@ -60,7 +61,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getActiveProjectUseCase(userId);
+      const result = await this.marketPlace.getActiveProjectUseCase(userId);
 
       if (!result) {
         res.status(404).json({
@@ -91,7 +92,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getPendingProjectUseCase(userId);
+      const result = await this.marketPlace.getPendingProjectUseCase(userId);
 
       if (!result) {
         res.status(404).json({
@@ -122,7 +123,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getCompletedProjectUseCase(userId);
+      const result = await this.marketPlace.getCompletedProjectUseCase(userId);
 
       if (!result) {
         res.status(404).json({
@@ -156,7 +157,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getProjectDetails(jobId);
+      const result = await this.marketPlace.getProjectDetails(jobId);
 
       if (!result) {
         res.status(404).json({
@@ -202,7 +203,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getProjectDetails(jobId);
+      const result = await this.marketPlace.getProjectDetails(jobId);
 
       if (!result) {
         res.status(404).json({
@@ -220,7 +221,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const updated = await marketPlace.updateJobStatus(jobId, status);
+      const updated = await this.marketPlace.updateJobStatus(jobId, status);
 
       res.status(200).json({ success: true, data: updated });
     } catch (error) {
@@ -264,7 +265,7 @@ export class MarketPlaceProjectController {
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
 
-      const result = await marketPlace.jobProposalUseCase(
+      const result = await this.marketPlace.jobProposalUseCase(
         proposalData,
         userId,
         io,
@@ -315,7 +316,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getProposalDetailsUseCase(
+      const result = await this.marketPlace.getProposalDetailsUseCase(
         userId,
         proposalId
       );
@@ -350,7 +351,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const result = await marketPlace.getAllJobDetailsUseCase(userId);
+      const result = await this.marketPlace.getAllJobDetailsUseCase(userId);
 
       res
         .status(200)
@@ -389,7 +390,7 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      const data = await marketPlace.getProjectAllInformationUseCase(
+      const data = await this.marketPlace.getProjectAllInformationUseCase(
         jobId,
         userId
       );
@@ -428,7 +429,7 @@ export class MarketPlaceProjectController {
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
 
-      const data = await marketPlace.submitMilestoneUseCase(
+      const data = await this.marketPlace.submitMilestoneUseCase(
         jobId,
         userId,
         milestoneId,
@@ -518,7 +519,7 @@ export class MarketPlaceProjectController {
         feedbackType,
       };
 
-      const data = await marketPlace.submitFeedbackCase(feedbackData);
+      const data = await this.marketPlace.submitFeedbackCase(feedbackData);
 
       res.status(200).json({ success: true, data });
     } catch (error) {
@@ -549,7 +550,7 @@ export class MarketPlaceProjectController {
         jobId,
       };
 
-      const data = await marketPlace.submitFreelacerReportUseCase(reportData);
+      const data = await this.marketPlace.submitFreelacerReportUseCase(reportData);
 
       res.status(200).json({ success: true, data });
     } catch (error) {
