@@ -1,9 +1,8 @@
+import { IfreelancerRepo } from "../domain/interfaces/IfreelancerRepo";
+import { userRepoI } from "../domain/interfaces/IuserRepo";
 import cloudinary from "../infrastructure/cloudinary";
-import { FreelancerRepo } from "../infrastructure/repositories/implementations/freelancerRepos/freelancerRepos";
-import { UserRepo } from "../infrastructure/repositories/implementations/userRepo";
-
 export class FreelancerProfileUseCase {
-  constructor(private freelancer: FreelancerRepo, private user: UserRepo) {
+  constructor(private freelancer: IfreelancerRepo, private user: userRepoI) {
     this.freelancer = freelancer;
     this.user = user;
   }

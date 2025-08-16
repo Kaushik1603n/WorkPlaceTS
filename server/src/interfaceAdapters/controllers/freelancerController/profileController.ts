@@ -1,13 +1,11 @@
 import { RequestHandler } from "express";
-import { FreelancerProfileUseCase } from "../../../useCase/freelancerProfileUseCase";
-import { UserRepo } from "../../../infrastructure/repositories/implementations/userRepo";
-import { FreelancerRepo } from "../../../infrastructure/repositories/implementations/freelancerRepos/freelancerRepos";
-
-const user = new UserRepo();
-const freelancer = new FreelancerRepo();
-const freelancerUseCase = new FreelancerProfileUseCase(freelancer, user);
+import { IFreelancerProfileUseCase } from "../../../useCase/Interface/IFreelancerProfileUseCase";
 
 export class freelancerProfileControllers {
+  private freelancerUseCase:IFreelancerProfileUseCase;
+  constructor(usecase:IFreelancerProfileUseCase){
+    this.freelancerUseCase=usecase;
+  }
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
@@ -44,13 +42,13 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const updatedUser = await freelancerUseCase.updateNameAndEmail(
+      const updatedUser = await this.freelancerUseCase.updateNameAndEmail(
         userId,
         fullName,
         email
       );
 
-      const freelancer = await freelancerUseCase.freelancerProfileEdit(
+      const freelancer = await this.freelancerUseCase.freelancerProfileEdit(
         userId,
         availability,
         experience,
@@ -93,7 +91,7 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const freelancer = await freelancerUseCase.profileDetails(userId);
+      const freelancer = await this.freelancerUseCase.profileDetails(userId);
 
       res.status(200).json({
         success: true,
@@ -120,7 +118,7 @@ export class freelancerProfileControllers {
       const pageNum = parseInt(String(page), 10);
       const limitNum = parseInt(String(limit), 10);
 
-      const { clients, pagination } = await freelancerUseCase.clientUseCase(
+      const { clients, pagination } = await this.freelancerUseCase.clientUseCase(
         pageNum,
         limitNum
       );
@@ -150,7 +148,7 @@ export class freelancerProfileControllers {
       const limit = parseInt(req.query.limit as string) || 6;
 
       const { result, totalPages } =
-        await freelancerUseCase.freelancerTicketUseCase(userId, page, limit);
+        await this.freelancerUseCase.freelancerTicketUseCase(userId, page, limit);
 
       res.status(200).json({
         success: true,
@@ -172,7 +170,7 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const result = await freelancerUseCase.totalcountUseCase(userId);
+      const result = await this.freelancerUseCase.totalcountUseCase(userId);
 
       res.status(200).json({
         success: true,
@@ -192,7 +190,7 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const result = await freelancerUseCase.totalEarningsUseCase(userId);
+      const result = await this.freelancerUseCase.totalEarningsUseCase(userId);
 
       res.status(200).json({
         success: true,
@@ -212,7 +210,7 @@ export class freelancerProfileControllers {
         return;
       }
 
-      const result = await freelancerUseCase.dashboardProjectUseCase(userId);
+      const result = await this.freelancerUseCase.dashboardProjectUseCase(userId);
 
       res.status(200).json({
         success: true,

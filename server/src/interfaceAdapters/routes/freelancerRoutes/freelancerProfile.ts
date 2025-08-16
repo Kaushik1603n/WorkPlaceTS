@@ -1,8 +1,8 @@
 import express from "express";
-import { freelancerProfileControllers } from "../../controllers/freelancerController/profileController"; 
 import authenticate from "../../../middleware/authMiddleware";
+import { createFreelancerProfileDependencies } from "../../dependencies/freelancerProfileDependencies";
 
-const profile =new freelancerProfileControllers()
+const profile =createFreelancerProfileDependencies()
 const freelancerProfileRoute = express.Router();
 
 freelancerProfileRoute.put("/profile",authenticate, profile.profileEdit);
