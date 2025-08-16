@@ -8,13 +8,30 @@ import ProjectModel from "../../../../domain/models/Projects";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import PaymentModel from "../../../../domain/models/PaymentModel";
 import WalletModel from "../../../../domain/models/Wallet";
+import {
+  IAdminUser,
+  IAdminFreelancerWithPagination,
+  IAdminClinetWithPagination,
+  IAdminUsersWithPagination,
+  IUserProfileResult,
+  IUserFreelancerProfileResult,
+  IReportWithPagination,
+  IReport,
+  IUserStatsResponse,
+  IUserStatsByWeek,
+  ITopFreelancerRating,
+  AdminJobStats,
+  AdminJobSummary,
+  AdminRevenueReport,
+  AdminIPayment,
+} from "../../../../domain/types/adminType";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
     page: number,
     limit: number,
     search: string
-  ): Promise<any> {
+  ): Promise<IAdminFreelancerWithPagination> {
     const searchQuery = {
       $and: [
         { role: "freelancer" },
@@ -26,10 +43,16 @@ export class UserDataRepo implements userDataRepoI {
         },
       ],
     };
-    const result = await UserModel.find(searchQuery)
+    const result = await UserModel.find(searchQuery, {
+      password: 0,
+      refreshToken: 0,
+      __v: 0,
+    })
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean<IAdminUser[]>();
+
     const total = await UserModel.countDocuments(searchQuery);
 
     return {
@@ -41,7 +64,12 @@ export class UserDataRepo implements userDataRepoI {
       },
     };
   }
-  async findClient(page: number, limit: number, search: string): Promise<any> {
+
+  async findClient(
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<IAdminClinetWithPagination> {
     const searchQuery = {
       $and: [
         { role: "client" },
@@ -56,7 +84,9 @@ export class UserDataRepo implements userDataRepoI {
     const result = await UserModel.find(searchQuery)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean<IAdminUser[]>();
+
     const total = await UserModel.countDocuments(searchQuery);
 
     return {
@@ -68,7 +98,12 @@ export class UserDataRepo implements userDataRepoI {
       },
     };
   }
-  async find(page: number, limit: number, search: string): Promise<any> {
+
+  async find(
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<IAdminUsersWithPagination> {
     const searchQuery = {
       $or: [
         { name: { $regex: search, $options: "i" } },
@@ -80,7 +115,9 @@ export class UserDataRepo implements userDataRepoI {
     const result = await UserModel.find(searchQuery)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean<IAdminUser[]>();
+
     return {
       users: result,
       pagination: {
@@ -91,11 +128,22 @@ export class UserDataRepo implements userDataRepoI {
     };
   }
 
-  async findOneByIdAndUpdate(userId: string, status: string): Promise<any> {
-    const result = await UserModel.findByIdAndUpdate(userId, { status });
+  async findOneByIdAndUpdate(
+    userId: string,
+    status: string
+  ): Promise<IAdminUser | null> {
+    const result = await UserModel.findByIdAndUpdate(
+      userId,
+      { status },
+      { new: true }
+    )
+      .select("-password -refreshToken -__v")
+      .lean<IAdminUser>();
+
     return result;
   }
-  async findClientDetails(userId: string): Promise<any> {
+
+  async findClientDetails(userId: string): Promise<IUserProfileResult> {
     const client = await UserModel.findById(userId, {
       fullName: 1,
       email: 1,
@@ -125,7 +173,10 @@ export class UserDataRepo implements userDataRepoI {
 
     return result;
   }
-  async findfreelancerDetails(userId: string): Promise<any> {
+
+  async findfreelancerDetails(
+    userId: string
+  ): Promise<IUserFreelancerProfileResult> {
     const freelancer = await UserModel.findById(userId, {
       fullName: 1,
       email: 1,
@@ -136,7 +187,7 @@ export class UserDataRepo implements userDataRepoI {
       updatedAt: 1,
     });
     const profile = await FreelancerProfile.findOne({ userId });
-    const result = {
+    const result: IUserFreelancerProfileResult = {
       id: freelancer?._id,
       name: freelancer?.fullName,
       email: freelancer?.email,
@@ -166,23 +217,28 @@ export class UserDataRepo implements userDataRepoI {
   ): Promise<any> {
     await UserModel.findByIdAndUpdate(userId, { isVerification: status });
   }
-  async findReport(page: number, limit: number): Promise<any> {
+
+  async findReport(
+    page: number,
+    limit: number
+  ): Promise<IReportWithPagination> {
     const result = await ReportModal.find()
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean<IReport[]>();
     const totalCount = await ReportModal.countDocuments();
     const totalPages = Math.ceil(totalCount / limit);
-
-    return {result,totalPages};
+    return { result, totalPages };
   }
+
   async updateTicketStatus(
     status: string,
     ticketId: string,
     userId: string
-  ): Promise<any> {
-    try {
+  ): Promise<IReport | null> {
+    try {      
       return await ReportModal.findByIdAndUpdate(
         ticketId,
         {
@@ -202,11 +258,12 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to update ticket");
     }
   }
+
   async updateTicketComment(
     text: string,
     ticketId: string,
     userId: string
-  ): Promise<any> {
+  ): Promise<IReport | null> {
     try {
       return await ReportModal.findByIdAndUpdate(
         ticketId,
@@ -227,9 +284,10 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to update ticket");
     }
   }
-  async findUserGrowthData(): Promise<any> {
+
+  async findUserGrowthData(): Promise<IUserStatsResponse> {
     try {
-      const result = await UserModel.aggregate([
+      const result = await UserModel.aggregate<IUserStatsByWeek>([
         {
           $project: {
             role: 1,
@@ -330,16 +388,17 @@ export class UserDataRepo implements userDataRepoI {
         },
       ]);
       const totalUsers = await UserModel.countDocuments();
+      
       return { result, totalUsers };
     } catch (error) {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findTopFreelancer(): Promise<any> {
+
+  async findTopFreelancer(): Promise<ITopFreelancerRating[]> {
     try {
       const feedbacks = await FeedbackModel.find();
 
-      // Group feedback by freelancerId and calculate averages
       const userRatingsMap = new Map<
         string,
         {
@@ -351,27 +410,27 @@ export class UserDataRepo implements userDataRepoI {
         }
       >();
 
-  feedbacks.forEach((feedback) => {
-  const freelancerId = feedback.toUser.toString();
-  const current = userRatingsMap.get(freelancerId) || {
-    count: 0,
-    totalRating: 0,
-    quality: 0,
-    deadlines: 0,
-    professionalism: 0,
-  };
+      feedbacks.forEach((feedback) => {
+        const freelancerId = feedback.toUser.toString();
+        const current = userRatingsMap.get(freelancerId) || {
+          count: 0,
+          totalRating: 0,
+          quality: 0,
+          deadlines: 0,
+          professionalism: 0,
+        };
 
-  // Only process client-to-freelancer feedback for these stats
-  if (feedback.feedbackType === 'client-to-freelancer') {
-    userRatingsMap.set(freelancerId, {
-      count: current.count + 1,
-      totalRating: current.totalRating + feedback.overallRating,
-      quality: current.quality + (feedback.ratings.quality || 0),
-      deadlines: current.deadlines + (feedback.ratings.deadlines || 0),
-      professionalism: current.professionalism + (feedback.ratings.professionalism || 0),
-    });
-  }
-});
+        if (feedback.feedbackType === "client-to-freelancer") {
+          userRatingsMap.set(freelancerId, {
+            count: current.count + 1,
+            totalRating: current.totalRating + feedback.overallRating,
+            quality: current.quality + (feedback.ratings.quality || 0),
+            deadlines: current.deadlines + (feedback.ratings.deadlines || 0),
+            professionalism:
+              current.professionalism + (feedback.ratings.professionalism || 0),
+          });
+        }
+      });
 
       // Convert map to array of user rating summaries
       const userRatingSummaries = Array.from(userRatingsMap.entries()).map(
@@ -422,7 +481,8 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findAllJobcountUseCase(): Promise<any> {
+
+  async findAllJobcountUseCase(): Promise<AdminJobStats[]> {
     try {
       const result = await ProjectModel.aggregate([
         {
@@ -467,17 +527,17 @@ export class UserDataRepo implements userDataRepoI {
         },
         {
           $sort: {
-            month: 1,
+            monthNum: 1,
           },
         },
       ]);
-
       return result;
     } catch (error) {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findAllJobDetails(): Promise<any> {
+
+  async findAllJobDetails(): Promise<AdminJobSummary> {
     try {
       const totalJobs = await ProjectModel.countDocuments();
       const completedJobs = await ProjectModel.countDocuments({
@@ -496,7 +556,7 @@ export class UserDataRepo implements userDataRepoI {
 
       const activeJob = await ProjectModel.countDocuments({
         status: "in-progress",
-      });
+      });      
       return {
         successRate: successRate.toFixed(2),
         avgBudget: avgBudget[0].avgBudget * 80 || 0,
@@ -508,7 +568,8 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async findRevenueData(): Promise<any> {
+
+  async findRevenueData(): Promise<AdminRevenueReport> {
     try {
       const revenueData = await PaymentRequestModel.aggregate([
         {
@@ -624,7 +685,8 @@ export class UserDataRepo implements userDataRepoI {
       throw new Error("Failed to Load DB Data");
     }
   }
-  async getAllPayments(page: number, limit: number): Promise<any> {
+
+  async getAllPayments(page: number, limit: number): Promise<AdminIPayment[]> {
     try {
       return await PaymentModel.find()
         .skip((page - 1) * limit)

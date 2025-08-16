@@ -1,26 +1,28 @@
+import { AdminIPayment, AdminJobStats, AdminJobSummary, AdminRevenueReport, IAdminClinetWithPagination, IAdminFreelancerWithPagination, IAdminUser, IAdminUsersWithPagination, IReport, IReportWithPagination, ITopFreelancerRating, IUserFreelancerProfileResult, IUserProfileResult, IUserStatsResponse } from "../../types/adminType";
+
 export interface userDataRepoI {
-  findFreelancer(page: number, limit: number, search: string): Promise<any>;
-  findClient(page: number, limit: number, search: string): Promise<any>;
-  find(page: number, limit: number, search: string): Promise<any>;
-  findOneByIdAndUpdate(userId: string, status: string): Promise<any>;
-  findClientDetails(userId: string): Promise<any>;
-  findfreelancerDetails(userId: string): Promise<any>;
+  findFreelancer(page: number, limit: number, search: string): Promise<IAdminFreelancerWithPagination>;
+  findClient(page: number, limit: number, search: string): Promise<IAdminClinetWithPagination>;
+  find(page: number, limit: number, search: string): Promise<IAdminUsersWithPagination>;
+  findOneByIdAndUpdate(userId: string, status: string): Promise<IAdminUser | null>;
+  findClientDetails(userId: string): Promise<IUserProfileResult>;
+  findfreelancerDetails(userId: string): Promise<IUserFreelancerProfileResult>;
   findByIdAndUserVerification(userId: string, status: string): Promise<any>;
-  findReport(page: number, limit: number): Promise<any>;
+  findReport(page: number, limit: number): Promise<IReportWithPagination>;
   updateTicketStatus(
     status: string,
     ticketId: string,
     userId: string
-  ): Promise<any>;
+  ): Promise<IReport | null>;
   updateTicketComment(
     text: string,
     ticketId: string,
     userId: string
-  ): Promise<any>;
-  findUserGrowthData(): Promise<any>;
-  findTopFreelancer(): Promise<any>;
-  findAllJobcountUseCase(): Promise<any>;
-  findAllJobDetails(): Promise<any>;
-  findRevenueData(): Promise<any>;
-  getAllPayments(page: number, limit: number): Promise<any>;
+  ): Promise<IReport | null>;
+  findUserGrowthData(): Promise<IUserStatsResponse>;
+  findTopFreelancer(): Promise<ITopFreelancerRating[]>;
+  findAllJobcountUseCase(): Promise<AdminJobStats[]>;
+  findAllJobDetails(): Promise<AdminJobSummary>;
+  findRevenueData(): Promise<AdminRevenueReport>;
+  getAllPayments(page: number, limit: number): Promise<AdminIPayment[]>;
 }

@@ -6,13 +6,13 @@ interface IPayment extends Document {
   proposalId: Types.ObjectId;
   milestoneId: Types.ObjectId;
   amount: number;
-  platformFee: number; // e.g., 10% of amount
-  netAmount: number; // Amount after fees
+  platformFee: number; 
+  netAmount: number;
   status: "pending" | "completed" | "failed" | "refunded";
-  paymentGatewayId: string; // e.g., Stripe Payment Intent ID
+  paymentGatewayId: string; 
   clientId: Types.ObjectId;
   freelancerId: Types.ObjectId;
-  paymentMethod: string; // e.g., "credit_card", "paypal"
+  paymentMethod: string; 
   createdAt: Date;
   updatedAt: Date;
 }
