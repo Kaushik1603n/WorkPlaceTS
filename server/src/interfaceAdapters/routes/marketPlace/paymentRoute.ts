@@ -1,9 +1,9 @@
 import express from "express";
 import authenticate from "../../../middleware/authMiddleware";
-import { PaymentController } from "../../controllers/marketPlaceController/paymentController";
+import { createPaymentDependencies } from "../../dependencies/paymentDependencies";
 
 const paymentRoutes= express.Router();
-const payment =new PaymentController()
+const payment =createPaymentDependencies()
 
 
 paymentRoutes.post("/order",authenticate,payment.milestonePayment);

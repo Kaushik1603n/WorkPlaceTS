@@ -1,12 +1,13 @@
 // import mongoose from "mongoose";
 import mongoose from "mongoose";
-import { PaymentRepo } from "../infrastructure/repositories/implementations/marketPlace/paymentRepo";
 import { createOrder } from "../shared/utils/razorpay";
 import crypto from "crypto";
 import { AppError } from "../shared/utils/appError";
+import { IpamentRepo } from "../domain/interfaces/IpamentRepo";
+import { IMilestone } from "../domain/types/proposalMilstoneTypes";
 
 export class PaymentUseCase {
-  constructor(private payment: PaymentRepo) {
+  constructor(private payment: IpamentRepo) {
     this.payment = payment;
   }
 
@@ -111,10 +112,10 @@ export class PaymentUseCase {
 
       const title =
         proposal.milestones.find(
-          (mile) => mile._id.toString() === payment.milestoneId.toString()
+          (mile:IMilestone) => mile._id.toString() === payment.milestoneId.toString()
         )?.title || "";
       const totalMilestoneAmount = proposal!.milestones.reduce(
-        (sum, m) => sum + m.amount,
+        (sum:number, m:IMilestone) => sum + m.amount,
         0
       );
       const job = await this.payment.findJobById(payment.jobId, session);

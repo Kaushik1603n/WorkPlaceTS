@@ -1,12 +1,13 @@
 import { RequestHandler } from "express";
-import { PaymentUseCase } from "../../../useCase/paymentUseCase";
-import { PaymentRepo } from "../../../infrastructure/repositories/implementations/marketPlace/paymentRepo";
 import { AppError } from "../../../shared/utils/appError";
-
-const payment = new PaymentRepo();
-const paymentlCase = new PaymentUseCase(payment);
+import { IPaymentUseCase } from "../../../useCase/Interface/IPaymentUseCase";
 
 export class PaymentController {
+  private paymentUseCase:IPaymentUseCase;
+  constructor(usecase:IPaymentUseCase){
+    this.paymentUseCase=usecase;
+  }
+  
   milestonePayment: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -17,7 +18,7 @@ export class PaymentController {
       }
       const { paymentRequestId, milestoneId, amount, receipt } = req.body;
 
-      const order = await paymentlCase.createPaymentUseCase(
+      const order = await this.paymentUseCase.createPaymentUseCase(
         paymentRequestId,
         amount,
         receipt,
@@ -50,7 +51,7 @@ export class PaymentController {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
         req.body;
 
-      const result = await paymentlCase.verifyPayment(
+      const result = await this.paymentUseCase.verifyPayment(
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature
@@ -91,7 +92,7 @@ export class PaymentController {
         platformFee,
         pendingAmount,
         totalCount,
-      } = await paymentlCase.getPaymentsUseCase(userId, page, limit);
+      } = await this.paymentUseCase.getPaymentsUseCase(userId, page, limit);
 
       res.status(200).json({
         message: "Payment fetched successfully",

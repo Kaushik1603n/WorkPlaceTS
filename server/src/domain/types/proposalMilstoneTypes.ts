@@ -6,7 +6,7 @@ interface IDeliverable {
   submittedAt: Date;
 }
 
-interface IMilestone {
+export interface IMilestone {
   _id: Types.ObjectId;
   title: string;
   description: string;
