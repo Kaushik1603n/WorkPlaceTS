@@ -1,7 +1,7 @@
-import { NotificationRepo } from "../infrastructure/repositories/implementations/notificationRepo";
+import { INotificationRepo } from "../domain/interfaces/INotificationRepo";
 
 export class NotificationUseCase {
-  constructor(private notify: NotificationRepo) {
+  constructor(private notify: INotificationRepo) {
     this.notify = notify;
   }
 

@@ -1,8 +1,8 @@
 import express from "express";
 import authenticate from "../../middleware/authMiddleware";
-import { NotificationController } from "../controllers/notificationController";
+import { createNotificationDependencies } from "../dependencies/notificationDependencies";
 
-const notify =new NotificationController()
+const notify =createNotificationDependencies()
 const notificationRout = express.Router();
 
 

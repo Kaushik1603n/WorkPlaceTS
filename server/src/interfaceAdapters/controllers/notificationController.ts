@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
-import { NotificationRepo } from "../../infrastructure/repositories/implementations/notificationRepo";
-import { NotificationUseCase } from "../../useCase/notificationUseCase";
+import { INotificationUseCase } from "../../useCase/Interface/INotificationUseCase";
 
-const notificationRepo = new NotificationRepo();
-const notificationUseCase = new NotificationUseCase(notificationRepo);
 export class NotificationController {
+  private notificationUseCase:INotificationUseCase;
+  constructor(usecase:INotificationUseCase){
+    this.notificationUseCase=usecase;
+  }
   getNotifications: RequestHandler = async (req, res) => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -17,7 +18,7 @@ export class NotificationController {
         return;
       }
 
-      const notifications = await notificationUseCase.getNotifications(userId);
+      const notifications = await this.notificationUseCase.getNotifications(userId);
       res.status(200).json({ success: true, data: notifications });
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -40,7 +41,7 @@ export class NotificationController {
       }
 
      
-      await notificationUseCase.markNotificationsAsRead(userId);
+      await this.notificationUseCase.markNotificationsAsRead(userId);
 
       res
         .status(200)
