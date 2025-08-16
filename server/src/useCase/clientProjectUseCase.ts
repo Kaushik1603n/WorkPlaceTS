@@ -1,8 +1,8 @@
-import { ProjectRepo } from "../infrastructure/repositories/implementations/clientRepos/clientProjectRepo";
+import { IProjectRepo } from "../domain/interfaces/IProjectRepo";
 import { v4 as uuidv4 } from "uuid";
 
 export class ClientProjectUserCase {
-  constructor(private project: ProjectRepo) {
+  constructor(private project: IProjectRepo) {
     this.project = project;
   }
 

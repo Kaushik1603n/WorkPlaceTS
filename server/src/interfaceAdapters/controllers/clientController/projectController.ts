@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
-import { ClientProjectUserCase } from "../../../useCase/clientProjectUseCase";
-import { ProjectRepo } from "../../../infrastructure/repositories/implementations/clientRepos/clientProjectRepo";
-
-const project = new ProjectRepo();
-const projectUserCase = new ClientProjectUserCase(project);
-
+import { IClinetProjectUseCase } from "../../../useCase/Interface/IClientProjectUseCase";
 export class ProjectController {
+  private projectUserCase: IClinetProjectUseCase;
+  constructor(usecase: IClinetProjectUseCase) {
+    this.projectUserCase = usecase;
+  }
+
   newProject: RequestHandler = async (req, res): Promise<void> => {
     const {
       jobTitle,
@@ -38,7 +38,7 @@ export class ProjectController {
       ) {
         throw new Error("All Feild are require");
       }
-      await projectUserCase.newProject(
+      await this.projectUserCase.newProject(
         userId,
         jobTitle,
         description,
@@ -70,7 +70,7 @@ export class ProjectController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 6;
       const { project, totalPage, totalCount } =
-        await projectUserCase.getProjectUseCase(userId, page, limit);
+        await this.projectUserCase.getProjectUseCase(userId, page, limit);
       res.status(200).json({
         success: true,
         message: "Project get successfully",
@@ -95,11 +95,8 @@ export class ProjectController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { result, totalPages } = await projectUserCase.getAllTicketUseCase(
-        userId,
-        page,
-        limit
-      );
+      const { result, totalPages } =
+        await this.projectUserCase.getAllTicketUseCase(userId, page, limit);
       res.status(200).json({
         success: true,
         message: "Project get successfully",
@@ -125,7 +122,7 @@ export class ProjectController {
       const ticketId = req.params.ticketId;
       const { text } = req.body;
 
-      const report = await projectUserCase.TicketStatusCommentUseCase(
+      const report = await this.projectUserCase.TicketStatusCommentUseCase(
         text,
         ticketId,
         userId

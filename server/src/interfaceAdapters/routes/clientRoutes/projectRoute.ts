@@ -1,8 +1,8 @@
 import express from "express";
-import { ProjectController } from "../../controllers/clientController/projectController";
 import authenticate from "../../../middleware/authMiddleware";
+import { createClinetProjectDependencies } from "../../dependencies/clientProjectDependencies";
 
-const project =new ProjectController()
+const project =createClinetProjectDependencies()
 const clientProject = express.Router();
 
 clientProject.post("/new-project",authenticate, project.newProject);
