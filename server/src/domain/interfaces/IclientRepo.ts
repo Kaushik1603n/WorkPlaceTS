@@ -1,4 +1,9 @@
-import { ClientProfileType, FreelancerResultType } from "../types/ClientProfile";
+import {
+  ClientProfileType,
+  FinancialStatsResponse,
+  FreelancerResultTypeWithPage,
+  ProjectStatsResponse,
+} from "../types/ClientProfile";
 
 export interface clientRepoI {
   findOneAndUpdate(
@@ -9,9 +14,9 @@ export interface clientRepoI {
     website: string,
     coverResult: { secure_url: string },
     profileResult: { secure_url: string }
-  ): Promise<ClientProfileType>;
-  findOne(userId: string | unknown):Promise<ClientProfileType>
-  findFreelancer(page: number, limit: number):Promise<FreelancerResultType[]>
-  findProjectByUserId(userId: string):Promise<any>
-  findFinancialByUserId(userId: string):Promise<any>
+  ): Promise<ClientProfileType | null>;
+  findOne(userId: string | unknown): Promise<ClientProfileType | null>;
+  findFreelancer(page: number, limit: number): Promise<FreelancerResultTypeWithPage>;
+  findProjectByUserId(userId: string): Promise<ProjectStatsResponse>;
+  findFinancialByUserId(userId: string): Promise<FinancialStatsResponse>;
 }

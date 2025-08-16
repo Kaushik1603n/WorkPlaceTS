@@ -98,12 +98,15 @@ export class UserUseCase {
   async AllJobcountUseCase(): Promise<AdminJobStats[]> {
     return this.user.findAllJobcountUseCase();
   }
+
   async AllJobDetailsUseCase(): Promise<AdminJobSummary> {
     return this.user.findAllJobDetails();
   }
+
   async RevenueDataUseCase(): Promise<AdminRevenueReport> {
     return this.user.findRevenueData();
   }
+  
   async PaymentsUseCase(page: number, limit: number): Promise<AdminIPayment[]> {
     return this.user.getAllPayments(page, limit);
   }

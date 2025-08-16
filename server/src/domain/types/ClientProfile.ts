@@ -1,5 +1,5 @@
 export interface ClientProfileType {
-  _id?: string;
+  _id: string;
   userId: string;
   profilePic?: string;
   coverPic?: string;
@@ -31,3 +31,47 @@ export interface FreelancerResultType {
   feedbackCount: number;
   freelancerRatings?: FreelancerRatingStats;
 }
+
+export interface FreelancerResultTypeWithPage {
+  freelancers: FreelancerResultType[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  };
+}
+
+export interface ProjectStatsByMonth {
+  month: string;      
+  jobsPosted: number;  
+  hiresMade: number;  
+}
+
+export interface ProjectJobCount {
+  posted: number;  
+  hired: number;  
+}
+
+export interface ProjectStatsResponse {
+  result: ProjectStatsByMonth[];
+  jobCount: ProjectJobCount;
+}
+
+
+export interface WeeklySpending {
+  week: string;  
+  spent: number;   
+  avgCost: number; 
+}
+
+export interface AvgCostPerProject {
+  avgCostPerProject: number;
+  totalProjects: number;   
+}
+
+export interface FinancialStatsResponse {
+  weeklySpending: WeeklySpending[];
+  avgCostPerProject: AvgCostPerProject;
+  totalSpent: number;
+}
+

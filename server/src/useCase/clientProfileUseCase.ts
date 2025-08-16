@@ -1,3 +1,4 @@
+import { ClientProfileType, FinancialStatsResponse, FreelancerResultTypeWithPage, ProjectStatsResponse } from "../domain/types/ClientProfile";
 import cloudinary from "../infrastructure/cloudinary";
 import { ClientRepo } from "../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
 import { UserRepo } from "../infrastructure/repositories/implementations/userRepo";
@@ -16,11 +17,10 @@ export class ClientProfileUserCase {
     website: string,
     coverPic: string,
     profilePic: string
-  ) {
+  ): Promise<ClientProfileType | null> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
-    // console.log(coverPic);
 
     let coverPromise, profilePromise;
 
@@ -66,7 +66,7 @@ export class ClientProfileUserCase {
     userId: string | unknown,
     fullName: string,
     email: string
-  ) {
+  ): Promise<any> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
@@ -76,7 +76,6 @@ export class ClientProfileUserCase {
     }
 
     const user = await this.user.findByEmail(email);
-    // if (!user) throw new Error("Invalid credentials");
 
     if (user.email !== email) {
       const emailUsed = await this.user.findByEmail(email);
@@ -92,24 +91,25 @@ export class ClientProfileUserCase {
     return userData;
   }
 
-  async profileDetails(userId: string | unknown) {
+  async profileDetails(userId: string | unknown): Promise<ClientProfileType | null> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
     const result = await this.client.findOne(userId);
     return result;
   }
-  async freelancerUseCase(page:number,limit:number) {
-    const result = await this.client.findFreelancer(page,limit);
+
+  async freelancerUseCase(page: number, limit: number): Promise<FreelancerResultTypeWithPage> {
+    const result = await this.client.findFreelancer(page, limit);
     return result;
   }
-  async HiringProjectsUseCase(userId:string) {
-    const result =await this.client.findProjectByUserId(userId);
+  async HiringProjectsUseCase(userId: string): Promise<ProjectStatsResponse> {
+    const result = await this.client.findProjectByUserId(userId);
     return result;
   }
-  async FinancialDataUseCase(userId:string) {
-    const result =await this.client.findFinancialByUserId(userId);
-    
+  async FinancialDataUseCase(userId: string): Promise<FinancialStatsResponse> {
+    const result = await this.client.findFinancialByUserId(userId);
+
     return result;
   }
 }

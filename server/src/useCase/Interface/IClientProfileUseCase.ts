@@ -1,3 +1,5 @@
+import { ClientProfileType, FinancialStatsResponse, FreelancerResultTypeWithPage, ProjectStatsResponse } from "../../domain/types/ClientProfile";
+
 export interface IClinetProfileUseCase {
   clientProfileEdit(
     userId: string | unknown,
@@ -7,14 +9,14 @@ export interface IClinetProfileUseCase {
     website: string,
     coverPic: string,
     profilePic: string
-  ): Promise<any>;
+  ): Promise<ClientProfileType | null>;
   updateNameAndEmail(
     userId: string | unknown,
     fullName: string,
     email: string
   ): Promise<any>;
-  profileDetails(userId: string | unknown): Promise<any>;
-  freelancerUseCase(page: number, limit: number): Promise<any>;
-  HiringProjectsUseCase(userId: string): Promise<any>;
-  FinancialDataUseCase(userId: string): Promise<any>;
+  profileDetails(userId: string | unknown): Promise<ClientProfileType | null>;
+  freelancerUseCase(page: number, limit: number): Promise<FreelancerResultTypeWithPage>;
+  HiringProjectsUseCase(userId: string): Promise<ProjectStatsResponse>;
+  FinancialDataUseCase(userId: string): Promise<FinancialStatsResponse>;
 }

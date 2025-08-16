@@ -5,7 +5,13 @@ import UserModel from "../../../../domain/models/User";
 import { Types } from "mongoose";
 import ProjectModel from "../../../../domain/models/Projects";
 import PaymentModel from "../../../../domain/models/PaymentModel";
-import { FreelancerResultType } from "../../../../domain/types/ClientProfile";
+import {
+  ClientProfileType,
+  FinancialStatsResponse,
+  FreelancerResultType,
+  FreelancerResultTypeWithPage,
+  ProjectStatsResponse,
+} from "../../../../domain/types/ClientProfile";
 
 export class ClientRepo implements clientRepoI {
   async findOneAndUpdate(
@@ -16,30 +22,64 @@ export class ClientRepo implements clientRepoI {
     website: string,
     coverResult: { secure_url: string },
     profileResult: { secure_url: string }
-  ): Promise<any> {
-    const result = await clientModal.findOneAndUpdate(
-      { userId },
-      {
-        profilePic: profileResult.secure_url,
-        coverPic: coverResult.secure_url,
-        companyName,
-        location,
-        website,
-        description,
-      },
-      {
-        new: true,
-        upsert: true,
-      }
-    );
-    return result;
+  ): Promise<ClientProfileType | null> {
+    const result = await clientModal
+      .findOneAndUpdate(
+        { userId },
+        {
+          profilePic: profileResult.secure_url,
+          coverPic: coverResult.secure_url,
+          companyName,
+          location,
+          website,
+          description,
+        },
+        {
+          new: true,
+          upsert: true,
+        }
+      )
+      .lean();
+    if (!result) return null;
+
+    return {
+      _id: result._id.toString(),
+      userId: result.userId.toString(),
+      profilePic: result.profilePic,
+      coverPic: result.coverPic,
+      companyName: result.companyName,
+      location: result.location,
+      website: result.website,
+      description: result.description,
+      totalJobsPosted: result.totalJobsPosted,
+      totalSpent: result.totalSpent,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 
-  async findOne(userId: string | unknown): Promise<any> {
-    const result = await clientModal.findOne({ userId });
-    return result;
+  async findOne(userId: string | unknown): Promise<ClientProfileType | null> {
+    const result = await clientModal.findOne({ userId }).lean();
+
+    if (!result) return null;
+
+    return {
+      _id: result._id.toString(),
+      userId: result.userId.toString(),
+      profilePic: result.profilePic,
+      coverPic: result.coverPic,
+      companyName: result.companyName,
+      location: result.location,
+      website: result.website,
+      description: result.description,
+      totalJobsPosted: result.totalJobsPosted,
+      totalSpent: result.totalSpent,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
-  async findFreelancer(page: number, limit: number): Promise<any> {
+
+  async findFreelancer(page: number, limit: number): Promise<FreelancerResultTypeWithPage> {
     const skip = (page - 1) * limit;
 
     const freelancers: FreelancerResultType[] =
@@ -67,7 +107,7 @@ export class ClientRepo implements clientRepoI {
             fullName: 1,
             email: 1,
             role: 1,
-            avgRating:1,
+            avgRating: 1,
             feedbackCount: 1,
             freelancerRatings: 1,
             profilePic: "$profile.profilePic",
@@ -93,7 +133,7 @@ export class ClientRepo implements clientRepoI {
     };
   }
 
-  async findProjectByUserId(userId: string): Promise<any> {
+  async findProjectByUserId(userId: string): Promise<ProjectStatsResponse> {
     const result = await ProjectModel.aggregate([
       {
         $match: {
@@ -171,7 +211,7 @@ export class ClientRepo implements clientRepoI {
     return { result, jobCount };
   }
 
-  async findFinancialByUserId(userId: string): Promise<any> {
+  async findFinancialByUserId(userId: string): Promise<FinancialStatsResponse> {
     const weeklySpending = await PaymentModel.aggregate([
       {
         $match: {
