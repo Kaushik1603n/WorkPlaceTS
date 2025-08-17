@@ -1,4 +1,6 @@
+import { NotificationTypes } from "../../domain/types/NotificationTypes";
+
 export interface INotificationUseCase {
-  getNotifications(userId: string): Promise<any>;
-  markNotificationsAsRead(userId: string): Promise<any>;
+  getNotifications(userId: string): Promise<NotificationTypes[] | undefined>;
+  markNotificationsAsRead(userId: string): Promise<void>;
 }
