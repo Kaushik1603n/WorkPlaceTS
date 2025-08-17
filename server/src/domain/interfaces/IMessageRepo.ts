@@ -1,3 +1,5 @@
+import { UserRole } from "../models/User";
+
 export interface IMessageRepo {
   saveMessage(message: IMessage): Promise<IMessage>;
   saveMedia(message: IMedia): Promise<IMedia>;
@@ -6,9 +8,9 @@ export interface IMessageRepo {
   markMessagesRead(userId: string, contactId: string): Promise<void>;
   toggleMessageLike(messageId: string, userId: string): Promise<any>;
   findAndDelete(msgId: string): Promise<void>;
-  getMessageById(msgId: string): Promise<any>;
+  getMessageById(msgId: string): Promise<IMessage>;
   getLatestMessagedUsers(userId: string): Promise<any>;
-  getUsers(userId: string): Promise<any>;
+  getUsers(userId: string): Promise<MessageBasicUser[]>;
 }
 
 interface IMessage {
@@ -30,4 +32,11 @@ interface IMedia {
   contactId: string;
   timestamp: string;
   isRead: boolean;
+}
+
+export interface MessageBasicUser {
+  _id: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
 }

@@ -1,12 +1,13 @@
 import { IMessageRepo } from "../../../domain/interfaces/IMessageRepo";
 import { MessageModel } from "../../../domain/models/MessageSchema";
-import UserModel from "../../../domain/models/User";
+import UserModel, { UserRole } from "../../../domain/models/User";
 
 export class MessageRepo implements IMessageRepo {
   async saveMessage(message: IMessage): Promise<any> {
     const newMessage = new MessageModel(message);
     return await newMessage.save();
   }
+
   async saveMedia(message: IMedia): Promise<IMedia> {
     const newMessage = new MessageModel(message);
     return await newMessage.save();
@@ -36,7 +37,8 @@ export class MessageRepo implements IMessageRepo {
       { $set: { isRead: true } }
     );
   }
-  async toggleMessageLike(messageId: string, userId: string): Promise<any> {
+
+  async toggleMessageLike(messageId: string, userId: string): Promise<IMessage> {
    const message = await MessageModel.findOne({ id: messageId });
   
   if (!message) {
@@ -61,6 +63,7 @@ export class MessageRepo implements IMessageRepo {
 
   return updatedMessage;
   }
+
   async findAndDelete(msgId: string): Promise<void> {
     await MessageModel.deleteOne({ id: msgId });
   }
@@ -149,7 +152,7 @@ export class MessageRepo implements IMessageRepo {
     }
   }
 
-  async getUsers(userId: string): Promise<any> {
+  async getUsers(userId: string): Promise<BasicUser[]> {
     return await UserModel.find(
       {
         _id: { $ne: userId },
@@ -197,4 +200,11 @@ interface IMedia {
   contactId: string;
   timestamp: string;
   isRead: boolean;
+}
+
+export interface BasicUser {
+  _id: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
 }

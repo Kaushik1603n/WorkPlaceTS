@@ -1,3 +1,4 @@
+import { MessageBasicUser } from "../domain/interfaces/IMessageRepo";
 import { MessageRepo } from "../infrastructure/repositories/implementations/messageRepo";
 
 export class MessageUseCase {
@@ -8,6 +9,7 @@ export class MessageUseCase {
   async sendMessageUseCase(message: IMessage): Promise<IMessage> {
     return await this.message.saveMessage(message);
   }
+
   async sendMediaUseCase(message: IMedia): Promise<IMedia> {
     return await this.message.saveMedia(message);
   }
@@ -28,20 +30,22 @@ export class MessageUseCase {
     return await this.message.getLatestMessagedUsers(userId);
   }
 
-  async getUserUseCase(userId: string) {
+  async getUserUseCase(userId: string) : Promise<MessageBasicUser[]>{
     return await this.message.getUsers(userId);
   }
 
   async markMessagesReadUseCase(userId: string, contactId: string): Promise<void> {
     return await this.message.markMessagesRead(userId, contactId);
   }
-  async toggleMessageLikeUseCase(messageId: string, userId: string): Promise<any> {
+
+  async toggleMessageLikeUseCase(messageId: string, userId: string): Promise<IMessage> {
     return await this.message.toggleMessageLike(messageId, userId);
   }
+
   async deleteMsg(msgId: string): Promise<void> {
-    
     return await this.message.findAndDelete(msgId);
   }
+  
  async getMessageById(msgId: string): Promise<any> {
   return await this.message.getMessageById(msgId);
 }

@@ -1,3 +1,5 @@
+import { MessageBasicUser } from "../../domain/interfaces/IMessageRepo";
+
 export interface IMessageUseCase {
   sendMessageUseCase(message: IMessage): Promise<IMessage>;
   sendMediaUseCase(message: IMedia): Promise<IMedia>;
@@ -8,9 +10,9 @@ export interface IMessageUseCase {
   ): Promise<
     Array<{ user: any; latestMessage: IMessage | null; unreadCount: number }>
   >;
-  getUserUseCase(userId: string): Promise<any>;
+  getUserUseCase(userId: string): Promise<MessageBasicUser[]>;
   markMessagesReadUseCase(userId: string, contactId: string): Promise<void>;
-  toggleMessageLikeUseCase(messageId: string, userId: string): Promise<any>;
+  toggleMessageLikeUseCase(messageId: string, userId: string): Promise<IMessage>;
   deleteMsg(msgId: string): Promise<void>;
   getMessageById(msgId: string): Promise<any>;
 }
