@@ -10,6 +10,6 @@ export interface IPaymentUseCase {
     razorpay_order_id: string,
     razorpay_payment_id: string,
     razorpay_signature: string
-  ): Promise<any>;
+  ): Promise<void>;
   getPaymentsUseCase(userId: string, page: number, limit: number): Promise<any>;
 }

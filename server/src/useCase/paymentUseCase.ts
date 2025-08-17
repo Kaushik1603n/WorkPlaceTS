@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { AppError } from "../shared/utils/appError";
 import { IpamentRepo } from "../domain/interfaces/IpamentRepo";
 import { IMilestone } from "../domain/types/proposalMilstoneTypes";
+// import { IUserWallet } from "../domain/types/paymentTypes";
 
 export class PaymentUseCase {
   constructor(private payment: IpamentRepo) {
@@ -17,7 +18,7 @@ export class PaymentUseCase {
     receipt: string,
     milestoneId: string,
     userId: string
-  ) {
+  ) : Promise<any>{
     const paymentRequest = await this.payment.findPaymentRequest(
       paymentRequestId,
       userId
@@ -69,7 +70,7 @@ export class PaymentUseCase {
     razorpay_order_id: string,
     razorpay_payment_id: string,
     razorpay_signature: string
-  ) {
+  ):Promise<void> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -86,7 +87,7 @@ export class PaymentUseCase {
       const payment = await this.payment.findPayment(razorpay_order_id);
       if (!payment) {
         throw new AppError("Payment not found",404);
-      }
+      } 
 
       await this.payment.findPaymentAndUpdate(
         payment._id,
@@ -145,18 +146,14 @@ export class PaymentUseCase {
         title,
         session
       );
+
       await this.payment.updateAdminWallet(
         payment.platformFee,
         payment._id,
         title,
         session
       );
-
-      // console.log(freelancerWallet);
-      // console.log(adminWallet);
-
-      // Notify freelancer
-
+      
       await session.commitTransaction();
       session.endSession();
     } catch (err) {
@@ -166,7 +163,7 @@ export class PaymentUseCase {
     }
   }
 
-  async getPaymentsUseCase(userId: string, page: number, limit: number) {
+  async getPaymentsUseCase(userId: string, page: number, limit: number):Promise<any> {
     const paymentList = await this.payment.findPaymentByUserId(
       userId,
       page,

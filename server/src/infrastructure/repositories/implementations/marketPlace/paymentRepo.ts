@@ -5,9 +5,18 @@ import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import ProposalModel from "../../../../domain/models/Proposal";
 import ProjectModel from "../../../../domain/models/Projects";
 import WalletModel from "../../../../domain/models/Wallet";
+import {
+  IUserWallet,
+  PaymentJobResponse,
+  PaymentProposalResponse,
+  PaymentResponseType,
+  UpdatePaymentProposalResponse,
+} from "../../../../domain/types/paymentTypes";
 
 export class PaymentRepo implements IpamentRepo {
-  async findProposal(milestoneId: string): Promise<any> {
+  async findProposal(
+    milestoneId: string
+  ): Promise<PaymentProposalResponse | null> {
     const proposal = await ProposalModel.findOne(
       { "milestones._id": milestoneId },
       {
@@ -17,8 +26,34 @@ export class PaymentRepo implements IpamentRepo {
         milestones: { $elemMatch: { _id: milestoneId } },
       }
     ).lean();
-    return proposal;
+
+    if (!proposal) return null;
+
+    return {
+      jobId: proposal.jobId.toString(),
+      job_Id: proposal.job_Id,
+      freelancerId: proposal.freelancerId.toString(),
+      milestones: proposal.milestones.map((m: any) => ({
+        _id: m._id.toString(),
+        title: m.title,
+        description: m.description,
+        amount: m.amount,
+        dueDate: m.dueDate,
+        status: m.status,
+        paymentId: m.paymentId?.toString(),
+        paymentRequestId: m.paymentRequestId?.toString(),
+        deliverables: m.deliverables
+          ? {
+              links: m.deliverables.links,
+              comments: m.deliverables.comments,
+              submittedAt: m.deliverables.submittedAt,
+              feedback: m.deliverables.feedback,
+            }
+          : undefined,
+      })),
+    };
   }
+
   async findPaymentRequest(
     paymentRequestId: string,
     clientId: string
@@ -32,40 +67,59 @@ export class PaymentRepo implements IpamentRepo {
       .lean();
     return paymentRequest;
   }
-  async createPayment(paymentData: object): Promise<any> {
-    const pay = await PaymentModel.create(paymentData);
 
-    return pay;
+  async createPayment(paymentData: object): Promise<void> {
+    await PaymentModel.create(paymentData);
+    return;
   }
 
-  async findPayment(razorpay_order_id: string): Promise<any> {
+  async findPayment(
+    razorpay_order_id: string
+  ): Promise<PaymentResponseType | null> {
     const payment = await PaymentModel.findOne({
       paymentGatewayId: razorpay_order_id,
     });
-    return payment;
+    
+    return payment
+      ? {
+          _id: payment._id.toString(),
+          jobId: payment.jobId,
+          proposalId: payment.proposalId,
+          milestoneId: payment.milestoneId,
+          amount: payment.amount,
+          platformFee: payment.platformFee,
+          netAmount: payment.netAmount,
+          status: payment.status,
+          paymentGatewayId: payment.paymentGatewayId,
+          clientId: payment.clientId.toString(),
+          freelancerId: payment.freelancerId,
+          paymentMethod: payment.paymentMethod,
+          createdAt: payment.createdAt,
+          updatedAt: payment.updatedAt,
+        }
+      : null;
   }
 
   async findPaymentAndUpdate(
     id: string,
     status: string,
     session: ClientSession
-  ): Promise<any> {
-    const payment = await PaymentModel.findByIdAndUpdate(
+  ): Promise<void> {
+    await PaymentModel.findByIdAndUpdate(
       id,
       {
         $set: { status: status },
       },
       { session }
     );
-    return payment;
   }
 
   async updatePaymentRequest(
     milestoneId: Types.ObjectId,
     proposalId: Types.ObjectId,
     session: ClientSession
-  ): Promise<any> {
-    const paymentRequest = await PaymentRequestModel.findOneAndUpdate(
+  ): Promise<void> {
+    await PaymentRequestModel.findOneAndUpdate(
       {
         milestoneId: milestoneId,
         proposalId: proposalId,
@@ -77,14 +131,13 @@ export class PaymentRepo implements IpamentRepo {
       },
       { session }
     );
-    return paymentRequest;
   }
 
   async findByIdAndUpdateProposal(
     milestoneId: Types.ObjectId,
     paymentId: string,
     session: ClientSession
-  ) {
+  ): Promise<UpdatePaymentProposalResponse | null> {
     const proposal = await ProposalModel.findOneAndUpdate(
       {
         "milestones._id": milestoneId,
@@ -101,15 +154,61 @@ export class PaymentRepo implements IpamentRepo {
       { new: true, session }
     );
 
-    return proposal;
+    if (!proposal) return null;
+
+    return {
+      _id: proposal._id.toString(),
+      freelancerId: proposal.freelancerId.toString(),
+      jobId: proposal.jobId.toString(),
+      job_Id: proposal.job_Id,
+      coverLetter: proposal.coverLetter,
+      budgetType: proposal.budgetType,
+      bidAmount: proposal.bidAmount,
+      estimatedTime: proposal.estimatedTime,
+      workSamples: proposal.workSamples,
+      PortfolioAttachments: proposal.PortfolioAttachments ?? [],
+      milestones: proposal.milestones.map((m: any) => ({
+        _id: m._id.toString(),
+        title: m.title,
+        description: m.description,
+        amount: m.amount,
+        dueDate: m.dueDate,
+        status: m.status,
+        paymentId: m.paymentId?.toString(),
+        paymentRequestId: m.paymentRequestId?.toString(),
+        deliverables: m.deliverables
+          ? {
+              links: m.deliverables.links ?? [],
+              comments: m.deliverables.comments,
+              submittedAt: m.deliverables.submittedAt,
+              feedback: m.deliverables.feedback,
+            }
+          : undefined,
+      })),
+      payments: proposal.payments.map((p: any) => p.toString()),
+      status: proposal.status,
+      contractId: proposal.contractId?.toString(),
+      agreeNDA: proposal.agreeNDA,
+      agreeVideoCall: proposal.agreeVideoCall,
+      createdAt: proposal.createdAt,
+      updatedAt: proposal.updatedAt,
+    };
   }
 
   async findJobById(
     jobId: Types.ObjectId,
     session: ClientSession
-  ): Promise<any> {
-    const job = await ProjectModel.findById(jobId).session(session);
-    return job;
+  ): Promise<PaymentJobResponse | null> {
+    const job = await ProjectModel.findById(jobId).session(session).lean();
+    if (!job) return null;
+
+    return {
+      _id: job._id.toString(),
+      job_Id: job.job_Id,
+      clientId: job.clientId.toString(),
+      title: job.title,
+      description: job.description,
+    };
   }
 
   async totalPaidPayment(jobId: string, session: ClientSession): Promise<any> {
@@ -126,8 +225,8 @@ export class PaymentRepo implements IpamentRepo {
     paymentStatus: string,
     status: string,
     session: ClientSession
-  ): Promise<any> {
-    const job = await ProjectModel.findByIdAndUpdate(
+  ): Promise<void> {
+    await ProjectModel.findByIdAndUpdate(
       jobId,
       {
         paymentStatus: paymentStatus,
@@ -135,17 +234,16 @@ export class PaymentRepo implements IpamentRepo {
       },
       { session }
     );
-
-    return job;
   }
+
   async updateFreelancerWallet(
     freelancerId: Types.ObjectId,
     netAmount: number,
     paymentId: string,
     title: string,
     session: ClientSession
-  ): Promise<any> {
-    const freelancerWallet = await WalletModel.findOneAndUpdate(
+  ): Promise<void> {
+    await WalletModel.findOneAndUpdate(
       { userId: freelancerId },
       {
         $inc: { balance: netAmount },
@@ -158,17 +256,17 @@ export class PaymentRepo implements IpamentRepo {
           },
         },
       },
-      { upsert: true, new: true, session } // Create wallet if it doesn't exist
+      { upsert: true, new: true, session }
     );
-    return freelancerWallet;
   }
+
   async updateAdminWallet(
     platformFee: number,
     paymentId: string,
     title: string,
     session: ClientSession
-  ): Promise<any> {
-    const freelancerWallet = await WalletModel.findOneAndUpdate(
+  ): Promise<void> {
+    await WalletModel.findOneAndUpdate(
       { userId: "admin" },
       {
         $inc: { balance: platformFee },
@@ -183,7 +281,6 @@ export class PaymentRepo implements IpamentRepo {
       },
       { upsert: true, new: true, session }
     );
-    return freelancerWallet;
   }
 
   async findPaymentByUserId(
@@ -193,7 +290,8 @@ export class PaymentRepo implements IpamentRepo {
   ): Promise<any> {
     const wallet = await WalletModel.findOne({
       userId: new Types.ObjectId(userId),
-    }).lean<IWallet | null>();
+    }).lean<IUserWallet | null>();
+
     const payment = await PaymentRequestModel.find({
       freelancerId: new Types.ObjectId(userId),
     })
@@ -205,9 +303,11 @@ export class PaymentRepo implements IpamentRepo {
     const totalCount = await PaymentRequestModel.countDocuments({
       freelancerId: new Types.ObjectId(userId),
     });
+
     const totalPages = Math.ceil(totalCount / limit);
 
     const objectId = new mongoose.Types.ObjectId(userId);
+
     const totalAmount = await PaymentRequestModel.aggregate([
       {
         $match: {
@@ -221,6 +321,7 @@ export class PaymentRepo implements IpamentRepo {
         },
       },
     ]);
+
     const netAmount = await PaymentRequestModel.aggregate([
       {
         $match: {
@@ -234,6 +335,7 @@ export class PaymentRepo implements IpamentRepo {
         },
       },
     ]);
+
     const platformFee = await PaymentRequestModel.aggregate([
       {
         $match: {
@@ -247,6 +349,7 @@ export class PaymentRepo implements IpamentRepo {
         },
       },
     ]);
+
     const pendingAmount = await PaymentRequestModel.aggregate([
       {
         $match: {
@@ -273,22 +376,4 @@ export class PaymentRepo implements IpamentRepo {
       pendingAmount: pendingAmount[0]?.pendingAmount || 0,
     };
   }
-}
-
-interface IWalletTransaction {
-  type: "credit" | "debit";
-  amount: number;
-  description: string;
-  paymentId?: Types.ObjectId;
-  createdAt: Date;
-}
-
-export interface IWallet {
-  _id: Types.ObjectId;
-  userId: Types.ObjectId | "admin";
-  balance: number;
-  currency: string;
-  transactions: IWalletTransaction[];
-  createdAt: Date;
-  updatedAt: Date;
 }
