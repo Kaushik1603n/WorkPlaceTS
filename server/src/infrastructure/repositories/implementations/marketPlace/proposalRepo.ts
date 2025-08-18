@@ -185,6 +185,7 @@ export class ProposalRepo implements IProposalRepo {
           status: m.status,
         })),
         submittedAt: proposal.createdAt,
+        contractId:proposal.contractId,
       }));
     } catch (error) {
       console.error("Error creating contract:", error);

@@ -48,7 +48,7 @@ export interface ProposalSummaryResponse {
     status: string;
     title: string;
   };
-  job_Id:string;
+  job_Id: string;
   jobTitle: string;
   jobBudget: number;
   jobBudgetType: string;
@@ -66,4 +66,5 @@ export interface ProposalSummaryResponse {
     status: string;
   }[];
   submittedAt: Date;
+  contractId: ObjectId;
 }

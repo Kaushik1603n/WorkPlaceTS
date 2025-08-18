@@ -18,7 +18,7 @@ export class PaymentUseCase {
     receipt: string,
     milestoneId: string,
     userId: string
-  ) : Promise<any>{
+  ): Promise<any> {
     const paymentRequest = await this.payment.findPaymentRequest(
       paymentRequestId,
       userId
@@ -70,7 +70,7 @@ export class PaymentUseCase {
     razorpay_order_id: string,
     razorpay_payment_id: string,
     razorpay_signature: string
-  ):Promise<void> {
+  ): Promise<void> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -81,13 +81,13 @@ export class PaymentUseCase {
         .digest("hex");
 
       if (shasum !== razorpay_signature) {
-        throw new AppError("Invalid payment signature",400);
+        throw new AppError("Invalid payment signature", 400);
       }
 
       const payment = await this.payment.findPayment(razorpay_order_id);
       if (!payment) {
-        throw new AppError("Payment not found",404);
-      } 
+        throw new AppError("Payment not found", 404);
+      }
 
       await this.payment.findPaymentAndUpdate(
         payment._id,
@@ -108,21 +108,22 @@ export class PaymentUseCase {
       );
 
       if (!proposal) {
-        throw new AppError("Proposal not found",404);
+        throw new AppError("Proposal not found", 404);
       }
 
       const title =
         proposal.milestones.find(
-          (mile:IMilestone) => mile._id.toString() === payment.milestoneId.toString()
+          (mile: IMilestone) =>
+            mile._id.toString() === payment.milestoneId.toString()
         )?.title || "";
       const totalMilestoneAmount = proposal!.milestones.reduce(
-        (sum:number, m:IMilestone) => sum + m.amount,
+        (sum: number, m: IMilestone) => sum + m.amount,
         0
       );
       const job = await this.payment.findJobById(payment.jobId, session);
 
       if (!job) {
-        throw new AppError("Job not found",404);
+        throw new AppError("Job not found", 404);
       }
 
       const totalPaid = await this.payment.totalPaidPayment(job._id, session);
@@ -153,7 +154,7 @@ export class PaymentUseCase {
         title,
         session
       );
-      
+
       await session.commitTransaction();
       session.endSession();
     } catch (err) {
@@ -163,7 +164,11 @@ export class PaymentUseCase {
     }
   }
 
-  async getPaymentsUseCase(userId: string, page: number, limit: number):Promise<any> {
+  async getPaymentsUseCase(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<any> {
     const paymentList = await this.payment.findPaymentByUserId(
       userId,
       page,

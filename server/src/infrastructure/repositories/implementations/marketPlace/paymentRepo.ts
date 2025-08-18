@@ -79,7 +79,7 @@ export class PaymentRepo implements IpamentRepo {
     const payment = await PaymentModel.findOne({
       paymentGatewayId: razorpay_order_id,
     });
-    
+
     return payment
       ? {
           _id: payment._id.toString(),
@@ -211,12 +211,12 @@ export class PaymentRepo implements IpamentRepo {
     };
   }
 
-  async totalPaidPayment(jobId: string, session: ClientSession): Promise<any> {
+  async totalPaidPayment(jobId: string, session: ClientSession): Promise<any> {    
     const totalPaid = await PaymentModel.aggregate([
-      { $match: { jobId: jobId, status: "completed" } },
+      { $match: { jobId: new Types.ObjectId(jobId), status: "completed" } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]).session(session);
-
+   
     return totalPaid[0]?.total;
   }
 
