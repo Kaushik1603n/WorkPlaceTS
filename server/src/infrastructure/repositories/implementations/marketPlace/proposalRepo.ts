@@ -1,5 +1,8 @@
 import mongoose, { ObjectId } from "mongoose";
-import { FreelancerProposalResponse } from "../../../../domain/dto/freelancerProposalsDTO";
+import {
+  FreelancerProposalResponse,
+  ProposalSummaryResponse,
+} from "../../../../domain/dto/freelancerProposalsDTO";
 import { JonContractDetails } from "../../../../domain/dto/proposalContractDTO";
 import { ProposalResponse } from "../../../../domain/dto/proposalDTO";
 import ContractModel from "../../../../domain/models/ContractModel";
@@ -9,7 +12,19 @@ import { IProposalRepo } from "../../../../domain/interfaces/IProposalRepo";
 import { IProposalMilestones } from "../../../../domain/dto/proposalMilstoneDTO";
 import PaymentRequestModel from "../../../../domain/models/PaymentRequest";
 import { IProposalMilestonesType } from "../../../../domain/types/proposalMilstoneTypes";
-import { ProjectDetailsTypes } from "../../../../domain/types/MarketPlaceTypes";
+import {
+  AcceptProposalContractResponse,
+  ContractDetailsResponse,
+  ContractResponse,
+  FindProposalByIdResponse,
+  IPaymentRequestResponse,
+  IProposalMilestoneResult,
+  JobStatusResponse,
+  ProjectDetailsTypes,
+  ProposalListResponse,
+  ProposalMilestonesApproveResponse,
+  ProposalMilestonesRejectResponse,
+} from "../../../../domain/types/MarketPlaceTypes";
 import { isValidObjectId } from "mongoose";
 import UserModel from "../../../../domain/models/User";
 
@@ -18,22 +33,25 @@ export class ProposalRepo implements IProposalRepo {
     proposalId: string,
     contractId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<void> {
     try {
-      return await ProposalModel.findByIdAndUpdate(
+      await ProposalModel.findByIdAndUpdate(
         proposalId,
         {
           $set: { status: "accepted", contractId: contractId },
         },
         { new: true, session }
       ).lean();
+      return;
     } catch (error) {
       console.error("Error updating proposal status:", error);
       throw new Error("Failed to update proposal status");
     }
   }
 
-  async findProposalById(proposalId: string): Promise<any> {
+  async findProposalById(
+    proposalId: string
+  ): Promise<FindProposalByIdResponse | null> {
     try {
       const getProposal = await ProposalModel.findById(proposalId)
         .select(
@@ -71,50 +89,69 @@ export class ProposalRepo implements IProposalRepo {
   }
 
   async findProjectDetails(jobId: string): Promise<ProjectDetailsTypes> {
-      if (!isValidObjectId(jobId)) {
-        throw new Error("Invalid Job ID format");
-      }
-  
-      try {
-        const project = await ProjectModel.findById(jobId);
-        const client = await UserModel.findById(project?.clientId);
-  
-        const result: ProjectDetailsTypes = {
-          title: project?.title,
-          status: project?.status,
-          description: project?.description,
-          stack: project?.stack,
-          time: project?.time,
-          reference: project?.reference,
-          requiredFeatures: project?.requiredFeatures,
-          budgetType: project?.budgetType,
-          budget: project?.budget,
-          experienceLevel: project?.experienceLevel,
-          clientId: {
-            fullName: client?.fullName,
-            email: client?.email,
-          },
-        };
-        return result;
-      } catch (error) {
-        console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
-        throw error;
-      }
+    if (!isValidObjectId(jobId)) {
+      throw new Error("Invalid Job ID format");
     }
+
+    try {
+      const project = await ProjectModel.findById(jobId);
+      const client = await UserModel.findById(project?.clientId);
+
+      const result: ProjectDetailsTypes = {
+        title: project?.title,
+        status: project?.status,
+        description: project?.description,
+        stack: project?.stack,
+        time: project?.time,
+        reference: project?.reference,
+        requiredFeatures: project?.requiredFeatures,
+        budgetType: project?.budgetType,
+        budget: project?.budget,
+        experienceLevel: project?.experienceLevel,
+        clientId: {
+          fullName: client?.fullName,
+          email: client?.email,
+        },
+      };
+      return result;
+    } catch (error) {
+      console.error(`[findProjectDetails] DB error for job ${jobId}:`, error);
+      throw error;
+    }
+  }
 
   async createProposalContract(
     contract: object,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<ContractResponse> {
     try {
-      return await ContractModel.create([contract], { session });
+      const [newContract] = await ContractModel.create([contract], { session });
+
+      return {
+        _id: newContract._id.toString(),
+        jobId: newContract.jobId.toString(),
+        job_Id: newContract.job_Id,
+        proposalId: newContract.proposalId.toString(),
+        freelancerId: newContract.freelancerId.toString(),
+        clientId: newContract.clientId.toString(),
+        title: newContract.title,
+        description: newContract.description,
+        startDate: newContract.startDate,
+        endDate: newContract.endDate,
+        totalAmount: newContract.totalAmount,
+        status: newContract.status,
+        paymentMethod: newContract.paymentMethod,
+        terms: newContract.terms,
+        createdAt: newContract.createdAt,
+        updatedAt: newContract.updatedAt,
+      };
     } catch (error) {
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
     }
   }
 
-  async getProposalbyId(userId: string): Promise<any> {
+  async getProposalbyId(userId: string): Promise<ProposalSummaryResponse[]> {
     try {
       const proposals = await ProposalModel.find({ freelancerId: userId })
         .populate({
@@ -124,14 +161,38 @@ export class ProposalRepo implements IProposalRepo {
         .sort({ createdAt: -1 })
         .lean<FreelancerProposalResponse[] | null>();
 
-      return proposals;
+      if (!proposals) return [];
+
+      return proposals.map((proposal) => ({
+        proposalId: proposal._id.toString(),
+        freelancerId: proposal.freelancerId.toString(),
+        jobId: proposal.jobId,
+        job_Id: proposal.jobId._id.toString(),
+        jobTitle: proposal.jobId.title,
+        jobBudget: proposal.jobId.budget,
+        jobBudgetType: proposal.jobId.budgetType,
+        jobStatus: proposal.jobId.status,
+        coverLetter: proposal.coverLetter,
+        bidAmount: proposal.bidAmount,
+        estimatedTime: proposal.estimatedTime,
+        status: proposal.status,
+        milestones: proposal.milestones.map((m) => ({
+          milestoneId: m._id.toString(),
+          title: m.title,
+          description: m.description,
+          amount: m.amount,
+          dueDate: m.dueDate,
+          status: m.status,
+        })),
+        submittedAt: proposal.createdAt,
+      }));
     } catch (error) {
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
     }
   }
 
-  async getProjectProposalbyId(jobId: string): Promise<any> {
+  async getProjectProposalbyId(jobId: string): Promise<ProposalListResponse[]> {
     try {
       const allProposals = await ProposalModel.find(
         { jobId: jobId },
@@ -141,7 +202,7 @@ export class ProposalRepo implements IProposalRepo {
           status: 1,
           createdAt: 1,
           bidAmount: 1,
-          jobId: 1, // Make sure to include jobId in the projection
+          jobId: 1,
         }
       )
         .populate<{ freelancerId: PopulatedFreelancer }>({
@@ -173,7 +234,9 @@ export class ProposalRepo implements IProposalRepo {
     }
   }
 
-  async getContractDetailsNormal(contractId: string): Promise<any> {
+  async getContractDetailsNormal(
+    contractId: string
+  ): Promise<ContractDetailsResponse> {
     try {
       const contractDetails = await ContractModel.findById(
         contractId
@@ -183,14 +246,30 @@ export class ProposalRepo implements IProposalRepo {
         throw new Error("Contract not found");
       }
 
-      return contractDetails;
+      return {
+        _id: contractDetails._id.toString(),
+        job_Id: contractDetails.job_Id,
+        proposalId: contractDetails.proposalId.toString(),
+        freelancerId: contractDetails.freelancerId.toString(),
+        clientId: contractDetails.clientId.toString(),
+        jobId: contractDetails.jobId.toString(),
+        title: contractDetails.title,
+        startDate: contractDetails.startDate,
+        totalAmount: contractDetails.totalAmount,
+        status: contractDetails.status,
+        terms: contractDetails.terms,
+        createdAt: contractDetails.createdAt,
+        updatedAt: contractDetails.updatedAt,
+      };
     } catch (error) {
       console.error("Error fetching contract details:", error);
       throw new Error("Failed to fetch contract details");
     }
   }
 
-  async getContractDetails(contractId: string): Promise<any> {
+  async getContractDetails(
+    contractId: string
+  ): Promise<ContractDetailsResponse> {
     try {
       const contractDetails = await ContractModel.findById(
         contractId
@@ -200,16 +279,31 @@ export class ProposalRepo implements IProposalRepo {
         throw new Error("Contract not found");
       }
 
-      return contractDetails;
+      return {
+        _id: contractDetails._id.toString(),
+        job_Id: contractDetails.job_Id,
+        proposalId: contractDetails.proposalId.toString(),
+        freelancerId: contractDetails.freelancerId.toString(),
+        clientId: contractDetails.clientId.toString(),
+        jobId: contractDetails.jobId.toString(),
+        title: contractDetails.title,
+        startDate: contractDetails.startDate,
+        totalAmount: contractDetails.totalAmount,
+        status: contractDetails.status,
+        terms: contractDetails.terms,
+        createdAt: contractDetails.createdAt,
+        updatedAt: contractDetails.updatedAt,
+      };
     } catch (error) {
       console.error("Error fetching contract details:", error);
       throw new Error("Failed to fetch contract details");
     }
   }
+
   async getContractDetailsWithSession(
     contractId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<ContractDetailsResponse> {
     try {
       const contractDetails = await ContractModel.findById(contractId)
         .session(session)
@@ -219,7 +313,21 @@ export class ProposalRepo implements IProposalRepo {
         throw new Error("Contract not found");
       }
 
-      return contractDetails;
+      return {
+        _id: contractDetails._id.toString(),
+        job_Id: contractDetails.job_Id,
+        proposalId: contractDetails.proposalId.toString(),
+        freelancerId: contractDetails.freelancerId.toString(),
+        clientId: contractDetails.clientId.toString(),
+        jobId: contractDetails.jobId.toString(),
+        title: contractDetails.title,
+        startDate: contractDetails.startDate,
+        totalAmount: contractDetails.totalAmount,
+        status: contractDetails.status,
+        terms: contractDetails.terms,
+        createdAt: contractDetails.createdAt,
+        updatedAt: contractDetails.updatedAt,
+      };
     } catch (error) {
       console.error("Error fetching contract details:", error);
       throw new Error("Failed to fetch contract details");
@@ -229,7 +337,7 @@ export class ProposalRepo implements IProposalRepo {
   async getJobStatus(
     jobId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<JobStatusResponse> {
     try {
       const status = await ProjectModel.findById(jobId, { status: 1 })
         .session(session)
@@ -238,7 +346,11 @@ export class ProposalRepo implements IProposalRepo {
       if (!status) {
         throw new Error("Job not found");
       }
-      return status;
+
+      return {
+        status: status.status,
+        jobId: status._id?.toString() ?? jobId,
+      };
     } catch (error) {
       console.error("Error creating contract:", error);
       throw new Error("Failed to create contract");
@@ -251,7 +363,7 @@ export class ProposalRepo implements IProposalRepo {
     proposal_id: string,
     contractId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<AcceptProposalContractResponse> {
     try {
       const job = await ProjectModel.findByIdAndUpdate(
         jobId,
@@ -292,7 +404,23 @@ export class ProposalRepo implements IProposalRepo {
         throw new Error("Proposal not found");
       }
 
-      return contract;
+      return {
+        _id: contract._id.toString(),
+        jobId: contract.jobId.toString(),
+        job_Id: proposal.job_Id,
+        proposalId: contract.proposalId.toString(),
+        freelancerId: contract.freelancerId.toString(),
+        clientId: contract.clientId.toString(),
+        title: contract.title,
+        status: contract.status,
+        totalAmount: contract.totalAmount,
+        startDate: contract.startDate,
+        endDate: contract.endDate,
+        paymentMethod: contract.paymentMethod,
+        terms: contract.terms,
+        createdAt: contract.createdAt,
+        updatedAt: contract.updatedAt,
+      };
     } catch (error) {
       console.error("Error update contract accept status:", error);
       throw new Error("Failed to contract accept status");
@@ -302,7 +430,7 @@ export class ProposalRepo implements IProposalRepo {
   async rejectProposalContract(
     proposal_id: string,
     contractId: string
-  ): Promise<any> {
+  ): Promise<AcceptProposalContractResponse> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -333,7 +461,23 @@ export class ProposalRepo implements IProposalRepo {
 
       await session.commitTransaction();
 
-      return contract;
+      return {
+        _id: contract._id.toString(),
+        jobId: contract.jobId.toString(),
+        job_Id: proposal.job_Id,
+        proposalId: contract.proposalId.toString(),
+        freelancerId: contract.freelancerId.toString(),
+        clientId: contract.clientId.toString(),
+        title: contract.title,
+        status: contract.status,
+        totalAmount: contract.totalAmount,
+        startDate: contract.startDate,
+        endDate: contract.endDate,
+        paymentMethod: contract.paymentMethod,
+        terms: contract.terms,
+        createdAt: contract.createdAt,
+        updatedAt: contract.updatedAt,
+      };
     } catch (error) {
       await session.abortTransaction();
       console.error("Error creating contract:", error);
@@ -375,18 +519,58 @@ export class ProposalRepo implements IProposalRepo {
   async proposalMilestonesApprove(
     milestoneId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
-    return await ProposalModel.findOneAndUpdate(
+  ): Promise<ProposalMilestonesApproveResponse | null> {
+    const updatedProposal = await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.status": "approved" } },
       { new: true, session }
     ).lean();
+
+    if (!updatedProposal) return null;
+
+    return {
+      proposal_id: updatedProposal._id.toString(),
+      freelancerId: updatedProposal.freelancerId.toString(),
+      jobId: updatedProposal.jobId.toString(),
+      job_Id: updatedProposal.job_Id,
+      coverLetter: updatedProposal.coverLetter,
+      budgetType: updatedProposal.budgetType,
+      bidAmount: updatedProposal.bidAmount,
+      estimatedTime: updatedProposal.estimatedTime,
+      workSamples: updatedProposal.workSamples,
+      portfolioAttachments: updatedProposal.PortfolioAttachments || [],
+      milestones: updatedProposal.milestones.map((m) => ({
+        _id: m._id.toString(),
+        title: m.title,
+        description: m.description,
+        amount: m.amount,
+        dueDate: m.dueDate,
+        status: m.status,
+        paymentId: m.paymentId?.toString(),
+        paymentRequestId: m.paymentRequestId?.toString(),
+        deliverables: m.deliverables
+          ? {
+              links: m.deliverables.links,
+              comments: m.deliverables.comments,
+              submittedAt: m.deliverables.submittedAt,
+              feedback: m.deliverables.feedback,
+            }
+          : undefined,
+      })),
+      payments: updatedProposal.payments.map((p) => p.toString()),
+      status: updatedProposal.status,
+      contractId: updatedProposal.contractId?.toString(),
+      agreeNDA: updatedProposal.agreeNDA,
+      agreeVideoCall: updatedProposal.agreeVideoCall,
+      createdAt: updatedProposal.createdAt,
+      updatedAt: updatedProposal.updatedAt,
+    };
   }
 
   async findProposal(
     milestoneId: string,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<IProposalMilestoneResult | null> {
     const proposal = await ProposalModel.findOne(
       { "milestones._id": milestoneId },
       {
@@ -414,7 +598,14 @@ export class ProposalRepo implements IProposalRepo {
       amount: milestone.amount,
       dueDate: milestone.dueDate,
       status: milestone.status,
-      deliverables: milestone.deliverables,
+      deliverables: milestone.deliverables
+        ? {
+            links: milestone.deliverables.links,
+            comments: milestone.deliverables.comments,
+            submittedAt: milestone.deliverables.submittedAt,
+            feedback: milestone.deliverables.feedback,
+          }
+        : undefined,
     };
   }
 
@@ -429,8 +620,8 @@ export class ProposalRepo implements IProposalRepo {
     platformFee: number,
     netAmount: number,
     session: mongoose.ClientSession
-  ): Promise<any> {
-    return await PaymentRequestModel.create(
+  ): Promise<IPaymentRequestResponse> {
+    const [paymentRequest] = await PaymentRequestModel.create(
       [
         {
           jobId,
@@ -446,13 +637,28 @@ export class ProposalRepo implements IProposalRepo {
       ],
       { session }
     );
+
+    return {
+      _id: paymentRequest._id,
+      jobId: paymentRequest.jobId,
+      proposalId: paymentRequest.proposalId,
+      milestoneId: paymentRequest.milestoneId,
+      amount: paymentRequest.amount,
+      platformFee: paymentRequest.platformFee,
+      netAmount: paymentRequest.netAmount,
+      status: paymentRequest.status,
+      freelancerId: paymentRequest.freelancerId,
+      clientId: paymentRequest.clientId,
+      createdAt: paymentRequest.createdAt,
+      updatedAt: paymentRequest.updatedAt,
+    };
   }
 
   async updatePaymentID(
     milestoneId: string,
     paymentRequestId: any,
     session: mongoose.ClientSession
-  ): Promise<any> {
+  ): Promise<void> {
     await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.paymentRequestId": paymentRequestId } },
@@ -460,14 +666,54 @@ export class ProposalRepo implements IProposalRepo {
     );
   }
 
-  async proposalMilestonesReject(milestoneId: string): Promise<any> {
+  async proposalMilestonesReject(
+    milestoneId: string
+  ): Promise<ProposalMilestonesRejectResponse | null> {
     const proposal = await ProposalModel.findOneAndUpdate(
       { "milestones._id": milestoneId },
       { $set: { "milestones.$.status": "rejected" } },
       { new: true }
     );
 
-    return proposal;
+    if (!proposal) return null;
+
+    return {
+      _id: proposal._id,
+      freelancerId: proposal.freelancerId,
+      jobId: proposal.jobId,
+      job_Id: proposal.job_Id,
+      coverLetter: proposal.coverLetter,
+      budgetType: proposal.budgetType,
+      bidAmount: proposal.bidAmount,
+      estimatedTime: proposal.estimatedTime,
+      workSamples: proposal.workSamples,
+      PortfolioAttachments: proposal.PortfolioAttachments,
+      milestones: proposal.milestones.map((m) => ({
+        _id: m._id,
+        title: m.title,
+        description: m.description,
+        amount: m.amount,
+        dueDate: m.dueDate,
+        status: m.status,
+        paymentId: m.paymentId?.toString(),
+        paymentRequestId: m.paymentRequestId?.toString(),
+        deliverables: m.deliverables
+          ? {
+              links: m.deliverables.links,
+              comments: m.deliverables.comments,
+              submittedAt: m.deliverables.submittedAt,
+              feedback: m.deliverables.feedback,
+            }
+          : undefined,
+      })),
+      payments: proposal.payments,
+      status: proposal.status,
+      contractId: proposal.contractId,
+      agreeNDA: proposal.agreeNDA,
+      agreeVideoCall: proposal.agreeVideoCall,
+      createdAt: proposal.createdAt,
+      updatedAt: proposal.updatedAt,
+    };
   }
 
   async findPayment(
@@ -519,7 +765,6 @@ export class ProposalRepo implements IProposalRepo {
       {
         $match: {
           clientId: objectId,
-         
         },
       },
       {
@@ -533,7 +778,7 @@ export class ProposalRepo implements IProposalRepo {
       {
         $match: {
           clientId: objectId,
-           status:"pending"
+          status: "pending",
         },
       },
       {
@@ -543,7 +788,6 @@ export class ProposalRepo implements IProposalRepo {
         },
       },
     ]);
-    
 
     return {
       data,
@@ -556,7 +800,7 @@ export class ProposalRepo implements IProposalRepo {
     };
   }
 }
-interface IPaymentRequestWithPagination {
+export interface IPaymentRequestWithPagination {
   data: IPaymentRequest[];
   totalPages: number;
   totalCount: number;

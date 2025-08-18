@@ -37,3 +37,33 @@ export interface FreelancerProposalResponse {
   __v: number;
   contractId: ObjectId;
 }
+
+export interface ProposalSummaryResponse {
+  proposalId: string;
+  freelancerId: string;
+  jobId: {
+    _id: ObjectId;
+    budget: number;
+    budgetType: string;
+    status: string;
+    title: string;
+  };
+  job_Id:string;
+  jobTitle: string;
+  jobBudget: number;
+  jobBudgetType: string;
+  jobStatus: string;
+  coverLetter: string;
+  bidAmount: number;
+  estimatedTime: number;
+  status: string;
+  milestones: {
+    milestoneId: string;
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: Date;
+    status: string;
+  }[];
+  submittedAt: Date;
+}

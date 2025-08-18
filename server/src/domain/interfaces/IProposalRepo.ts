@@ -1,45 +1,68 @@
 import mongoose from "mongoose";
 import { IProposalMilestonesType } from "../types/proposalMilstoneTypes";
-import { ProjectDetailsTypes } from "../types/MarketPlaceTypes";
+import {
+  AcceptProposalContractResponse,
+  ContractDetailsResponse,
+  ContractResponse,
+  FindProposalByIdResponse,
+  IPaymentRequestResponse,
+  IProposalMilestoneResult,
+  JobStatusResponse,
+  ProjectDetailsTypes,
+  ProposalListResponse,
+  ProposalMilestonesApproveResponse,
+  ProposalMilestonesRejectResponse,
+} from "../types/MarketPlaceTypes";
+import { ProposalSummaryResponse } from "../dto/freelancerProposalsDTO";
 
 export interface IProposalRepo {
   findProposalAndUpdateStatus(
     proposalId: string,
     contractId: string,
     session: mongoose.ClientSession
-  ): Promise<any>;
-  findProposalById(proposalId: string): Promise<any>;
-  findProjectDetails(jobId: string): Promise<ProjectDetailsTypes>
-  getProjectProposalbyId(jobId: string): Promise<any>;
+  ): Promise<void>;
+  findProposalById(
+    proposalId: string
+  ): Promise<FindProposalByIdResponse | null>;
+  findProjectDetails(jobId: string): Promise<ProjectDetailsTypes>;
+  getProjectProposalbyId(jobId: string): Promise<ProposalListResponse[]>;
   createProposalContract(
     contract: object,
     session: mongoose.ClientSession
-  ): Promise<any>;
-  getContractDetailsNormal(contractId: string): Promise<any>
-  getProposalbyId(userId: string): Promise<any>;
-getContractDetails(contractId: string): Promise<any>
+  ): Promise<ContractResponse>;
+  getContractDetailsNormal(
+    contractId: string
+  ): Promise<ContractDetailsResponse>;
+  getProposalbyId(userId: string): Promise<ProposalSummaryResponse[]>;
+  getContractDetails(contractId: string): Promise<ContractDetailsResponse>;
   getContractDetailsWithSession(
-      contractId: string,
-      session: mongoose.ClientSession
-    ): Promise<any>
-  getJobStatus(jobId: string, session: mongoose.ClientSession): Promise<any>;
+    contractId: string,
+    session: mongoose.ClientSession
+  ): Promise<ContractDetailsResponse>;
+  getJobStatus(
+    jobId: string,
+    session: mongoose.ClientSession
+  ): Promise<JobStatusResponse>;
   acceptProposalContract(
     userId: string,
     jobId: string,
     proposal_id: string,
     contractId: string,
     session: mongoose.ClientSession
-  ): Promise<any>;
-  rejectProposalContract(proposal_id: string, contractId: string): Promise<any>;
+  ): Promise<AcceptProposalContractResponse>;
+  rejectProposalContract(
+    proposal_id: string,
+    contractId: string
+  ): Promise<AcceptProposalContractResponse>;
   proposalMilestones(jobId: string): Promise<IProposalMilestonesType>;
   proposalMilestonesApprove(
     milestoneId: string,
     session: mongoose.ClientSession
-  ): Promise<any>;
+  ): Promise<ProposalMilestonesApproveResponse | null>;
   findProposal(
     milestoneId: string,
     session: mongoose.ClientSession
-  ): Promise<any>;
+  ): Promise<IProposalMilestoneResult | null>;
   paymentRequest(
     jobId: any,
     freelancerId: any,
@@ -51,13 +74,15 @@ getContractDetails(contractId: string): Promise<any>
     platformFee: number,
     netAmount: number,
     session: mongoose.ClientSession
-  ): Promise<any>;
+  ): Promise<IPaymentRequestResponse>;
   updatePaymentID(
     milestoneId: string,
     paymentRequestId: any,
     session: mongoose.ClientSession
-  ): Promise<any>;
-  proposalMilestonesReject(milestoneId: string): Promise<any>;
+  ): Promise<void>;
+  proposalMilestonesReject(
+    milestoneId: string
+  ): Promise<ProposalMilestonesRejectResponse | null>;
   findPayment(
     userId: string,
     page: number,

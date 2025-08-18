@@ -4,6 +4,10 @@ import UserModel from "../domain/models/User";
 import NotificationModel from "../domain/models/Notification";
 import ProjectModel from "../domain/models/Projects";
 import { IProposalRepo } from "../domain/interfaces/IProposalRepo";
+import { ProposalSummaryResponse } from "../domain/dto/freelancerProposalsDTO";
+import { AcceptProposalContractResponse, ContractDetailsResponse, ProposalListResponse, ProposalMilestonesApproveResponse, ProposalMilestonesRejectResponse } from "../domain/types/MarketPlaceTypes";
+import { IProposalMilestonesType } from "../domain/types/proposalMilstoneTypes";
+import { IPaymentRequestWithPagination } from "../infrastructure/repositories/implementations/marketPlace/proposalRepo";
 
 export class ProposalUseCase {
   constructor(private proposal: IProposalRepo) {
@@ -15,7 +19,7 @@ export class ProposalUseCase {
     proposalId: string,
     io: Server,
     connectedUsers: { [key: string]: string }
-  ) {
+  ):Promise<void> {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -24,14 +28,19 @@ export class ProposalUseCase {
       }
 
       const proposal = await this.proposal.findProposalById(proposalId);
-      const jobId= proposal?.jobId;
+      const jobId = proposal?.jobId;
 
-      const jobDetais = await this.proposal.findProjectDetails(jobId)
+      if (!jobId) {
+        throw new Error("Job Id not found");
+      }
 
-      if(jobDetais?.status ==="De-active"){
+      const jobDetais = await this.proposal.findProjectDetails(
+        jobId.toString()
+      );
+
+      if (jobDetais?.status === "De-active") {
         throw new Error("Job Status is De-active");
       }
-      
 
       if (!proposal) {
         throw new Error("Proposal not found");
@@ -67,13 +76,13 @@ export class ProposalUseCase {
         session
       );
 
-      if (!contractDetails[0]) {
+      if (!contractDetails) {
         throw new Error("Contract not generated");
       }
 
       await this.proposal.findProposalAndUpdateStatus(
         proposalId,
-        contractDetails[0]?._id,
+        contractDetails._id,
         session
       );
 
@@ -100,6 +109,11 @@ export class ProposalUseCase {
         ],
         { session }
       );
+
+      if (!proposal.freelancerId) {
+        throw new Error("freelancerId Not Found");
+      }
+
       const freelancerSocketId =
         connectedUsers[proposal.freelancerId.toString()];
       if (freelancerSocketId) {
@@ -136,13 +150,10 @@ export class ProposalUseCase {
     }
   }
 
-  async getAllFreelancerProposalsUseCase(userId: string) {
+  async getAllFreelancerProposalsUseCase(userId: string): Promise<ProposalSummaryResponse[]> {
     try {
       const getAllProposals = await this.proposal.getProposalbyId(userId);
 
-      // if (!getAllProposals || getAllProposals?.length) {
-      //   return { message: "No proposals found" }
-      // }
       return getAllProposals;
     } catch (error) {
       console.error(`proposal usecase error`, error);
@@ -150,7 +161,7 @@ export class ProposalUseCase {
     }
   }
 
-  async getAllProjectProposalsUseCase(jobId: string) {
+  async getAllProjectProposalsUseCase(jobId: string): Promise<ProposalListResponse[]> {
     try {
       const getAllProposals = await this.proposal.getProjectProposalbyId(jobId);
 
@@ -161,7 +172,7 @@ export class ProposalUseCase {
     }
   }
 
-  async getContractDetailsUseCase(contractId: string) {
+  async getContractDetailsUseCase(contractId: string): Promise<ContractDetailsResponse> {
     try {
       const contractDetails = await this.proposal.getContractDetailsNormal(
         contractId
@@ -179,7 +190,7 @@ export class ProposalUseCase {
     contractId: string,
     io: Server,
     connectedUsers: { [key: string]: string }
-  ): Promise<any> {
+  ): Promise<AcceptProposalContractResponse> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -219,10 +230,8 @@ export class ProposalUseCase {
         session
       );
 
-      // Fetch freelancer data for notification
       const freelancer = await UserModel.findById(userId).session(session);
 
-      // Create notification in database
       await NotificationModel.create(
         [
           {
@@ -245,7 +254,6 @@ export class ProposalUseCase {
         { session }
       );
 
-      // Emit real-time Socket.IO notification
       const clientSocketId =
         connectedUsers[contractDetails.clientId.toString()];
       if (clientSocketId) {
@@ -282,7 +290,7 @@ export class ProposalUseCase {
     }
   }
 
-  async rejectProposalUseCase(userId: string, contractId: string) {
+  async rejectProposalUseCase(userId: string, contractId: string): Promise<AcceptProposalContractResponse> {
     try {
       const contractDetails = await this.proposal.getContractDetails(
         contractId
@@ -307,7 +315,8 @@ export class ProposalUseCase {
       throw error;
     }
   }
-  async proposalMilestonesUseCase(jobId: string) {
+
+  async proposalMilestonesUseCase(jobId: string): Promise<IProposalMilestonesType> {
     try {
       const data = await this.proposal.proposalMilestones(jobId);
 
@@ -323,7 +332,7 @@ export class ProposalUseCase {
     userId: string,
     io: Server,
     connectedUsers: { [key: string]: string }
-  ) {
+  ): Promise<ProposalMilestonesApproveResponse | null> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -342,7 +351,7 @@ export class ProposalUseCase {
       const paymentRequest = await this.proposal.paymentRequest(
         proposal.jobId,
         proposal.freelancerId,
-        proposal._id,
+        proposal._id.toString(),
         milestoneId,
         proposal.amount,
         userId,
@@ -353,11 +362,10 @@ export class ProposalUseCase {
       );
       await this.proposal.updatePaymentID(
         milestoneId,
-        paymentRequest[0]._id,
+        paymentRequest._id,
         session
       );
 
-      // Fetch job and client data for notification
       const job = await ProjectModel.findById(proposal.jobId).session(session);
       const client = await UserModel.findById(userId).session(session);
 
@@ -365,7 +373,6 @@ export class ProposalUseCase {
         throw new Error("Job or client not found");
       }
 
-      // Create notification in database
       await NotificationModel.create(
         [
           {
@@ -388,7 +395,6 @@ export class ProposalUseCase {
         { session }
       );
 
-      // Emit real-time Socket.IO notification
       const freelancerSocketId =
         connectedUsers[proposal.freelancerId.toString()];
       if (freelancerSocketId) {
@@ -424,7 +430,7 @@ export class ProposalUseCase {
     }
   }
 
-  async proposalMilestonesRejectUseCase(milestoneId: string) {
+  async proposalMilestonesRejectUseCase(milestoneId: string) : Promise<ProposalMilestonesRejectResponse | null>{
     try {
       const proposal = await this.proposal.proposalMilestonesReject(
         milestoneId
@@ -441,7 +447,7 @@ export class ProposalUseCase {
     }
   }
 
-  async pendingPamentsUseCase(userId: string, page: number, limit: number) {
+  async pendingPamentsUseCase(userId: string, page: number, limit: number): Promise<IPaymentRequestWithPagination> {
     const data = await this.proposal.findPayment(userId, page, limit);
     return data;
   }
