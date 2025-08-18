@@ -120,13 +120,6 @@ export class AuthControllers {
       });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
-
-      // res.status(500).json({
-      //   success: false,
-      //   message: "Something went wrong while resending OTP",
-      //   error: error instanceof Error ? error.message : error,
-      // });
-      // return;
     }
   };
 
@@ -379,12 +372,13 @@ export class AuthControllers {
         .json({ message: "internal server error during get user" });
     }
   };
+
   userRole: RequestHandler = async (req, res) => {
     try {
       const { role } = req.body;
       const userId = (req.user as any).userId;
 
-      const { user } = await this.useCase.getUser(userId, role);
+      const  user  = await this.useCase.getUser(userId, role);
 
       const { accessToken, refreshToken } = await this.useCase.googleCallback(
         userId,

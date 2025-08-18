@@ -1,4 +1,9 @@
-import { ClientProfileType, FinancialStatsResponse, FreelancerResultTypeWithPage, ProjectStatsResponse } from "../domain/types/ClientProfile";
+import {
+  ClientProfileType,
+  FinancialStatsResponse,
+  FreelancerResultTypeWithPage,
+  ProjectStatsResponse,
+} from "../domain/types/ClientProfile";
 import cloudinary from "../infrastructure/cloudinary";
 import { ClientRepo } from "../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
 import { UserRepo } from "../infrastructure/repositories/implementations/userRepo";
@@ -77,6 +82,8 @@ export class ClientProfileUserCase {
 
     const user = await this.user.findByEmail(email);
 
+    if (!user) throw new Error("User not Found");
+
     if (user.email !== email) {
       const emailUsed = await this.user.findByEmail(email);
       if (!emailUsed) {
@@ -91,7 +98,9 @@ export class ClientProfileUserCase {
     return userData;
   }
 
-  async profileDetails(userId: string | unknown): Promise<ClientProfileType | null> {
+  async profileDetails(
+    userId: string | unknown
+  ): Promise<ClientProfileType | null> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
@@ -99,7 +108,10 @@ export class ClientProfileUserCase {
     return result;
   }
 
-  async freelancerUseCase(page: number, limit: number): Promise<FreelancerResultTypeWithPage> {
+  async freelancerUseCase(
+    page: number,
+    limit: number
+  ): Promise<FreelancerResultTypeWithPage> {
     const result = await this.client.findFreelancer(page, limit);
     return result;
   }

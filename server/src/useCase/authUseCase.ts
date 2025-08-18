@@ -1,4 +1,3 @@
-import { UserRepo } from "../infrastructure/repositories/implementations/userRepo";
 import { generateTokens } from "../shared/utils/jwt";
 import bcrypt from "bcryptjs";
 import { sendOtpEmail } from "../shared/utils/nodemailer/sendOtpEmail";
@@ -7,17 +6,19 @@ import mongoose from "mongoose";
 import {
   LoginResponseDTO,
   RegisterResponseDTO,
+  UserDataType,
   UserIdDTO,
 } from "../domain/dto/AuthDTO";
 import { UserDTO } from "../domain/dto/UserDTO";
 import { sendEmailChangeOtp } from "../shared/utils/nodemailer/sendEmailChangeOtp";
+import { userRepoI } from "../domain/interfaces/IuserRepo";
 
 export class AuthUseCase {
-  constructor(private user: UserRepo) {
+  constructor(private user: userRepoI) {
     this.user = user;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<LoginResponseDTO> {
     if (!email || !password) {
       throw new Error("Email and password are required");
     }
@@ -54,17 +55,15 @@ export class AuthUseCase {
     };
   }
 
-  async getUser(id: string, role: string) {
+  async getUser(id: string, role: string): Promise<UserDTO> {
     const userData = await this.user.updateRole(id, role);
 
     return {
-      user: {
-        id: userData?._id,
-        fullName: userData?.fullName,
-        email: userData?.email,
-        role: userData?.role,
-      } as UserDTO,
-    };
+      id: userData?._id,
+      fullName: userData?.fullName,
+      email: userData?.email,
+      role: userData?.role,
+    } as UserDTO;
   }
 
   async registerUser(
@@ -72,7 +71,7 @@ export class AuthUseCase {
     fullName: string,
     email: string,
     password: string
-  ) {
+  ): Promise<UserIdDTO> {
     const existingUser = await this.user.findByEmail(email);
     if (existingUser) {
       throw new Error("User Already Exists");
@@ -93,17 +92,23 @@ export class AuthUseCase {
       otpExpiry,
     });
 
+    if(!user){
+      throw new Error("Cannot create new User");
+    }
+
     await sendOtpEmail(email, fullName, otp);
 
     return { userId: user._id } as UserIdDTO;
   }
 
-  async verifyOtp(_id: string, otp: Number) {
+  async verifyOtp(_id: string, otp: Number): Promise<RegisterResponseDTO> {
     const user = await this.user.findById(_id);
 
     if (!user) {
       throw new Error("User not found");
     }
+
+    if (!user.otpExpiry) throw new Error("User otp Expired");
 
     if (Number(user.otp) !== Number(otp)) {
       throw new Error("Invalid OTP");
@@ -113,12 +118,12 @@ export class AuthUseCase {
       throw new Error("OTP has expired");
     }
 
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
-    await user.save();
+    const updatedUser = await this.user.findByIdAndUpdate(user._id);
 
-    const { accessToken, refreshToken } = generateTokens(user._id, user.email);
+    const { accessToken, refreshToken } = generateTokens(
+      updatedUser._id,
+      updatedUser.email
+    );
     await this.user.storeRefreshToken(user._id, refreshToken);
 
     return {
@@ -133,43 +138,52 @@ export class AuthUseCase {
     } as RegisterResponseDTO;
   }
 
-  async resendOtp(_id: string) {
+  async resendOtp(_id: string): Promise<UserIdDTO> {
     const user = await this.user.findById(_id);
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
-    user.otp = otp;
-    user.otpExpiry = otpExpiry;
-    await user.save();
+    const updatedUser = await this.user.findByIdAndUpdateWithOtp(
+      user._id,
+      otp,
+      otpExpiry
+    );
 
-    await sendOtpEmail(user.email, user.fullName, otp);
+    await sendOtpEmail(updatedUser.email, updatedUser.fullName, otp.toString());
     return { userId: user._id } as UserIdDTO;
   }
 
-  async forgotPass(email: string) {
+  async forgotPass(email: string): Promise<UserIdDTO> {
     const user = await this.user.findByEmail(email);
     if (!user) throw new Error("User not found");
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
-    user.otp = otp;
-    user.otpExpiry = otpExpiry;
-    await user.save();
+    const updatedUser = await this.user.findByIdAndUpdateWithOtp(
+      user._id,
+      otp,
+      otpExpiry
+    );
 
-    await sendPasswordResetOtpEmail(email, user.fullName, otp);
+    await sendPasswordResetOtpEmail(
+      email,
+      updatedUser.fullName,
+      otp.toString()
+    );
 
     return { userId: user._id } as UserIdDTO;
   }
 
-  async resetPassVerifyOtp(userId: string, otp: number) {
+  async resetPassVerifyOtp(userId: string, otp: number): Promise<UserIdDTO> {
     const user = await this.user.findById(userId);
     if (!user) throw new Error("User not found");
+    if (!user.otpExpiry) throw new Error("User otp Invalid");
 
     if (Number(user.otp) !== Number(otp) || new Date() > user.otpExpiry) {
       throw new Error("Invalid or expired OTP");
@@ -178,13 +192,17 @@ export class AuthUseCase {
     return { userId: user._id } as UserIdDTO;
   }
 
-  async changePassword(userId: string, newPassword: string) {
+  async changePassword(
+    userId: string,
+    newPassword: string
+  ): Promise<UserIdDTO> {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("Invalid user ID");
     }
 
     const user = await this.user.findById(userId);
     if (!user) throw new Error("User not found");
+    if (!user.password) throw new Error("Password not found");
 
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
 
@@ -198,17 +216,19 @@ export class AuthUseCase {
 
     return { userId: user._id } as UserIdDTO;
   }
+
   async changePasswordUseCase(
     userId: string,
     currentPassword: string,
     newPassword: string
-  ) {
+  ): Promise<UserIdDTO> {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("Invalid user ID");
     }
 
     const user = await this.user.findById(userId);
     if (!user) throw new Error("User not found");
+    if (!user.password) throw new Error("Password not found");
 
     const matchPass = await bcrypt.compare(currentPassword, user.password);
 
@@ -229,37 +249,45 @@ export class AuthUseCase {
     return { userId: user._id } as UserIdDTO;
   }
 
-  async changeEmailUseCase(userId: string, email: string) {
+  async changeEmailUseCase(userId: string, email: string): Promise<UserIdDTO> {
     const user = await this.user.findByEmail(email);
     if (user) throw new Error("User already exist");
 
     const userData = await this.user.findById(userId);
     if (!userData) throw new Error("Current user not found");
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
-    userData.otp = otp;
-    userData.otpExpiry = otpExpiry;
-    await userData.save();
+     const updatedUser = await this.user.findByIdAndUpdateWithOtp(
+      userData._id,
+      otp,
+      otpExpiry
+    );
 
-    await sendEmailChangeOtp(email, userData.fullName, otp);
+    await sendEmailChangeOtp(email, updatedUser.fullName, otp.toString());
 
     return { userId: userData._id } as UserIdDTO;
   }
 
-  async changeEmailOtpUseCase(userId: string, email: string, otp: number) {
+  async changeEmailOtpUseCase(
+    userId: string,
+    email: string,
+    otp: number
+  ): Promise<UserDTO> {
     const user = await this.user.findById(userId);
     if (!user) throw new Error("User not found");
 
     const userVerify = await this.user.findByEmail(email);
     if (userVerify) throw new Error("User already exist");
+    if (!user.otpExpiry) throw new Error("otp Invalid");
 
     if (Number(user.otp) !== Number(otp) || new Date() > user.otpExpiry) {
       throw new Error("Invalid or expired OTP");
     }
 
     const userData = await this.user.updateEmail(userId, email);
+    if (!userData) throw new Error("User Email Cannot Update");
 
     return {
       id: userData._id,
@@ -269,7 +297,10 @@ export class AuthUseCase {
     } as UserDTO;
   }
 
-  async refresh(userId: string, checkRefreshToken: string) {
+  async refresh(
+    userId: string,
+    checkRefreshToken: string
+  ): Promise<LoginResponseDTO> {
     const user = await this.user.findByIdRefresh(userId);
 
     if (!user || user.refreshToken !== checkRefreshToken) {
@@ -291,10 +322,11 @@ export class AuthUseCase {
     } as LoginResponseDTO;
   }
 
-  async logout(userId: string) {
+  async logout(userId: string): Promise<void> {
     await this.user.clearRefreshToken(userId);
   }
-  async getUserDetails(userId: string | unknown) {
+
+  async getUserDetails(userId: string | unknown): Promise<UserDataType> {
     if (typeof userId !== "string") {
       throw new Error("Invalid user ID");
     }
@@ -311,22 +343,4 @@ export class AuthUseCase {
       createdAt: user.createdAt,
     };
   }
-
-  // async updateNameAndEmail(fullName:string,email:string){
-  //   const user = await this.user.findByEmail(email);
-  //   // if (!user) throw new Error("Invalid credentials");
-
-  //    if (user.email !== email) {
-  //     const emailUsed = await this.user.findByEmail(email);
-  //     if (!emailUsed) {
-  //       await this.
-  //     } else {
-  //       return
-  //     }
-  //   }
-
-  //   const result= await this.user.updateNameAndEmail(fullName,email)
-  //   return result;
-
-  // }
 }
