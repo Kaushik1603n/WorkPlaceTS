@@ -1,11 +1,10 @@
-// import mongoose from "mongoose";
 import mongoose from "mongoose";
 import { createOrder } from "../shared/utils/razorpay";
 import crypto from "crypto";
 import { AppError } from "../shared/utils/appError";
 import { IpamentRepo } from "../domain/interfaces/IpamentRepo";
 import { IMilestone } from "../domain/types/proposalMilstoneTypes";
-// import { IUserWallet } from "../domain/types/paymentTypes";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 
 export class PaymentUseCase {
   constructor(private payment: IpamentRepo) {
@@ -123,7 +122,7 @@ export class PaymentUseCase {
       const job = await this.payment.findJobById(payment.jobId, session);
 
       if (!job) {
-        throw new AppError("Job not found", 404);
+        throw new AppError(Messages.INVALID_JOB, 404);
       }
 
       const totalPaid = await this.payment.totalPaidPayment(job._id, session);

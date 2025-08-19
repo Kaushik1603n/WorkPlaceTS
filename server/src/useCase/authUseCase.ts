@@ -12,6 +12,7 @@ import {
 import { UserDTO } from "../domain/dto/UserDTO";
 import { sendEmailChangeOtp } from "../shared/utils/nodemailer/sendEmailChangeOtp";
 import { userRepoI } from "../domain/interfaces/IuserRepo";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 
 export class AuthUseCase {
   constructor(private user: userRepoI) {
@@ -20,14 +21,14 @@ export class AuthUseCase {
 
   async login(email: string, password: string): Promise<LoginResponseDTO> {
     if (!email || !password) {
-      throw new Error("Email and password are required");
+      throw new Error(Messages.EMAIL_PASSWORD_REQUIRED);
     }
 
     const user = await this.user.findByEmail(email);
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new Error(Messages.INVALID_CREDENTIALS);
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Invalid credentials");
+    if (!isMatch) throw new Error(Messages.INVALID_CREDENTIALS);
 
     const { accessToken, refreshToken } = generateTokens(user._id, user.email);
     await this.user.storeRefreshToken(user._id, refreshToken);
@@ -74,7 +75,7 @@ export class AuthUseCase {
   ): Promise<UserIdDTO> {
     const existingUser = await this.user.findByEmail(email);
     if (existingUser) {
-      throw new Error("User Already Exists");
+      throw new Error(Messages.USER_EXISTS);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -105,7 +106,7 @@ export class AuthUseCase {
     const user = await this.user.findById(_id);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error(Messages.INVALID_USER);
     }
 
     if (!user.otpExpiry) throw new Error("User otp Expired");
@@ -142,7 +143,7 @@ export class AuthUseCase {
     const user = await this.user.findById(_id);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error(Messages.INVALID_USER);
     }
 
     const otp = Math.floor(1000 + Math.random() * 9000);
@@ -160,7 +161,7 @@ export class AuthUseCase {
 
   async forgotPass(email: string): Promise<UserIdDTO> {
     const user = await this.user.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(Messages.INVALID_USER);
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
@@ -182,7 +183,7 @@ export class AuthUseCase {
 
   async resetPassVerifyOtp(userId: string, otp: number): Promise<UserIdDTO> {
     const user = await this.user.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(Messages.INVALID_USER);
     if (!user.otpExpiry) throw new Error("User otp Invalid");
 
     if (Number(user.otp) !== Number(otp) || new Date() > user.otpExpiry) {
@@ -201,7 +202,7 @@ export class AuthUseCase {
     }
 
     const user = await this.user.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(Messages.INVALID_USER);
     if (!user.password) throw new Error("Password not found");
 
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
@@ -227,7 +228,7 @@ export class AuthUseCase {
     }
 
     const user = await this.user.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(Messages.INVALID_USER);
     if (!user.password) throw new Error("Password not found");
 
     const matchPass = await bcrypt.compare(currentPassword, user.password);
@@ -251,7 +252,7 @@ export class AuthUseCase {
 
   async changeEmailUseCase(userId: string, email: string): Promise<UserIdDTO> {
     const user = await this.user.findByEmail(email);
-    if (user) throw new Error("User already exist");
+    if (user) throw new Error(Messages.USER_EXISTS);
 
     const userData = await this.user.findById(userId);
     if (!userData) throw new Error("Current user not found");
@@ -276,10 +277,10 @@ export class AuthUseCase {
     otp: number
   ): Promise<UserDTO> {
     const user = await this.user.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(Messages.INVALID_USER);
 
     const userVerify = await this.user.findByEmail(email);
-    if (userVerify) throw new Error("User already exist");
+    if (userVerify) throw new Error(Messages.USER_EXISTS);
     if (!user.otpExpiry) throw new Error("otp Invalid");
 
     if (Number(user.otp) !== Number(otp) || new Date() > user.otpExpiry) {

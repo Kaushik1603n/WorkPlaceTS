@@ -2,6 +2,7 @@ import { IfreelancerRepo } from "../domain/interfaces/IfreelancerRepo";
 import { userRepoI } from "../domain/interfaces/IuserRepo";
 import { FreelacerTotalEarningsResponse, FreelancerCounts, FreelancerProfileTypes, FreelancerTicketWithPagination, PaginatedClientResult, TotalProjectResponse } from "../domain/types/FreelancerProfileTypes";
 import cloudinary from "../infrastructure/cloudinary";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 export class FreelancerProfileUseCase {
   constructor(private freelancer: IfreelancerRepo, private user: userRepoI) {
     this.freelancer = freelancer;
@@ -22,7 +23,7 @@ export class FreelancerProfileUseCase {
     profilePic: string
   ): Promise<FreelancerProfileTypes> {
     if (typeof userId !== "string") {
-      throw new Error("Invalid user ID");
+      throw new Error(Messages.INVALID_USERID);
     }
 
     let coverPromise, profilePromise;
@@ -75,7 +76,7 @@ export class FreelancerProfileUseCase {
     email: string
   ): Promise<any> {
     if (!email || !fullName) {
-      throw new Error("Email and full name are required");
+      throw new Error(Messages.EMAIL_FullName_REQUIRED);
     }
 
     const user = await this.user.findById(userId);
@@ -98,7 +99,7 @@ export class FreelancerProfileUseCase {
     userId: string | unknown
   ): Promise<FreelancerProfileTypes | null> {
     if (typeof userId !== "string") {
-      throw new Error("Invalid user ID");
+      throw new Error(Messages.INVALID_USERID);
     }
     const result = await this.freelancer.findOne(userId);
     return result;

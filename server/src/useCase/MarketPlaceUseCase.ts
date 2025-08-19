@@ -6,6 +6,7 @@ import mongoose, { FilterQuery } from "mongoose";
 import UserModel from "../domain/models/User";
 import NotificationModel from "../domain/models/Notification";
 import { IMarketPlace } from "../domain/interfaces/IMarketPlaceRepo";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 
 export class MarketPlaceUseCase {
   constructor(private market: IMarketPlace) {
@@ -79,13 +80,13 @@ export class MarketPlaceUseCase {
 
   async getProjectDetails(jobId: string) {
     if (!jobId || typeof jobId !== "string") {
-      throw new Error("Invalid Job ID");
+      throw new Error(Messages.JOB_ID_REQUIRED);
     }
     try {
       const result = await this.market.findProjectDetails(jobId);
 
       if (!result) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return result;
@@ -97,13 +98,13 @@ export class MarketPlaceUseCase {
 
   async updateJobStatus(jobId: string, rawStatus:string) {
     if (!jobId || typeof jobId !== "string") {
-      throw new Error("Invalid Job ID");
+      throw new Error(Messages.JOB_ID_REQUIRED);
     }
     try {
       const result = await this.market.findUpdateJobStatus(jobId, rawStatus);
 
       if (!result) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return result;
@@ -118,7 +119,7 @@ export class MarketPlaceUseCase {
       const result = await this.market.findClientActiveProject(userId);
 
       if (!result) {
-        throw new Error("Jobs not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return result;
@@ -132,7 +133,7 @@ export class MarketPlaceUseCase {
       const result = await this.market.findClientPendingProject(userId);
 
       if (!result) {
-        throw new Error("Jobs not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return result;
@@ -146,7 +147,7 @@ export class MarketPlaceUseCase {
       const result = await this.market.findClientCompletedProject(userId);
 
       if (!result) {
-        throw new Error("Jobs not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return result;
@@ -206,7 +207,7 @@ export class MarketPlaceUseCase {
   async getProposalDetailsUseCase(userId: string, proposalId: string) {
     try {
       if (!userId && !proposalId) {
-        throw new Error("Credensial missing");
+        throw new Error(Messages.INVALID_CREDENTIALS);
       }
 
       const proposalDetails = await this.market.findProposalById(proposalId);
@@ -239,7 +240,7 @@ export class MarketPlaceUseCase {
   async getAllJobDetailsUseCase(userId: string) {
     try {
       if (!userId) {
-        throw new Error("Credensial missing");
+        throw new Error(Messages.INVALID_CREDENTIALS);
       }
 
       const findProject = await this.market.findActiveProject(userId);
@@ -253,12 +254,12 @@ export class MarketPlaceUseCase {
 
   async getProjectAllInformationUseCase(jobId: string, userId: string) {
     if (!jobId || typeof jobId !== "string") {
-      throw new Error("Invalid Job ID");
+      throw new Error(Messages.JOB_ID_REQUIRED);
     }
     try {
       const result = await this.market.getProjectAllInformation(jobId);
       if (!result) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       if (result.hiredFreelancer?.toString() !== userId.toString()) {
@@ -292,7 +293,7 @@ export class MarketPlaceUseCase {
 
     try {
       if (!jobId || typeof jobId !== "string") {
-        throw new Error("Invalid Job ID");
+        throw new Error(Messages.JOB_ID_REQUIRED);
       }
 
       const result = await this.market.submitMilestoneRepo(
@@ -304,7 +305,7 @@ export class MarketPlaceUseCase {
         session
       );
       if (!result) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       const job = await ProjectModel.findById(jobId).session(session);
@@ -387,7 +388,7 @@ export class MarketPlaceUseCase {
     const { jobId, toUser, feedbackType } = feedbackData;
 
     if (!jobId || typeof jobId !== "string") {
-      throw new Error("Invalid Job ID");
+      throw new Error(Messages.JOB_ID_REQUIRED);
     }
 
     if (!toUser || typeof toUser !== "string") {
@@ -397,7 +398,7 @@ export class MarketPlaceUseCase {
     try {
       const result = await this.market.submitFeedbackRepo(feedbackData);
       if (!result) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       const feedbacks = await this.market.findFeedbackRepo(
@@ -415,13 +416,11 @@ export class MarketPlaceUseCase {
       feedbacks.forEach((fb: Feedback) => {
         totalRating += fb.overallRating;
 
-        // For client-to-freelancer feedback
         if (fb.feedbackType === "client-to-freelancer") {
           qualityTotal += fb.ratings.quality || 0;
           deadlinesTotal += fb.ratings.deadlines || 0;
           professionalismTotal += fb.ratings.professionalism || 0;
         }
-        // For freelancer-to-client feedback
         else {
           clarityTotal += fb.ratings.clarity || 0;
           paymentTotal += fb.ratings.payment || 0;
@@ -437,7 +436,6 @@ export class MarketPlaceUseCase {
         feedbackCount,
       };
 
-      // Add specific averages based on feedback type
       if (feedbackType === "client-to-freelancer") {
         updateData.freelancerRatings = {
           avgQuality: qualityTotal / feedbackCount,

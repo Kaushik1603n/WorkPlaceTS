@@ -8,6 +8,7 @@ import { ProposalSummaryResponse } from "../domain/dto/freelancerProposalsDTO";
 import { AcceptProposalContractResponse, ContractDetailsResponse, ProposalListResponse, ProposalMilestonesApproveResponse, ProposalMilestonesRejectResponse } from "../domain/types/MarketPlaceTypes";
 import { IProposalMilestonesType } from "../domain/types/proposalMilstoneTypes";
 import { IPaymentRequestWithPagination } from "../infrastructure/repositories/implementations/marketPlace/proposalRepo";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 
 export class ProposalUseCase {
   constructor(private proposal: IProposalRepo) {
@@ -24,14 +25,14 @@ export class ProposalUseCase {
     session.startTransaction();
     try {
       if (!userId || !proposalId) {
-        throw new Error("Credentials missing");
+        throw new Error(Messages.INVALID_CREDENTIALS);
       }
 
       const proposal = await this.proposal.findProposalById(proposalId);
       const jobId = proposal?.jobId;
 
       if (!jobId) {
-        throw new Error("Job Id not found");
+        throw new Error(Messages.JOB_ID_REQUIRED);
       }
 
       const jobDetais = await this.proposal.findProjectDetails(

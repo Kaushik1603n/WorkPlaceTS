@@ -7,6 +7,7 @@ import {
 import cloudinary from "../infrastructure/cloudinary";
 import { ClientRepo } from "../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
 import { UserRepo } from "../infrastructure/repositories/implementations/userRepo";
+import { Messages } from "../interfaceAdapters/controllers/messages";
 
 export class ClientProfileUserCase {
   constructor(private client: ClientRepo, private user: UserRepo) {
@@ -24,7 +25,7 @@ export class ClientProfileUserCase {
     profilePic: string
   ): Promise<ClientProfileType | null> {
     if (typeof userId !== "string") {
-      throw new Error("Invalid user ID");
+      throw new Error(Messages.INVALID_USERID);
     }
 
     let coverPromise, profilePromise;
@@ -73,16 +74,16 @@ export class ClientProfileUserCase {
     email: string
   ): Promise<any> {
     if (typeof userId !== "string") {
-      throw new Error("Invalid user ID");
+      throw new Error(Messages.INVALID_USERID);
     }
 
     if (!email || !fullName) {
-      throw new Error("Email and full name are required");
+      throw new Error(Messages.EMAIL_FullName_REQUIRED);
     }
 
     const user = await this.user.findByEmail(email);
 
-    if (!user) throw new Error("User not Found");
+    if (!user) throw new Error(Messages.INVALID_USER);
 
     if (user.email !== email) {
       const emailUsed = await this.user.findByEmail(email);
@@ -102,7 +103,7 @@ export class ClientProfileUserCase {
     userId: string | unknown
   ): Promise<ClientProfileType | null> {
     if (typeof userId !== "string") {
-      throw new Error("Invalid user ID");
+      throw new Error(Messages.INVALID_USERID);
     }
     const result = await this.client.findOne(userId);
     return result;
@@ -115,10 +116,12 @@ export class ClientProfileUserCase {
     const result = await this.client.findFreelancer(page, limit);
     return result;
   }
+
   async HiringProjectsUseCase(userId: string): Promise<ProjectStatsResponse> {
     const result = await this.client.findProjectByUserId(userId);
     return result;
   }
+  
   async FinancialDataUseCase(userId: string): Promise<FinancialStatsResponse> {
     const result = await this.client.findFinancialByUserId(userId);
 
