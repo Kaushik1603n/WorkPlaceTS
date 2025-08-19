@@ -1,11 +1,13 @@
 import { RequestHandler } from "express";
 import { Server } from "socket.io";
 import { IProposalUseCase } from "../../../useCase/Interface/IProposalUseCase";
+import { Messages } from "../messages";
+import { HttpStatus } from "../statusCode";
 
 export class ProposalController {
-  private proposalCase:IProposalUseCase;
-  constructor(usecase:IProposalUseCase){
-    this.proposalCase=usecase
+  private proposalCase: IProposalUseCase;
+  constructor(usecase: IProposalUseCase) {
+    this.proposalCase = usecase;
   }
 
   hireRequest: RequestHandler = async (req, res): Promise<void> => {
@@ -15,14 +17,14 @@ export class ProposalController {
       const proposalId = req.params.proposalId;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       if (!proposalId) {
         res
-          .status(400)
-          .json({ success: false, message: "Proposal ID is required" });
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.PROPOSAL_ID_REQUIRED });
         return;
       }
 
@@ -37,25 +39,23 @@ export class ProposalController {
         connectedUsers
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: "Hire request processed successfully",
       });
     } catch (error) {
       console.error("Hire request error:", error);
-      
+
       const message = error instanceof Error ? error.message.toLowerCase() : "";
 
       const statusCode = message.includes("not found")
-        ? 404
+        ? HttpStatus.NOT_FOUND
         : message.includes("de-active")
-        ? 400
-        : 500;
+        ? HttpStatus.BAD_REQUEST
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to process hire request";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
       res.status(statusCode).json({
         success: false,
@@ -73,27 +73,26 @@ export class ProposalController {
       const userId = user.userId;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      const proposals = await this.proposalCase.getAllFreelancerProposalsUseCase(
-        userId
-      );
+      const proposals =
+        await this.proposalCase.getAllFreelancerProposalsUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: proposals,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
+
   getAllPropjectProposals: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -101,26 +100,27 @@ export class ProposalController {
       const jobId = req.params.id;
 
       if (!jobId) {
-        res.status(401).json({ message: "jobId Require" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: "jobId Require" });
         return;
       }
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      const proposals = await this.proposalCase.getAllProjectProposalsUseCase(jobId);
+      const proposals = await this.proposalCase.getAllProjectProposalsUseCase(
+        jobId
+      );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: proposals,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -132,7 +132,7 @@ export class ProposalController {
       const contractId = req.params.id;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -140,16 +140,15 @@ export class ProposalController {
         contractId
       );
 
-      res.status(200).json({
-        message: "Proposals fetched successfully",
+      res.status(HttpStatus.OK).json({
+        message: "Contract fetched successfully",
         data: contractDetails,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -161,7 +160,7 @@ export class ProposalController {
       const contractId = req.params.id;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -176,18 +175,18 @@ export class ProposalController {
         connectedUsers
       );
 
-      res.status(200).json({
-        message: "Proposals fetched successfully",
+      res.status(HttpStatus.OK).json({
+        message: "Contract Accept successfully",
         data: contractDetails,
       });
     } catch (error) {
       console.error("Accept proposal contract error:", error);
       const statusCode =
         error instanceof Error && error.message.includes("not found")
-          ? 404
-          : 500;
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.INTERNAL_SERVER_ERROR;
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to get proposal";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
       res.status(statusCode).json({
         success: false,
@@ -207,19 +206,19 @@ export class ProposalController {
         contractId
       );
 
-      res.status(200).json({
-        message: "Proposals fetched successfully",
+      res.status(HttpStatus.OK).json({
+        message: "Contract Reject successfully",
         data: contractDetails,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
+
   proposalMilestones: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
@@ -231,16 +230,15 @@ export class ProposalController {
       }
       const data = await this.proposalCase.proposalMilestonesUseCase(jobId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: data,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -268,19 +266,19 @@ export class ProposalController {
         connectedUsers
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: data,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
+  
   proposalMilestonesReject: RequestHandler = async (
     req,
     res
@@ -297,16 +295,15 @@ export class ProposalController {
         milestoneId
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: data,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -333,7 +330,7 @@ export class ProposalController {
         pendingAmount,
       } = await this.proposalCase.pendingPamentsUseCase(userId, page, limit);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: data,
         totalPages,
@@ -345,10 +342,9 @@ export class ProposalController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to get proposal",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -371,16 +367,16 @@ export class ProposalController {
   //     //   throw new Error("User Not Authenticated");
   //     // }
 
-  //     res.status(200).json({
+  //     res.status(HttpStatus.OK).json({
   //       message: "Proposals fetched successfully",
   //       data: order
   //     });
   //   } catch (error) {
   //     console.error(error);
-  //     res.status(500).json({
+  //     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
   //       success: false,
   //       error:
-  //         error instanceof Error ? error.message : "Failed to get proposal",
+  //         error instanceof Error ? error.message :Messages.SERVER_ERROR,
   //     });
   //   }
   // };

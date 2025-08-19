@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
 import { AppError } from "../../../shared/utils/appError";
 import { IPaymentUseCase } from "../../../useCase/Interface/IPaymentUseCase";
+import { HttpStatus } from "../statusCode";
+import { Messages } from "../messages";
 
 export class PaymentController {
   private paymentUseCase:IPaymentUseCase;
@@ -14,7 +16,7 @@ export class PaymentController {
       const userId = user.userId;
 
       if (!userId) {
-        throw new AppError("User Not Authenticated", 401);
+        throw new AppError(Messages.INVALID_USER_AUTHENTICATED, HttpStatus.UNAUTHORIZED);
       }
       const { paymentRequestId, milestoneId, amount, receipt } = req.body;
 
@@ -26,7 +28,7 @@ export class PaymentController {
         userId
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Proposals fetched successfully",
         data: order,
       });
@@ -39,14 +41,14 @@ export class PaymentController {
       throw error;
     }
   };
+
   verifyPayment: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
 
       if (!userId) {
-        // throw new Error("User Not Authenticated");
-        throw new AppError("User Not Authenticated", 401);
+        throw new AppError(Messages.INVALID_USER_AUTHENTICATED, HttpStatus.UNAUTHORIZED);
       }
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
         req.body;
@@ -57,7 +59,7 @@ export class PaymentController {
         razorpay_signature
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Verifyed Payment successfully",
         data: result,
       });
@@ -70,14 +72,14 @@ export class PaymentController {
       // });
     }
   };
+  
   getPayments: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
 
       if (!userId) {
-        // throw new Error("User Not Authenticated");
-        throw new AppError("User Not Authenticated", 401);
+        throw new AppError(Messages.INVALID_USER_AUTHENTICATED, HttpStatus.UNAUTHORIZED);
       }
 
       const page = parseInt(req.query.page as string) || 1;
@@ -94,7 +96,7 @@ export class PaymentController {
         totalCount,
       } = await this.paymentUseCase.getPaymentsUseCase(userId, page, limit);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Payment fetched successfully",
         data: wallet,
         payment,
@@ -106,7 +108,6 @@ export class PaymentController {
         totalCount,
       });
     } catch (error) {
-      // console.error(error);
       throw error;
       // res.status(500).json({
       //   success: false,

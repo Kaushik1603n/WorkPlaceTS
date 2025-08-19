@@ -1,17 +1,20 @@
 import { RequestHandler } from "express";
 import { IMessageUseCase } from "../../useCase/Interface/IMessageUseCase";
+import { HttpStatus } from "./statusCode";
+import { Messages } from "./messages";
 
 export class MessageController {
-  private messageCase:IMessageUseCase;
-  constructor(usecase:IMessageUseCase){
-    this.messageCase=usecase
+  private messageCase: IMessageUseCase;
+  constructor(usecase: IMessageUseCase) {
+    this.messageCase = usecase;
   }
+  
   sendMessage: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { id, text, senderId, contactId, timestamp, isRead } = req.body;
       if (!id || !text || !senderId || !contactId) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, error: "Invalid message format" });
         return;
       }
@@ -26,7 +29,7 @@ export class MessageController {
       };
 
       const savedMessage = await this.messageCase.sendMessageUseCase(message);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         message: "Message sent successfully",
         data: savedMessage,
       });
@@ -43,10 +46,9 @@ export class MessageController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Message sending failed",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -56,22 +58,24 @@ export class MessageController {
       const { senderId, contactId } = req.body;
       if (!senderId || !contactId) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, error: "Invalid request format" });
         return;
       }
 
-      const messages = await this.messageCase.getMessageUseCase(senderId, contactId);
-      res.status(200).json({
+      const messages = await this.messageCase.getMessageUseCase(
+        senderId,
+        contactId
+      );
+      res.status(HttpStatus.OK).json({
         message: "Messages retrieved successfully",
         data: messages,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : "Message retrieval failed",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -81,15 +85,19 @@ export class MessageController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      const unreadMessages = await this.messageCase.getUnreadMessagesUseCase(userId);
+      const unreadMessages = await this.messageCase.getUnreadMessagesUseCase(
+        userId
+      );
       const latestMessagedUsers =
         await this.messageCase.getLatestMessagedUsersUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Latest messages and users retrieved successfully",
         data: {
           unreadMessages,
@@ -98,12 +106,9 @@ export class MessageController {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to retrieve latest messages",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -113,13 +118,13 @@ export class MessageController {
       const { userId, contactId } = req.body;
       if (!userId || !contactId) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, error: "Invalid request format" });
         return;
       }
 
       await this.messageCase.markMessagesReadUseCase(userId, contactId);
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Messages marked as read successfully",
       });
 
@@ -135,15 +140,13 @@ export class MessageController {
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to mark messages as read",
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
+
   DeleteMsg: RequestHandler = async (req, res): Promise<void> => {
     try {
       const msgId = req.params.id.trim().replace(/^:/, "");
@@ -164,13 +167,13 @@ export class MessageController {
         }
       }
       await this.messageCase.deleteMsg(msgId);
-      res.status(200).json({ success: true });
+      res.status(HttpStatus.OK).json({ success: true });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to delete messages ",
+          error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };

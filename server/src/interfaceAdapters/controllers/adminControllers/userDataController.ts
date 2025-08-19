@@ -1,10 +1,7 @@
 import { RequestHandler } from "express";
-// import { UserUseCase } from "../../../useCase/admin/userUseCase";
-// import { UserDataRepo } from "../../../infrastructure/repositories/implementations/adminRepos/userDataRepo";
 import { IAdminUserUseCase } from "../../../useCase/Interface/IAdminUserUseCase";
-
-// const userRepo = new UserDataRepo();
-// const userData = new UserUseCase(userRepo);
+import { Messages } from "../messages";
+import { HttpStatus } from "../statusCode";
 
 export class UserDataController {
   private userData: IAdminUserUseCase;
@@ -19,13 +16,15 @@ export class UserDataController {
       const search = (req.query.search as string) || "";
       const data = await this.userData.getFreelancerData(page, limit, search);
 
-      res.status(200).json({ success: true, message: "success", data });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: Messages.SUCCESS, data });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -37,13 +36,15 @@ export class UserDataController {
       const search = (req.query.search as string) || "";
       const data = await this.userData.getClientData(page, limit, search);
 
-      res.status(200).json({ success: true, message: "success", data });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: Messages.SUCCESS, data });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -56,13 +57,15 @@ export class UserDataController {
 
       const data = await this.userData.getUsersData(page, limit, search);
 
-      res.status(200).json({ success: true, message: "success", data });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: Messages.SUCCESS, data });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -70,26 +73,25 @@ export class UserDataController {
   userAction: RequestHandler = async (req, res): Promise<any> => {
     const { userId, status } = req.body;
     await this.userData.userAction(userId, status);
-
-    res.status(200).json({ success: true, message: "success" });
+    res.status(HttpStatus.OK).json({ success: true, message: Messages.SUCCESS });
   };
 
   clientDetails: RequestHandler = async (req, res): Promise<any> => {
     try {
       const userId = req.params.userId;
       if (!userId) {
-        throw new Error("UserId not Found");
+        throw new Error(Messages.INVALID_USERID);
       }
 
       const clientDetails = await this.userData.clientDetails(userId);
 
-      res.status(200).json({ data: clientDetails });
+      res.status(HttpStatus.OK).json({ data: clientDetails });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -98,28 +100,29 @@ export class UserDataController {
     try {
       const userId = req.params.userId;
       if (!userId) {
-        throw new Error("UserId not Found");
+        throw new Error(Messages.INVALID_USERID);
       }
 
       const freelancerDetails = await this.userData.freelancerDetails(userId);
 
-      res.status(200).json({ data: freelancerDetails });
+      res.status(HttpStatus.OK).json({ data: freelancerDetails });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   userVerification: RequestHandler = async (req, res): Promise<any> => {
     try {
       const userId = req.params.userId;
       const { status } = req.body;
 
       if (!userId) {
-        throw new Error("UserId not Found");
+        throw new Error(Messages.INVALID_USERID);
       }
       if (!status) {
         throw new Error("Status not Found");
@@ -128,14 +131,14 @@ export class UserDataController {
       await this.userData.userVerification(userId, status);
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "Update Verification Status", status });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "User Verification faild" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -145,7 +148,7 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -157,22 +160,23 @@ export class UserDataController {
         limit
       );
 
-      res.status(200).json({ data: result || [], totalPages });
+      res.status(HttpStatus.OK).json({ data: result || [], totalPages });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+  
   TicketStatus: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const ticketId = req.params.ticketId;
@@ -185,22 +189,23 @@ export class UserDataController {
         userId
       );
 
-      res.status(200).json({ data: report || [] });
+      res.status(HttpStatus.OK).json({ data: report || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   TicketStatusComment: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const ticketId = req.params.ticketId;
@@ -212,13 +217,13 @@ export class UserDataController {
         userId
       );
 
-      res.status(200).json({ data: report || [] });
+      res.status(HttpStatus.OK).json({ data: report || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -228,92 +233,98 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const { result, totalUsers } =
         await this.userData.UserGrowthDataUseCase();
 
-      res.status(200).json({ success: true, data: result || [], totalUsers });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, data: result || [], totalUsers });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   TopFreelancer: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.userData.TopFreelancerUseCase();
 
-      res.status(200).json({ success: true, data: result || [] });
+      res.status(HttpStatus.OK).json({ success: true, data: result || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   AllJobcount: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.userData.AllJobcountUseCase();
 
-      res.status(200).json({ success: true, data: result || [] });
+      res.status(HttpStatus.OK).json({ success: true, data: result || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   AllJobDetails: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.userData.AllJobDetailsUseCase();
 
-      res.status(200).json({ success: true, data: result || [] });
+      res.status(HttpStatus.OK).json({ success: true, data: result || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   RevenueData: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -321,23 +332,24 @@ export class UserDataController {
         await this.userData.RevenueDataUseCase();
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, data: revenueData || [], revenueDetails });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   Payments: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -345,13 +357,13 @@ export class UserDataController {
 
       const payment = await this.userData.PaymentsUseCase(page, limit);
 
-      res.status(200).json({ success: true, payment: payment || [] });
+      res.status(HttpStatus.OK).json({ success: true, payment: payment || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };

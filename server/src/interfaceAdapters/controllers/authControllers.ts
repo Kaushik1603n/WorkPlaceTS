@@ -2,7 +2,8 @@ import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import { verifyRefreshToken } from "../../shared/utils/jwt";
 import { IAuthUseCase } from "../../useCase/Interface/IAuthUseCase";
-
+import { HttpStatus } from "./statusCode";
+import { Messages } from "./messages";
 
 export class AuthControllers {
   private useCase: IAuthUseCase;
@@ -14,14 +15,14 @@ export class AuthControllers {
     try {
       const { email, password } = req.body;
       if (!email || !password) {
-        throw new Error("Email and password are required");
+        throw new Error(Messages.EMAIL_PASSWORD_REQUIRED);
       }
       const { user, accessToken, refreshToken } = await this.useCase.login(
         email,
         password
       );
 
-      if (!user) throw new Error("Invalid credentials");
+      if (!user) throw new Error(Messages.INVALID_CREDENTIALS);
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -36,16 +37,18 @@ export class AuthControllers {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
       });
-      res.status(200).json({ success: true, user, accessToken });
+      res.status(HttpStatus.CREATED).json({ success: true, user, accessToken });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
   register: RequestHandler = async (req, res) => {
     const { joinAs, fullName, email, password } = req.body;
     if (!joinAs || !fullName || !email || !password) {
-      throw new Error("Missing details");
+      throw new Error(Messages.MISSING_DETAILS);
     }
     try {
       const result = await this.useCase.registerUser(
@@ -55,14 +58,15 @@ export class AuthControllers {
         password
       );
 
-      res.status(201).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message:
-          "OTP sent to your email. Please verify to complete registration.",
+        message: Messages.OTP_SENT,
         userId: result.userId,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -70,7 +74,7 @@ export class AuthControllers {
     const { userId, otp } = req.body;
 
     if (!userId || !otp) {
-      throw new Error("User ID and OTP are required");
+      throw new Error(Messages.ID_OTP);
     }
 
     try {
@@ -90,14 +94,14 @@ export class AuthControllers {
         sameSite: "strict",
       });
 
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
         message: "OTP verified successfully",
         user: result.user,
         accessToken: result.accessToken,
       });
     } catch (error: any) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: error.message || "Something went wrong",
       });
@@ -108,18 +112,20 @@ export class AuthControllers {
     const { userId } = req.body;
 
     if (!userId) {
-      throw new Error("User ID not found");
+      throw new Error(Messages.INVALID_USERID);
     }
 
     try {
       const result = await this.useCase.resendOtp(userId);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "New OTP sent to your email",
+        message: Messages.OTP_SENT_TO_EMAIL,
         userId: result,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -127,17 +133,19 @@ export class AuthControllers {
     const { email } = req.body;
     try {
       if (!email) {
-        throw new Error("Email is required");
+        throw new Error(Messages.EMAIL_REQUIRED);
       }
 
       const result = await this.useCase.forgotPass(email);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "New OTP sent to your email",
+        message: Messages.OTP_SENT_TO_EMAIL,
         userId: result.userId,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -145,16 +153,18 @@ export class AuthControllers {
     const { userId, otp } = req.body;
     try {
       if (!userId || !otp) {
-        throw new Error("User ID and OTP are required");
+        throw new Error(Messages.ID_OTP);
       }
       const result = await this.useCase.resetPassVerifyOtp(userId, otp);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "New OTP sent to your email",
+        message: Messages.OTP_SENT_TO_EMAIL,
         userId: result.userId,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -163,18 +173,18 @@ export class AuthControllers {
     try {
       if (!userId || !newPassword || !confirmPassword) {
         res
-          .status(400)
-          .json({ success: false, message: "All fields are required" });
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.ALL_FIELD });
         return;
       }
       if (newPassword !== confirmPassword) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Passwords do not match" });
         return;
       }
       if (newPassword.length < 6) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "Password must be at least 8 characters",
         });
@@ -182,13 +192,13 @@ export class AuthControllers {
       }
 
       await this.useCase.changePassword(userId, newPassword);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Password updated successfully",
       });
     } catch (error: any) {
       const statusCode =
-        error.message === "User not found"
+        error.message === Messages.INVALID_USER
           ? 404
           : error.message === "New password must be different"
           ? 409
@@ -200,45 +210,53 @@ export class AuthControllers {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER });
         return;
       }
 
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.INVALID_USERID });
         return;
       }
 
       if (!currentPassword || !newPassword || !confirmPassword) {
         res
-          .status(400)
-          .json({ success: false, message: "All fields are required" });
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.ALL_FIELD });
         return;
       }
       if (newPassword !== confirmPassword) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Passwords do not match" });
         return;
       }
       if (newPassword.length < 6) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "Password must be at least 8 characters",
         });
         return;
       }
 
-      await this.useCase.changePasswordUseCase(userId, currentPassword, newPassword);
-      res.status(200).json({
+      await this.useCase.changePasswordUseCase(
+        userId,
+        currentPassword,
+        newPassword
+      );
+      res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Password updated successfully",
       });
     } catch (error: any) {
       const statusCode =
-        error.message === "User not found"
+        error.message === Messages.INVALID_USER
           ? 404
           : error.message === "New password must be different"
           ? 409
@@ -251,24 +269,28 @@ export class AuthControllers {
     const { email } = req.body;
     try {
       if (!email) {
-        throw new Error("Email is required");
+        throw new Error(Messages.EMAIL_REQUIRED);
       }
 
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.INVALID_USERID });
         return;
       }
 
       const result = await this.useCase.changeEmailUseCase(userId, email);
-      res.status(200).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "New OTP sent to your email",
+        message: Messages.OTP_SENT_TO_EMAIL,
         userId: result.userId,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -278,22 +300,30 @@ export class AuthControllers {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.INVALID_USERID });
         return;
       }
 
       if (!otp || !email) {
-        throw new Error("Email and OTP are required");
+        throw new Error(Messages.EMAIL_OTP_REQUIRED);
       }
 
-      const result = await this.useCase.changeEmailOtpUseCase(userId, email, otp);
-      res.status(200).json({
+      const result = await this.useCase.changeEmailOtpUseCase(
+        userId,
+        email,
+        otp
+      );
+      res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Email Change successfully",
         user: result,
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: error.message });
     }
   };
 
@@ -301,7 +331,7 @@ export class AuthControllers {
     const user = req.user as any;
 
     if (!user) {
-      throw new Error("User Details required");
+      throw new Error(Messages.INVALID_USER);
     }
     try {
       const { accessToken, refreshToken } = await this.useCase.googleCallback(
@@ -329,7 +359,7 @@ export class AuthControllers {
     } catch (error) {
       console.error("error during google callback", error);
       res
-        .status(500)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "internal server error during google login" });
     }
   };
@@ -337,14 +367,16 @@ export class AuthControllers {
   getUser: RequestHandler = async (req, res) => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       res.json({ user: req.user });
     } catch (error) {
       console.error("error during get user", error);
       res
-        .status(500)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "internal server error during get user" });
     }
   };
@@ -352,23 +384,27 @@ export class AuthControllers {
   getUserDetails: RequestHandler = async (req, res) => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const userId = "userId" in req.user ? req.user.userId : req.user;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: Messages.INVALID_USERID });
         return;
       }
 
       try {
         const result = await this.useCase.getUserDetails(userId);
-        res.status(200).json({ success: true, user: result });
+        res.status(HttpStatus.CREATED).json({ success: true, user: result });
       } catch (error) {}
     } catch (error) {
       console.error("error during get user", error);
       res
-        .status(500)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "internal server error during get user" });
     }
   };
@@ -378,7 +414,7 @@ export class AuthControllers {
       const { role } = req.body;
       const userId = (req.user as any).userId;
 
-      const  user  = await this.useCase.getUser(userId, role);
+      const user = await this.useCase.getUser(userId, role);
 
       const { accessToken, refreshToken } = await this.useCase.googleCallback(
         userId,
@@ -399,12 +435,12 @@ export class AuthControllers {
         sameSite: "strict",
       });
       res
-        .status(200)
+        .status(HttpStatus.CREATED)
         .json({ message: "User role updated", user: user, accessToken });
     } catch (error) {
       console.error("error during update role", error);
       res
-        .status(500)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "internal server error during update role" });
     }
   };
@@ -423,7 +459,7 @@ export class AuthControllers {
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: "Your session has expired. Please login again.",
           shouldLogout: true,
@@ -451,10 +487,10 @@ export class AuthControllers {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
       });
-      res.status(200).json({ success: true, accessToken });
+      res.status(HttpStatus.CREATED).json({ success: true, accessToken });
     } catch (error: any) {
       if (error.message === "Invalid refresh token") {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: "Your session has expired.",
           shouldLogout: true,
@@ -462,7 +498,9 @@ export class AuthControllers {
         return;
       }
       console.error("Refresh Tocken Error", error);
-      res.status(500).json({ message: "internal server " });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "internal server " });
     }
   };
 
@@ -471,7 +509,9 @@ export class AuthControllers {
 
     try {
       if (!userId) {
-        res.status(400).json({ success: false, message: "userId required" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: Messages.INVALID_USERID });
         return;
       }
 
@@ -493,12 +533,14 @@ export class AuthControllers {
       });
 
       res
-        .status(200)
+        .status(HttpStatus.CREATED)
         .json({ success: true, message: "Logged out successfully" });
       return;
     } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, message: "Logout failed" });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Logout failed" });
       return;
     }
   };

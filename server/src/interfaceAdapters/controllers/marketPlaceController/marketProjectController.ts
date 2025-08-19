@@ -1,18 +1,9 @@
 import { RequestHandler } from "express";
 import { BidRequest } from "../../../domain/dto/projectDTO/jobProposalDTO";
-// import ProjectModel from "../../../domain/models/Projects";
 import { Server } from "socket.io";
 import { IMarketPlaceUseCase } from "../../../useCase/Interface/IMarketPlaceUseCase";
-
-type JobQueryParams = {
-  search?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  jobTypes?: string;
-  skills?: string;
-  experienceLevel?: string;
-  duration?: string;
-};
+import { HttpStatus } from "../statusCode";
+import { Messages } from "../messages";
 export class MarketPlaceProjectController {
   private marketPlace:IMarketPlaceUseCase;
   constructor(usecase:IMarketPlaceUseCase){
@@ -43,12 +34,12 @@ export class MarketPlaceProjectController {
         limit,
       });
 
-      res.status(200).json({ success: true, data: result, pagination });
+      res.status(HttpStatus.OK).json({ success: true, data: result, pagination });
     } catch (error) {
       console.error(error);
       res
-        .status(500)
-        .json({ success: false, error: "Failed to fetch projects" });
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error: Messages.SERVER_ERROR });
     }
   };
 
@@ -57,100 +48,103 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.marketPlace.getActiveProjectUseCase(userId);
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, data: result });
+      res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   pendingClientProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.marketPlace.getPendingProjectUseCase(userId);
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, data: result });
+      res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   completedClientProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.marketPlace.getCompletedProjectUseCase(userId);
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, data: result });
+      res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   getProjectDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { jobId } = req.params;
 
       if (!jobId) {
-        res.status(400).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           error: "Job ID is required",
         });
@@ -160,32 +154,33 @@ export class MarketPlaceProjectController {
       const result = await this.marketPlace.getProjectDetails(jobId);
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, data: result });
+      res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   setProjectStatus: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { jobId } = req.params;
       const { status } = req.query;
 
       if (!jobId) {
-        res.status(400).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           error: "Job ID is required",
         });
@@ -196,7 +191,7 @@ export class MarketPlaceProjectController {
         typeof status !== "string" ||
         !["posted", "De-active"].includes(status)
       ) {
-        res.status(400).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           error: "Invalid or missing status",
         });
@@ -206,7 +201,7 @@ export class MarketPlaceProjectController {
       const result = await this.marketPlace.getProjectDetails(jobId);
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
@@ -214,7 +209,7 @@ export class MarketPlaceProjectController {
       }
 
       if (result?.status && !["posted", "De-active"].includes(result?.status)) {
-        res.status(400).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           error: "Job status cannot update this stage",
         });
@@ -223,13 +218,13 @@ export class MarketPlaceProjectController {
 
       const updated = await this.marketPlace.updateJobStatus(jobId, status);
 
-      res.status(200).json({ success: true, data: updated });
+      res.status(HttpStatus.OK).json({ success: true, data: updated });
     } catch (error) {
       console.error("Job status update error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update job status";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
@@ -241,7 +236,7 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const proposalData: BidRequest = req.body;
@@ -257,10 +252,9 @@ export class MarketPlaceProjectController {
         !proposalData.bidType ||
         !proposalData.jobId
       ) {
-        throw new Error("All Field are Require");
+        throw new Error(Messages.ALL_FIELD);
       }
 
-      // Emit Socket.IO notification
       const io: Server = req.app.get("io");
       const connectedUsers: { [key: string]: string } =
         req.app.get("connectedUsers");
@@ -273,14 +267,14 @@ export class MarketPlaceProjectController {
       );
 
       if (!result) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, message: "Proposal submitted" });
+      res.status(HttpStatus.OK).json({ success: true, message: "Proposal submitted" });
     } catch (error) {
       console.error("Proposal submission error:", error);
       const statusCode =
@@ -288,7 +282,7 @@ export class MarketPlaceProjectController {
           ? 404
           : 500;
       const errorMessage =
-        error instanceof Error ? error.message : "Proposal submission failed";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
       res.status(statusCode).json({
         success: false,
@@ -305,14 +299,14 @@ export class MarketPlaceProjectController {
       const proposalId = req.params.proposalId;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       if (!proposalId) {
         res
-          .status(400)
-          .json({ success: false, message: "Proposal ID is required" });
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: Messages.PROPOSAL_ID_REQUIRED });
         return;
       }
 
@@ -322,7 +316,7 @@ export class MarketPlaceProjectController {
       );
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "Proposal submitted", data: result });
     } catch (error) {
       console.error("Proposal submission error:", error);
@@ -331,7 +325,7 @@ export class MarketPlaceProjectController {
           ? 404
           : 500;
       const errorMessage =
-        error instanceof Error ? error.message : "Proposal submission failed";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
       res.status(statusCode).json({
         success: false,
@@ -347,14 +341,14 @@ export class MarketPlaceProjectController {
       const userId = user.userId;
 
       if (!userId) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.marketPlace.getAllJobDetailsUseCase(userId);
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "Project Details", data: result });
     } catch (error) {
       console.error("Project Details error:", error);
@@ -363,7 +357,7 @@ export class MarketPlaceProjectController {
           ? 404
           : 500;
       const errorMessage =
-        error instanceof Error ? error.message : "Project Details failed";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
       res.status(statusCode).json({
         success: false,
@@ -383,9 +377,9 @@ export class MarketPlaceProjectController {
       const userId = user.userId;
 
       if (!jobId) {
-        res.status(400).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          error: "Job ID is required",
+          error: Messages.JOB_ID_REQUIRED,
         });
         return;
       }
@@ -396,24 +390,25 @@ export class MarketPlaceProjectController {
       );
 
       if (!data) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
         });
         return;
       }
-      res.status(200).json({ success: true, data });
+      res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   submitMilestone: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { jobId } = req.params;
@@ -422,7 +417,7 @@ export class MarketPlaceProjectController {
       const { milestoneId, comments, links } = req.body;
 
       if (!userId) {
-        throw new Error("user not Authenticated");
+        throw new Error(Messages.INVALID_USER_AUTHENTICATED);
       }
 
       const io: Server = req.app.get("io");
@@ -440,31 +435,32 @@ export class MarketPlaceProjectController {
       );
 
       if (!data) {
-        res.status(404).json({
+        res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Milestone not found",
         });
         return;
       }
 
-      res.status(200).json({ success: true, data: "" });
+      res.status(HttpStatus.OK).json({ success: true, data: "" });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch job details";
+        error instanceof Error ? error.message : Messages.SERVER_ERROR;
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: errorMessage,
       });
     }
   };
+
   submitFeedback: RequestHandler = async (req, res): Promise<void> => {
     try {
       const userData = req.user as { userId: string; email: string };
       const userId = userData.userId;
       if (!userId) {
-        throw new Error("user not Authenticated");
+        throw new Error(Messages.INVALID_USER_AUTHENTICATED);
       }
 
       const {
@@ -521,13 +517,13 @@ export class MarketPlaceProjectController {
 
       const data = await this.marketPlace.submitFeedbackCase(feedbackData);
 
-      res.status(200).json({ success: true, data });
+      res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {
       console.error("Feedback submission error:", error);
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error: "Failed to submit feedback",
+        error: Messages.SERVER_ERROR,
       });
     }
   };
@@ -537,7 +533,7 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        throw new Error("user not Authenticated");
+        throw new Error(Messages.INVALID_USER_AUTHENTICATED);
       }
 
       const { clientId, clientEmail, title, description, jobId } = req.body;
@@ -552,13 +548,13 @@ export class MarketPlaceProjectController {
 
       const data = await this.marketPlace.submitFreelacerReportUseCase(reportData);
 
-      res.status(200).json({ success: true, data });
+      res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {
       console.error("Report submission error:", error);
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to submit report",
+          error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };
@@ -572,3 +568,13 @@ interface IReportData {
   userId: string;
   jobId: string;
 }
+
+type JobQueryParams = {
+  search?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  jobTypes?: string;
+  skills?: string;
+  experienceLevel?: string;
+  duration?: string;
+};

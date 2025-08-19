@@ -1,21 +1,24 @@
 import { RequestHandler } from "express";
 import { IFreelancerProfileUseCase } from "../../../useCase/Interface/IFreelancerProfileUseCase";
+import { Messages } from "../messages";
+import { HttpStatus } from "../statusCode";
 
 export class freelancerProfileControllers {
   private freelancerUseCase:IFreelancerProfileUseCase;
   constructor(usecase:IFreelancerProfileUseCase){
     this.freelancerUseCase=usecase;
   }
+  
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_USERID });
         return;
       }
 
@@ -35,9 +38,9 @@ export class freelancerProfileControllers {
       } = req.body;
 
       if (!fullName || !email) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          error: { message: "Full name and email are required" },
+          error: { message: Messages.EMAIL_FullName_REQUIRED },
         });
         return;
       }
@@ -62,7 +65,7 @@ export class freelancerProfileControllers {
         profilePic
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Profile updated successfully",
         user: updatedUser,
         freelancer: freelancer,
@@ -70,9 +73,9 @@ export class freelancerProfileControllers {
     } catch (error) {
       console.error("Error in profileEdit:", error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -80,29 +83,28 @@ export class freelancerProfileControllers {
   profileDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      // Get userId from authenticated user
       const userId = "userId" in req.user ? req.user.userId : req.user;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_USERID });
         return;
       }
 
       const freelancer = await this.freelancerUseCase.profileDetails(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         freelancer: freelancer,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -110,7 +112,7 @@ export class freelancerProfileControllers {
   client: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -124,14 +126,14 @@ export class freelancerProfileControllers {
         limitNum
       );
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         clients: clients,
         pagination,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get clients" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 
@@ -141,7 +143,7 @@ export class freelancerProfileControllers {
       const userId = user.userId;
 
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -151,14 +153,14 @@ export class freelancerProfileControllers {
       const { result, totalPages } =
         await this.freelancerUseCase.freelancerTicketUseCase(userId, page, limit);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: result,
         totalPages,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 
@@ -167,59 +169,61 @@ export class freelancerProfileControllers {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.freelancerUseCase.totalcountUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         result,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get clients" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
+
   totalEarnings: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.freelancerUseCase.totalEarningsUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         result,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get clients" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
+
   dashboardProject: RequestHandler = async (req, res): Promise<void> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const result = await this.freelancerUseCase.dashboardProjectUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         result,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get clients" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 }

@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
 import { IClinetProjectUseCase } from "../../../useCase/Interface/IClientProjectUseCase";
+import { HttpStatus } from "../statusCode";
+import { Messages } from "../messages";
 export class ProjectController {
   private projectUserCase: IClinetProjectUseCase;
   constructor(usecase: IClinetProjectUseCase) {
@@ -22,7 +24,7 @@ export class ProjectController {
     const { userId } = req.user as { userId: string; email: string };
     try {
       if (!userId) {
-        throw new Error("User Not Authenticated");
+        throw new Error(Messages.INVALID_USER_AUTHENTICATED);
       }
       if (
         !jobTitle ||
@@ -36,7 +38,7 @@ export class ProjectController {
         !experienceLevel ||
         !reference
       ) {
-        throw new Error("All Feild are require");
+        throw new Error(Messages.ALL_FIELD);
       }
       await this.projectUserCase.newProject(
         userId,
@@ -52,14 +54,14 @@ export class ProjectController {
         reference
       );
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "Project created successfully" });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "User Verification faild" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -71,7 +73,7 @@ export class ProjectController {
       const limit = parseInt(req.query.limit as string) || 6;
       const { project, totalPage, totalCount } =
         await this.projectUserCase.getProjectUseCase(userId, page, limit);
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: "Project get successfully",
         data: project,
@@ -80,24 +82,25 @@ export class ProjectController {
       });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "User Verification faild" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+  
   getAllTickets: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { userId } = req.user as { userId: string; email: string };
       if (!userId) {
-        throw new Error("User Not Authenticated");
+        throw new Error(Messages.INVALID_USER_AUTHENTICATED);
       }
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
       const { result, totalPages } =
         await this.projectUserCase.getAllTicketUseCase(userId, page, limit);
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: "Project get successfully",
         data: result,
@@ -105,18 +108,19 @@ export class ProjectController {
       });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "User Verification faild" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };
+
   TicketComment: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const ticketId = req.params.ticketId;
@@ -128,13 +132,13 @@ export class ProjectController {
         userId
       );
 
-      res.status(200).json({ data: report || [] });
+      res.status(HttpStatus.OK).json({ data: report || [] });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
       }
     }
   };

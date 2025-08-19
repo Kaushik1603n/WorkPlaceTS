@@ -1,9 +1,7 @@
 import { RequestHandler } from "express";
 import { IAdminProjectUseCase } from "../../../useCase/Interface/IAdminProjectUseCase";
-// import { AdminProjectRepo } from "../../../infrastructure/repositories/implementations/adminRepos/adminProjectRepo";
-// import { AdminProjectUseCase } from "../../../useCase/admin/adminProjectUseCase";
-// const projectRepo = new AdminProjectRepo();
-// const adminProject = new AdminProjectUseCase(projectRepo);
+import { HttpStatus } from "../statusCode";
+import { Messages } from "../messages";
 export class AdminProjectController {
   private adminProject: IAdminProjectUseCase;
   constructor(usecase: IAdminProjectUseCase) {
@@ -18,21 +16,25 @@ export class AdminProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const { result, totalPage } =
         await this.adminProject.getAciveProjectUseCase(page, limit);
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "success", data: result, totalPage });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -44,21 +46,25 @@ export class AdminProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const { result, totalPage } =
         await this.adminProject.getPostedProjectUseCase(page, limit);
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "success", data: result, totalPage });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -70,21 +76,25 @@ export class AdminProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const { result, totalPage } =
         await this.adminProject.getCompletedProjectUseCase(page, limit);
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "success", data: result, totalPage });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -93,28 +103,34 @@ export class AdminProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const { jobId } = req.params;
 
       if (!jobId) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          error: "Job ID is required",
+          error: Messages.JOB_ID_REQUIRED,
         });
         return;
       }
       const result = await this.adminProject.ProjectDetailsUseCase(jobId);
 
-      res.status(200).json({ success: true, message: "success", data: result });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "success", data: result });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(500).json({ message: "Internal server error" });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };

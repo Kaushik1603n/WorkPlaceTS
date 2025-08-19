@@ -1,14 +1,7 @@
 import { RequestHandler } from "express";
 import { IClinetProfileUseCase } from "../../../useCase/Interface/IClientProfileUseCase";
-// import { ClientProfileUserCase } from "../../../useCase/clientProfileUseCase";
-// import { UserRepo } from "../../../infrastructure/repositories/implementations/userRepo";
-// import { ClientRepo } from "../../../infrastructure/repositories/implementations/clientRepos/clientProfileRepo";
-// import { AuthUseCase } from "../../../useCase/authUseCase";
-
-// const user = new UserRepo();
-// const client = new ClientRepo();
-// const clientUseCase = new ClientProfileUserCase(client, user);
-// const useCase = new AuthUseCase(user);
+import { Messages } from "../messages";
+import { HttpStatus } from "../statusCode";
 
 export class profileCondroller {
   private clientProfileUserCase: IClinetProfileUseCase;
@@ -19,13 +12,13 @@ export class profileCondroller {
   profileEdit: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const userId = "userId" in req.user ? req.user.userId : req.user;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_USERID });
         return;
       }
 
@@ -41,9 +34,9 @@ export class profileCondroller {
       } = req.body;
 
       if (!fullName || !email) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          error: { message: "Full name and email are required" },
+          error: { message: Messages.EMAIL_FullName_REQUIRED },
         });
         return;
       }
@@ -54,7 +47,6 @@ export class profileCondroller {
         email
       );
 
-      // Update client profile
       const updatedClient = await this.clientProfileUserCase.clientProfileEdit(
         userId,
         companyName,
@@ -64,48 +56,46 @@ export class profileCondroller {
         coverPic,
         profilePic
       );
-      // console.log(updatedClient);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         message: "Profile updated successfully",
         user: updatedUser,
         client: updatedClient,
       });
     } catch (error) {
       console.error("Error in profileEdit:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
     }
   };
 
   profileDetails: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      // Get userId from authenticated user
       const userId = "userId" in req.user ? req.user.userId : req.user;
       if (!userId) {
-        res.status(400).json({ message: "User ID not found" });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_USERID });
         return;
       }
 
       const client = await this.clientProfileUserCase.profileDetails(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         client: client,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
   freelancer: RequestHandler = async (req, res): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: "user not authenticated" });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -114,19 +104,17 @@ export class profileCondroller {
       const pageNum = parseInt(String(page), 10);
       const limitNum = parseInt(String(limit), 10);
 
-      const { freelancers, pagination } = await this.clientProfileUserCase.freelancerUseCase(
-        pageNum,
-        limitNum
-      );
+      const { freelancers, pagination } =
+        await this.clientProfileUserCase.freelancerUseCase(pageNum, limitNum);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         freelancer: freelancers,
         pagination,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 
@@ -135,21 +123,22 @@ export class profileCondroller {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
-      const { result, jobCount } = await this.clientProfileUserCase.HiringProjectsUseCase(
-        userId
-      );
+      const { result, jobCount } =
+        await this.clientProfileUserCase.HiringProjectsUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         result: result,
         jobCount,
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 
@@ -158,13 +147,15 @@ export class profileCondroller {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(401).json({ success: false, error: "Unauthorized" });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const { weeklySpending, avgCostPerProject, totalSpent } =
         await this.clientProfileUserCase.FinancialDataUseCase(userId);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         weeklySpending,
         avgCostPerProject,
@@ -172,7 +163,7 @@ export class profileCondroller {
       });
     } catch (error) {
       console.error("Error in get client profile:", error);
-      res.status(500).json({ error: "can not get client details" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
     }
   };
 }
