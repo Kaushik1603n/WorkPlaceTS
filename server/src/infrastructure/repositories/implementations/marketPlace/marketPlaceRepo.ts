@@ -26,6 +26,7 @@ import {
   FeedbackTypes,
   ReportDataArgument,
 } from "../../../../domain/types/FeedbackTypes";
+import { Messages } from "../../../../interfaceAdapters/controllers/messages";
 export class MarketPlaceRepo implements IMarketPlace {
   async findAllProjects(
     searchQuery: object,
@@ -72,7 +73,6 @@ export class MarketPlaceRepo implements IMarketPlace {
 
   async findProjectDetails(jobId: string): Promise<ProjectDetailsTypes> {
     if (!isValidObjectId(jobId)) {
-      // From mongoose or custom check
       throw new Error("Invalid Job ID format");
     }
 
@@ -114,7 +114,7 @@ export class MarketPlaceRepo implements IMarketPlace {
       const project = await ProjectModel.findById(jobId);
       
       if (!project) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
       
       const validStatuses: IJob["status"][] = [
@@ -233,7 +233,7 @@ export class MarketPlaceRepo implements IMarketPlace {
         _id: proposalData.jobId,
       });
       if (!jobExists) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       const clientId = jobExists?.clientId;

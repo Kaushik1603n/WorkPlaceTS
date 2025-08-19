@@ -27,6 +27,7 @@ import {
 } from "../../../../domain/types/MarketPlaceTypes";
 import { isValidObjectId } from "mongoose";
 import UserModel from "../../../../domain/models/User";
+import { Messages } from "../../../../interfaceAdapters/controllers/messages";
 
 export class ProposalRepo implements IProposalRepo {
   async findProposalAndUpdateStatus(
@@ -244,7 +245,7 @@ export class ProposalRepo implements IProposalRepo {
       ).lean<JonContractDetails>();
 
       if (!contractDetails) {
-        throw new Error("Contract not found");
+        throw new Error(Messages.CONSTRACT_NOT_FOUND);
       }
 
       return {
@@ -277,7 +278,7 @@ export class ProposalRepo implements IProposalRepo {
       ).lean<JonContractDetails>();
 
       if (!contractDetails) {
-        throw new Error("Contract not found");
+        throw new Error(Messages.CONSTRACT_NOT_FOUND);
       }
 
       return {
@@ -311,7 +312,7 @@ export class ProposalRepo implements IProposalRepo {
         .lean<JonContractDetails>();
 
       if (!contractDetails) {
-        throw new Error("Contract not found");
+        throw new Error(Messages.CONSTRACT_NOT_FOUND);
       }
 
       return {
@@ -345,7 +346,7 @@ export class ProposalRepo implements IProposalRepo {
         .lean<{ status: string; _id?: ObjectId }>();
 
       if (!status) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       return {
@@ -378,7 +379,7 @@ export class ProposalRepo implements IProposalRepo {
       );
 
       if (!job) {
-        throw new Error("Job not found");
+        throw new Error(Messages.INVALID_JOB);
       }
 
       const contract = await ContractModel.findByIdAndUpdate(
@@ -390,7 +391,7 @@ export class ProposalRepo implements IProposalRepo {
       );
 
       if (!contract) {
-        throw new Error("Contract not found");
+        throw new Error(Messages.CONSTRACT_NOT_FOUND);
       }
 
       const proposal = await ProposalModel.findByIdAndUpdate(
@@ -402,7 +403,7 @@ export class ProposalRepo implements IProposalRepo {
       );
 
       if (!proposal) {
-        throw new Error("Proposal not found");
+        throw new Error(Messages.PROPOSAL_NOT_FOUND);
       }
 
       return {
@@ -445,7 +446,7 @@ export class ProposalRepo implements IProposalRepo {
       );
 
       if (!contract) {
-        throw new Error("Contract not found");
+        throw new Error(Messages.CONSTRACT_NOT_FOUND);
       }
 
       const proposal = await ProposalModel.findByIdAndUpdate(
@@ -457,7 +458,7 @@ export class ProposalRepo implements IProposalRepo {
       );
 
       if (!proposal) {
-        throw new Error("Proposal not found");
+        throw new Error(Messages.PROPOSAL_NOT_FOUND);
       }
 
       await session.commitTransaction();
@@ -502,7 +503,7 @@ export class ProposalRepo implements IProposalRepo {
       .lean();
 
     if (!proposal) {
-      throw new Error("Proposal not found");
+      throw new Error(Messages.PROPOSAL_NOT_FOUND);
     }
 
     if (!proposal.hiredProposalId) {

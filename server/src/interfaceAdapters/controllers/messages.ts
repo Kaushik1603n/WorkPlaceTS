@@ -18,6 +18,9 @@ export const Messages = {
   JOB_ID_REQUIRED: "Job ID are required",
   INVALID_JOB: "Job not found",
   PROPOSAL_ID_REQUIRED: "Proposal ID is required",
+  PROPOSAL_NOT_FOUND: "Proposal not found",
+  CONSTRACT_NOT_FOUND: "Contract not found",
   SUCCESS: "Success",
+  FAILD_DB_DATA: "Failed to Load DB Data",
   SERVER_ERROR: "Internal Server Error",
 };

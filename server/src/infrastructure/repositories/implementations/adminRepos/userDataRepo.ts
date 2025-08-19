@@ -25,6 +25,7 @@ import {
   AdminRevenueReport,
   AdminIPayment,
 } from "../../../../domain/types/adminType";
+import { Messages } from "../../../../interfaceAdapters/controllers/messages";
 
 export class UserDataRepo implements userDataRepoI {
   async findFreelancer(
@@ -391,7 +392,7 @@ export class UserDataRepo implements userDataRepoI {
       
       return { result, totalUsers };
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 
@@ -478,7 +479,7 @@ export class UserDataRepo implements userDataRepoI {
 
       return result;
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 
@@ -533,7 +534,7 @@ export class UserDataRepo implements userDataRepoI {
       ]);
       return result;
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 
@@ -565,7 +566,7 @@ export class UserDataRepo implements userDataRepoI {
         activeJob,
       };
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 
@@ -682,7 +683,7 @@ export class UserDataRepo implements userDataRepoI {
         },
       };
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 
@@ -693,7 +694,7 @@ export class UserDataRepo implements userDataRepoI {
         .limit(limit)
         .sort({ createdAt: -1 });
     } catch (error) {
-      throw new Error("Failed to Load DB Data");
+      throw new Error(Messages.FAILD_DB_DATA);
     }
   }
 }
