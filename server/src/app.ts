@@ -33,20 +33,7 @@ export class App {
     this.io = new Server(this.httpServer, {
       cors: {
         origin: (origin, callback) => {
-          const allowedOrigins = [
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "http://localhost",
-            "http://127.0.0.1",
-            "http://client:80",
-            "http://34.47.233.51",
-            "http://34.47.233.51:3000",
-            "https://mapplestore.shop",
-            "https://www.mapplestore.shop/",
-            "http://mapplestore.shop",
-            "http://www.mapplestore.shop/",
-          ];
-          if (!origin || allowedOrigins.includes(origin)) {
+          if (!origin || corsConfig.allowedOrigins.includes(origin)) {
             callback(null, origin || "*");
           } else {
             callback(new Error("Not allowed by CORS"));
@@ -76,7 +63,7 @@ export class App {
             callback(new Error("Not allowed by CORS"));
           }
         },
-        credentials: true, 
+        credentials: true,
       })
     );
     this.app.use(passport.initialize());
