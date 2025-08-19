@@ -25,14 +25,14 @@ export class AuthControllers {
       if (!user) throw new Error(Messages.INVALID_CREDENTIALS);
 
       res.cookie("accessToken", accessToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE || "900000", 10),
         sameSite: "strict",
       });
 
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
@@ -81,14 +81,14 @@ export class AuthControllers {
       const result = await this.useCase.verifyOtp(userId, otp);
 
       res.cookie("accessToken", result.accessToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE || "900000", 10),
         sameSite: "strict",
       });
 
       res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
@@ -340,14 +340,14 @@ export class AuthControllers {
       );
 
       res.cookie("accessToken", accessToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE || "900000", 10),
         sameSite: "strict",
       });
 
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
@@ -422,14 +422,14 @@ export class AuthControllers {
       );
 
       res.cookie("accessToken", accessToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE || "900000", 10),
         sameSite: "strict",
       });
 
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
@@ -450,12 +450,12 @@ export class AuthControllers {
       const checkRefreshToken = req.cookies?.refreshToken;
       if (!checkRefreshToken) {
         res.clearCookie("accessToken", {
-          httpOnly: true,
+          httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
         res.clearCookie("refreshToken", {
-          httpOnly: true,
+          httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
@@ -475,14 +475,14 @@ export class AuthControllers {
       );
 
       res.cookie("accessToken", accessToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 15 * 60 * 1000,
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE || "900000", 10),
         sameSite: "strict",
       });
 
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
@@ -522,12 +522,12 @@ export class AuthControllers {
       await this.useCase.logout(userId);
 
       res.clearCookie("accessToken", {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
       res.clearCookie("refreshToken", {
-        httpOnly: true,
+        httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
