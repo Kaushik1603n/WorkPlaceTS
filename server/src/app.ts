@@ -76,7 +76,7 @@ export class App {
             callback(new Error("Not allowed by CORS"));
           }
         },
-        credentials: true,
+        credentials: true, 
       })
     );
     this.app.use(passport.initialize());
