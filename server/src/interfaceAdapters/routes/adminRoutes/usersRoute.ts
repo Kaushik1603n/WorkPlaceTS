@@ -37,6 +37,7 @@ userRoutes.post(
   userData.TicketStatusComment
 );
 
+userRoutes.get("/dashboard-data", adminAuthenticate, userData.UserGrowthData);
 userRoutes.get("/usergrowthdata", adminAuthenticate, userData.UserGrowthData);
 userRoutes.get("/topfreelancer", adminAuthenticate, userData.TopFreelancer);
 userRoutes.get("/alljobcount", adminAuthenticate, userData.AllJobcount);

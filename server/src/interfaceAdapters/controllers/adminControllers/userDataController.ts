@@ -24,7 +24,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -44,7 +46,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -65,7 +69,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -73,7 +79,9 @@ export class UserDataController {
   userAction: RequestHandler = async (req, res): Promise<any> => {
     const { userId, status } = req.body;
     await this.userData.userAction(userId, status);
-    res.status(HttpStatus.OK).json({ success: true, message: Messages.SUCCESS });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: Messages.SUCCESS });
   };
 
   clientDetails: RequestHandler = async (req, res): Promise<any> => {
@@ -91,7 +99,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -111,7 +121,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -138,7 +150,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -148,7 +162,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -166,17 +182,21 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
-  
+
   TicketStatus: RequestHandler = async (req, res): Promise<any> => {
     try {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const ticketId = req.params.ticketId;
@@ -195,7 +215,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -205,7 +227,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const ticketId = req.params.ticketId;
@@ -223,7 +247,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -233,22 +259,40 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
       const { result, totalUsers } =
         await this.userData.UserGrowthDataUseCase();
+      const freelancersRes = await this.userData.TopFreelancerUseCase();
+      const jobGrowthRes = await this.userData.AllJobcountUseCase();
+      const jobDetailsRes = await this.userData.AllJobDetailsUseCase();
+      const { revenueData, revenueDetails } =
+        await this.userData.RevenueDataUseCase();
 
       res
         .status(HttpStatus.OK)
-        .json({ success: true, data: result || [], totalUsers });
+        .json({
+          success: true,
+          userGrowthRes: result || [],
+          totalUsers,
+          freelancersRes,
+          jobGrowthRes,
+          jobDetailsRes,
+          revenueData,
+          revenueDetails,
+        });
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -258,7 +302,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -270,7 +316,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -280,7 +328,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -292,7 +342,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -302,7 +354,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -314,7 +368,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -324,7 +380,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -339,7 +397,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };
@@ -349,7 +409,9 @@ export class UserDataController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, error: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const page = parseInt(req.query.page as string) || 1;
@@ -363,7 +425,9 @@ export class UserDataController {
       if (error instanceof Error) {
         res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: Messages.SERVER_ERROR });
       }
     }
   };

@@ -1,56 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Clock, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import axiosClient from '../../utils/axiosClient';
 import Pagination from '../../components/Pagination';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { useAdminPayments } from '../../features/apis/admin/useAdminPayments';
+import ErrorMessage from '../../components/ui/ErrorMessage';
 
-interface IPayment {
-    _id: string;
-    jobId: string;
-    proposalId: string;
-    milestoneId: string;
-    amount: number;
-    platformFee: number;
-    netAmount: number;
-    status: string;
-    paymentGatewayId: string;
-    clientId: string;
-    freelancerId: string;
-    paymentMethod: string;
-    createdAt: Date | string;
-    updatedAt: Date | string;
-}
+
 
 function PaymentLising() {
-    const [payments, setPayments] = useState<IPayment[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState(1);
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const fetchPaymentsDetails = async () => {
-            setLoading(true);
-            try {
-                const res = await axiosClient.get("/admin/payments", {
-                    params: { page: currentPage, limit: 5 },
-                    signal: controller.signal,
-                });
-                setPayments(res.data.payment);
-            } catch (error) {
-                if (!axios.isCancel(error)) {
-                    console.error("Fetch error:", error);
-                    toast.error("Failed to load payments.");
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPaymentsDetails();
-        return () => controller.abort();
-    }, [currentPage]);
+    const { payments, loading, error } = useAdminPayments(currentPage, 5);
 
     const formatDate = (dateString: string | Date) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -61,8 +19,6 @@ function PaymentLising() {
             minute: '2-digit'
         });
     };
-
-
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -100,10 +56,17 @@ function PaymentLising() {
         );
     }
 
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+            </main>
+        );
+    }
+
     return (
         <div className="min-h-fit bg-gradient-to-br from-slate-50 to-gray-100 p-6">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Payments Dashboard</h1>
                     <p className="text-gray-600">Track all payment transactions</p>
@@ -111,7 +74,6 @@ function PaymentLising() {
 
 
 
-                {/* Payment Transactions Table */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                         <h2 className="text-xl font-semibold text-gray-900">Payment Transactions</h2>

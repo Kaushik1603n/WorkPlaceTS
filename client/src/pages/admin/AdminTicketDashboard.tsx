@@ -1,51 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import StatsSection from '../../components/admin/report/StatsSection';
 import TicketsTable from '../../components/admin/report/TicketsTable';
 import TicketDetailsModal from '../../components/admin/report/TicketDetailsModal';
 import type { Status, Ticket } from '../../components/admin/report/types';
-import axiosClient from '../../utils/axiosClient';
 import Pagination from '../../components/Pagination';
+import { useAdminTickets } from '../../features/apis/admin/useAdminTickets';
+import ErrorMessage from '../../components/ui/ErrorMessage';
 
 
 const AdminTicketDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-    const [tickets, setTicket] = useState<Ticket[]>([
-        {
-            _id: "",
-            client: {
-                id: '',
-                email: ''
-            },
-            createdAt: "",
-            description: "",
-            jobId: "",
-            reportedBy: "",
-            status: "open",
-            title: "",
-            updatedAt: "",
-        }
-    ]);
-
-    useEffect(() => {
-        const fetchReport = async () => {
-            try {
-                const res = await axiosClient.get("/admin/tickets", {
-                    params: { page: currentPage, limit: 5 }
-                });
-                setTicket(res.data.data);
-                setTotalPage(res.data.totalPages);
-            } catch (error) {
-                console.error('Failed to fetch tickets:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchReport()
-    }, [currentPage])
-
+    const {
+        tickets,
+        loading,
+        error,
+        totalPages,
+        setTickets,
+        updateTicketStatus,
+    } = useAdminTickets(currentPage, 5);
 
     const handleViewTicket = (ticket: Ticket) => {
         setSelectedTicket(ticket);
@@ -53,12 +26,10 @@ const AdminTicketDashboard = () => {
 
     const handleStatusUpdate = async (ticketId: string, newStatus: Status) => {
         try {
-            const response = await axiosClient.patch(`/admin/tickets/${ticketId}`, { status: newStatus });
-            const updatedTicket = response.data.data
-            setTicket(tickets.map(t => t._id === ticketId ? updatedTicket : t));
-            closeModal()
+            await updateTicketStatus(ticketId, newStatus);
+            setSelectedTicket(null);
         } catch (error) {
-            console.error('Failed to update status:', error);
+            console.error("Failed to update ticket status", error);
         }
     };
 
@@ -66,8 +37,16 @@ const AdminTicketDashboard = () => {
         setSelectedTicket(null);
     };
 
-    if (isLoading) {
+    if (loading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+            </main>
+        );
     }
 
     return (
@@ -86,7 +65,7 @@ const AdminTicketDashboard = () => {
                 {selectedTicket && (
                     <TicketDetailsModal
                         ticket={selectedTicket}
-                        setTicket={setTicket} 
+                        setTicket={setTickets}
                         onClose={closeModal}
                         onStatusUpdate={handleStatusUpdate}
                     />
@@ -95,7 +74,7 @@ const AdminTicketDashboard = () => {
             <div className="flex justify-center mt-2">
                 <Pagination
                     currentPage={currentPage}
-                    totalPages={totalPage}
+                    totalPages={totalPages}
                     onPageChange={(page) => {
                         setCurrentPage(page);
                     }}

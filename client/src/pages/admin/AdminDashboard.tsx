@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, AreaChart, Area
@@ -11,77 +11,87 @@ import {
 import MetricCard from '../../components/admin/dashboard/MetricCard';
 import DashboardHeader from '../../components/admin/dashboard/DashboardHeader';
 import TabNavigation from '../../components/admin/dashboard/TabNavigation';
-import type {
-  UserGrowthData, RevenueData,
-  TopFreelancer, JobData
-} from '../../components/admin/dashboard/types';
-import axiosClient from '../../utils/axiosClient';
 import ErrorMessage from '../../components/ui/ErrorMessage';
+import { useAdminDashboardData } from '../../features/apis/admin/useAdminDashboardData';
 
 const AdminDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>('30d');
   const [activeTab, setActiveTab] = useState<string>('overview');
-  const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([]);
-  const [topFreelancers, setTopFreelancer] = useState<TopFreelancer[]>([]);
-  const [jobData, setJobData] = useState<JobData[]>([]);
-  const [totalUsers, setTotalUsers] = useState<number>(0);
-  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  const [revenueDetails, setRevenueDetails] = useState({
-    revenue: 0,
-    pending: 0,
-    wallet: 0,
+  
+  // const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([]);
+  // const [topFreelancers, setTopFreelancer] = useState<TopFreelancer[]>([]);
+  // const [jobData, setJobData] = useState<JobData[]>([]);
+  // const [totalUsers, setTotalUsers] = useState<number>(0);
+  // const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const [error, setError] = useState<boolean>(false);
+  // const [revenueDetails, setRevenueDetails] = useState({
+  //   revenue: 0,
+  //   pending: 0,
+  //   wallet: 0,
 
-  });
-  const [jobDetails, setJobDetails] = useState({
-    successRate: 100,
-    avgBudget: 0,
-    completedJob: 0,
-    totalJob: 0,
-    activeJob: 0
-  });
+  // });
+  // const [jobDetails, setJobDetails] = useState({
+  //   successRate: 100,
+  //   avgBudget: 0,
+  //   completedJob: 0,
+  //   totalJob: 0,
+  //   activeJob: 0
+  // });
 
+  // const fetchDashboardData = async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     const [
+  //       userGrowthRes,
+  //       freelancersRes,
+  //       jobGrowthRes,
+  //       jobDetailsRes,
+  //       revenueRes
+  //     ] = await Promise.all([
+  //       axiosClient.get("/admin/usergrowthdata"),
+  //       axiosClient.get("/admin/topfreelancer"),
+  //       axiosClient.get("/admin/alljobcount"),
+  //       axiosClient.get("/admin/alljobdetails"),
+  //       axiosClient.get("/admin/revenuedata")
+  //     ]);
 
-
-  const fetchDashboardData = async () => {
-    try {
-      setIsLoading(true)
-      const [
-        userGrowthRes,
-        freelancersRes,
-        jobGrowthRes,
-        jobDetailsRes,
-        revenueRes
-      ] = await Promise.all([
-        axiosClient.get("/admin/usergrowthdata"),
-        axiosClient.get("/admin/topfreelancer"),
-        axiosClient.get("/admin/alljobcount"),
-        axiosClient.get("/admin/alljobdetails"),
-        axiosClient.get("/admin/revenuedata")
-      ]);
-
-      setUserGrowthData(userGrowthRes.data.data);
-      setTotalUsers(userGrowthRes.data.totalUsers)
-      setTopFreelancer(freelancersRes.data.data);
-      setJobData(jobGrowthRes.data.data);
-      setJobDetails(jobDetailsRes.data.data);
-      setRevenueData(revenueRes.data.data);
-      setRevenueDetails(revenueRes.data.revenueDetails);
-      setIsLoading(false)
-
+  //     setUserGrowthData(userGrowthRes.data.data);
+  //     setTotalUsers(userGrowthRes.data.totalUsers)
+  //     setTopFreelancer(freelancersRes.data.data);
+  //     setJobData(jobGrowthRes.data.data);
+  //     setJobDetails(jobDetailsRes.data.data);
+  //     setRevenueData(revenueRes.data.data);
+  //     setRevenueDetails(revenueRes.data.revenueDetails);
+  //     setIsLoading(false)
 
 
-    } catch (error) {
-      setIsLoading(false)
-      setError(true)
-      console.error('Dashboard data fetch error:', error);
-    }
-  };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  //   } catch (error) {
+  //     setIsLoading(false)
+  //     setError(true)
+  //     console.error('Dashboard data fetch error:', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchDashboardData();
+  // }, []);
+
+  const {
+    userGrowthData,
+    topFreelancers,
+    jobData,
+    totalUsers,
+    revenueData,
+    revenueDetails,
+    jobDetails,
+    isLoading,
+    error,
+    refetch,
+  } = useAdminDashboardData();
+
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex justify-center items-center">
@@ -92,15 +102,14 @@ const AdminDashboard: React.FC = () => {
       </div>
     );
   }
-  if (error) {
 
+  if (error) {
     return <ErrorMessage
       message="Failed to load data. Please try again."
-      onRetry={() => {
-        fetchDashboardData();
-      }}
+      onRetry={refetch}
     />
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -255,7 +264,7 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <MetricCard
                 title="Revenue"
-                value={revenueDetails.revenue }
+                value={revenueDetails.revenue}
                 icon={IndianRupee}
               />
               <MetricCard
@@ -265,7 +274,7 @@ const AdminDashboard: React.FC = () => {
               />
               <MetricCard
                 title="Pending"
-                value={revenueDetails.pending }
+                value={revenueDetails.pending}
 
                 icon={Clock}
               />
