@@ -10,28 +10,18 @@ import { PasswordChangeModal } from "../../../components/changePass/PasswordChan
 import { changeEmail, changeEmailOtp, changePass, getUserDetails } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
-import axiosClient from "../../../utils/axiosClient";
-import type { AxiosError } from "axios";
-interface FreelancerProject {
-    _id: string;
-    contractId: string;
-    budget: number;
-    budgetType: string;
-    time: string;
-    status: string;
-    title: string;
-    description: string;
-}
+import { useClientProfileProjects } from "../../../features/apis/client/useClientProfileProjects";
+
 export default function ClientProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { client } = useSelector((state: RootState) => state.clientProfile);
     const { user } = useSelector((state: RootState) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
-    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
     const [completeProject, setCompleteProject] = useState<number>();
     const [pendingProject, setProgressProject] = useState<number>();
     const [postedProject, setPostedProject] = useState<number>();
+    const { allProjects } = useClientProfileProjects();
 
     useEffect(() => {
         dispatch(getClientProfile())
@@ -50,23 +40,7 @@ export default function ClientProfile() {
             });
     }, [dispatch]);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-
-                const res = await axiosClient.get("client/project/get-project");
-                setAllProjects(res.data.data);
-            } catch (err) {
-                const error = err as AxiosError;
-                toast.error("Failed to fetch projects")
-                console.error("Failed to fetch projects:", error);
-
-            }
-        };
-
-        fetchProjects();
-    }, []);
-
+    
     useEffect(() => {
         setProgressProject(
             allProjects.reduce((acc, prg) => {

@@ -1,71 +1,32 @@
-import { useEffect, useState } from "react";
 import ProjectCard from "../../../components/project/ProjectCard";
-import axiosClient from "../../../utils/axiosClient";
 import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp } from "lucide-react";
 import Pagination from "../../../components/Pagination";
+import { useClientProjects } from "../../../features/apis/client/useClientProjects";
+import { toast } from "react-toastify";
 
-interface FreelancerProject {
-    _id: string;
-    contractId: string;
-    budget: number;
-    budgetType: string;
-    time: string;
-    status: string;
-    title: string;
-    description: string;
-}
 function AllClientProject() {
-    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
-
-
-
+    const {
+        allProjects,
+        loading,
+        error,
+        currentPage,
+        totalPage,
+        totalCount,
+        setCurrentPage,
+    } = useClientProjects(6);
     const navigate = useNavigate()
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const res = await axiosClient.get("client/project/get-project", {
-                    params: { page: currentPage, limit: 6 }
-                });
-                setAllProjects(res.data.data);
-                setTotalPage(res.data.totalPage);
-                setTotalCount(res.data.totalCount);
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-                setError(
-                    "Failed to load projects. Please try again later."
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, [currentPage]);
 
     const handleViewContract = async (projectId: string) => {
         try {
-
-
             navigate(`${projectId}`)
         } catch (err) {
             const error = err as AxiosError;
             console.error("Failed to view project:", error);
-            alert(
-                error.response?.data ||
-                error.message ||
+            toast.error(
                 "Failed to view project. Please try again."
             );
         }

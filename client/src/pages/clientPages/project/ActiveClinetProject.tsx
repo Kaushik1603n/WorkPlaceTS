@@ -1,58 +1,20 @@
-import { useEffect, useState } from "react";
 import ProjectCard from "../../../components/project/ProjectCard";
-import axiosClient from "../../../utils/axiosClient";
-import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, CheckCircle, Clock } from "lucide-react";
-
-interface ClientProject {
-    _id: string;
-    contractId: string;
-    budget: number;
-    budgetType: string;
-    time: string;
-    status: string;
-    title: string;
-    description: string;
-}
+import { useActiveClinetProject } from "../../../features/apis/client/useActiveClinetProject";
 
 function ActiveClinetProject() {
-    const [allActiveProject, setAllActiveProject] = useState<ClientProject[]>([]);
-    const [allPendingProject, setAllPendingProject] = useState<ClientProject[]>([]);
-    const [allCompletedProject, setAllCompletedProject] = useState<ClientProject[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
+   const {
+    allActiveProject,
+    allPendingProject,
+    allCompletedProject,
+    loading,
+    error,
+  } = useActiveClinetProject();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const [activeRes, pendingRes, completedRes] = await Promise.all([
-                    axiosClient.get("jobs/active-jobs"),
-                    axiosClient.get("jobs/pending-jobs"),
-                    axiosClient.get("jobs/completed-jobs")
-                ]);
-
-                setAllActiveProject(activeRes.data.data);
-                setAllPendingProject(pendingRes.data.data);
-                setAllCompletedProject(completedRes.data.data);
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-                setError("Failed to load projects. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     const handleViewContract = async (projectId: string) => {
         try {

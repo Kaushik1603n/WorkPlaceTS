@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import avt from "../../../assets/avt.jpg";
-import axiosClient from "../../../utils/axiosClient";
+// import axiosClient from "../../../utils/axiosClient";
 import Pagination from "../../../components/Pagination";
 import { User, X, MapPin, DollarSign, Mail, Star, MessageSquare, Award, Clock, CheckCircle } from "lucide-react";
+import { useFreelancers } from "../../../features/apis/client/useFreelancers";
 
 interface FreelancerRatingStats {
     avgQuality: number;
@@ -121,7 +122,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
                                         <div className="text-3xl font-bold text-gray-800 mb-1">
                                             {profile.avgRating.toFixed(1)}
                                         </div>
-                                        <div  className="flex justify-center w-full">
+                                        <div className="flex justify-center w-full">
                                             <StarRating rating={profile.avgRating} size={20} />
                                         </div>
                                         <p className="text-sm text-gray-600 mt-2">
@@ -225,7 +226,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
                         >
                             Close
                         </button>
-                        
+
                     </div>
                 </div>
             </div>
@@ -234,40 +235,47 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
 };
 
 function FreelancerList() {
-    const [freelancers, setFreelancers] = useState<FreelancerResult[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(1);
+    // const [freelancers, setFreelancers] = useState<FreelancerResult[]>([]);
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [error, setError] = useState<string | null>(null);
+    // const [currentPage, setCurrentPage] = useState<number>(1);
+    // const [totalPages, setTotalPages] = useState<number>(1);
 
-    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<FreelancerResult | null>(null);
+    const {
+        freelancers,
+        loading,
+        error,
+        totalPages,
+        currentPage,
+        setCurrentPage,
+        refetch,
+    } = useFreelancers();
+    // const fetchFreelancers = async () => {
+    //     try {
+    //         setLoading(true);
+    //         setError(null);
+    //         const res = await axiosClient.get('/client/freelancer', {
+    //             params: {
+    //                 page: currentPage,
+    //                 limit: 8,
+    //             }
+    //         });
+    //         setFreelancers(res.data.freelancer || []);
+    //         setTotalPages(res.data?.pagination.totalPages || 1);
 
-    const fetchFreelancers = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const res = await axiosClient.get('/client/freelancer', {
-                params: {
-                    page: currentPage,
-                    limit: 8,
-                }
-            });
-            setFreelancers(res.data.freelancer || []);
-            setTotalPages(res.data?.pagination.totalPages || 1);
+    //     } catch (error) {
+    //         console.error('Error fetching freelancers:', error);
+    //         setError('Failed to load freelancers. Please try again.');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
-        } catch (error) {
-            console.error('Error fetching freelancers:', error);
-            setError('Failed to load freelancers. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchFreelancers();
-    }, [currentPage]);
+    // useEffect(() => {
+    //     fetchFreelancers();
+    // }, [currentPage]);
 
     const handleProfileView = (freelancerId: string) => {
         const profile = freelancers.find(f => f._id === freelancerId);
@@ -306,7 +314,7 @@ function FreelancerList() {
                         </div>
                         <p className="text-gray-600 mb-4">{error}</p>
                         <button
-                            onClick={fetchFreelancers}
+                            onClick={refetch}
                             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                         >
                             Try Again
@@ -356,13 +364,12 @@ function FreelancerList() {
                             key={profile._id}
                             className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full group hover:border-green-300 relative overflow-hidden"
                         >
-                            {/* Top Badge for High Rated Freelancers */}
-                            {profile.avgRating && profile.avgRating >= 4.5 && (
+                            {profile.avgRating && profile.avgRating >= 4 ?(
                                 <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                                     <Award size={12} />
                                     <span>Top Rated</span>
                                 </div>
-                            )}
+                            ):<></>}
 
                             {/* Profile Image */}
                             <div className="w-20 h-20 mx-auto mb-4 overflow-hidden rounded-full ring-2 ring-gray-200 group-hover:ring-green-300 transition-all relative">

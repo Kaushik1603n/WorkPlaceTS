@@ -3,32 +3,10 @@ import MetricCard from './MetricCard';
 import {
     Users, Target,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import axiosClient from '../../../utils/axiosClient';
-import type { AxiosError } from 'axios';
+import { useHiringProjects } from '../../../features/apis/client/useHiringProjec';
 
 function HiringProjects() {
-    const [hiringData, setHiringData] = useState([])
-    const [jobCount, setJobCount] = useState({
-        posted: "0", hired: "0"
-    })
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const res = await axiosClient.get("client/hiringprojects");
-                setHiringData(res.data.result);
-                setJobCount(res.data.jobCount)
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-            } finally {
-                // setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, []);
+    const { hiringData, jobCount } = useHiringProjects();
 
     return (
         <div className="space-y-6">

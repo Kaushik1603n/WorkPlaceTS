@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { Clock, IndianRupee, Eye, CreditCard, User, } from 'lucide-react';
 import { loadRazorpay } from '../../../utils/razorpay';
 import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
 import PaymentDetailsModal from './PaymentDetailsModal';
 import Pagination from '../../../components/Pagination';
+import { useClinetPayments } from '../../../features/apis/client/useClinetPayments';
 
 type PaymentStatus = 'pending' | 'completed' | 'failed';
 
@@ -24,41 +25,22 @@ interface IPaymentRequest {
 }
 
 const PaymentsTable = () => {
-  const [payments, setPayments] = useState<IPaymentRequest[]>([]);
-  const [loading, setLoading] = useState<boolean>(false)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<IPaymentRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [netAmount, setNetAmount] = useState(0);
-  const [platformFee, setPlatformFee] = useState(0);
-  const [pendingAmount, setPendingAmount] = useState(0);
-  const fetchPendingPayments = async (currentPage:number) => {
-    setLoading(true)
-    try {
-      const res = await axiosClient.get("/proposal/pending-paments", {
-        params: { page: currentPage, limit: 5 }
-      });
-      setPayments(res.data.data)
-      setTotalPage(res.data.totalPages)
-      setTotalCount(res.data.totalCount)
-      setTotalAmount(res.data.totalAmount)
-      setNetAmount(res.data.netAmount)
-      setPlatformFee(res.data.platformFee)
-      setPendingAmount(res.data.pendingAmount)
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false)
-    }
-  }
-  useEffect(() => {
-    fetchPendingPayments(currentPage)
-  }, [currentPage])
+  
 
-
+  const {
+    payments,
+    loading,
+    totalPages,
+    totalCount,
+    totalAmount,
+    netAmount,
+    platformFee,
+    pendingAmount,
+    refetch,
+  } = useClinetPayments(currentPage, 5);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -119,7 +101,7 @@ const PaymentsTable = () => {
 
       loadRazorpay(data.data.id, data.data.amount, "rzp_test_SnR7HoShJIhilD",
         () => {
-          fetchPendingPayments(currentPage);
+          refetch();
           toast.success("Payment completed successfully!");
         }
       )
@@ -353,7 +335,7 @@ const PaymentsTable = () => {
       <div className="flex justify-center mt-6">
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPage}
+          totalPages={totalPages}
           onPageChange={(page) => {
             setCurrentPage(page);
           }}

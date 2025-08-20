@@ -1,79 +1,116 @@
-import { useEffect, useState } from 'react';
-import axiosClient from '../../../utils/axiosClient';
-import { toast } from 'react-toastify';
+import {  useState } from 'react';
+// import axiosClient from '../../../utils/axiosClient';
+// import { toast } from 'react-toastify';
 import RatingFeedbackModal from './RatingFeedbackPage';
+import { useClientMilestones } from '../../../features/apis/client/useClientMilestones';
 
-interface Deliverable {
-    links: string[];
-    comments: string;
-    submittedAt?: string | Date;
-}
+// interface Deliverable {
+//     links: string[];
+//     comments: string;
+//     submittedAt?: string | Date;
+// }
 
-interface Milestone {
-    _id: string;
-    title: string;
-    description: string;
-    amount: number;
-    dueDate?: string | Date;
-    status: string;
-    deliverables?: Deliverable;
-}
+// interface Milestone {
+//     _id: string;
+//     title: string;
+//     description: string;
+//     amount: number;
+//     dueDate?: string | Date;
+//     status: string;
+//     deliverables?: Deliverable;
+// }
 
-interface FeedbackFormData {
-    ratings: {
-        quality: number;
-        deadlines: number;
-        professionalism: number;
-    };
-    feedback: string;
-    overallRating: number;
-}
+// interface FeedbackFormData {
+//     ratings: {
+//         quality: number;
+//         deadlines: number;
+//         professionalism: number;
+//     };
+//     feedback: string;
+//     overallRating: number;
+// }
 
 const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
-    const [milestones, setMilestones] = useState<Milestone[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [jobStatus, setJobStatus] = useState<string>("");
-    const [freelancerId, setFreelancerId] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
+    // const [milestones, setMilestones] = useState<Milestone[]>([]);
+    // const [loading, setLoading] = useState(true);
+    // const [jobStatus, setJobStatus] = useState<string>("");
+    // const [freelancerId, setFreelancerId] = useState<string>("");
+    // const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleSubmitFeedback = async (data: FeedbackFormData) => {
-        try {
-            const res = await axiosClient.post("/jobs/feedback", { ...data, jobId, receverId: freelancerId, user: "client" })
-            return {
-                success: "Feedback submitted successfully",
-                error: "",
-                data: res.data
-            }
-        } catch (error) {
-            console.log(error);
-            return {
-                success: "",
-                error: "Failed to submit feedback",
-                data: {}
-            };
+    // const handleSubmitFeedback = async (data: FeedbackFormData) => {
+    //     try {
+    //         const res = await axiosClient.post("/jobs/feedback", { ...data, jobId, receverId: freelancerId, user: "client" })
+    //         return {
+    //             success: "Feedback submitted successfully",
+    //             error: "",
+    //             data: res.data
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         return {
+    //             success: "",
+    //             error: "Failed to submit feedback",
+    //             data: {}
+    //         };
 
-        }
-    };
-    useEffect(() => {
-        const fetchSubmittedMilestones = async () => {
-            try {
-                setLoading(true);
-                const response = await axiosClient.get(`/proposal/${jobId}/milestones`);
+    //     }
+    // };
 
-                setMilestones(response.data.data.milestones)
-                setJobStatus(response.data.data.jobStatus)
-                setFreelancerId(response.data.data.freelancerId)
-            } catch (err) {
-                setError('Failed to load milestones');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchSubmittedMilestones = async () => {
+    //         try {
+    //             setLoading(true);
+    //             const response = await axiosClient.get(`/proposal/${jobId}/milestones`);
 
-        fetchSubmittedMilestones();
-    }, [jobId]);
+    //             setMilestones(response.data.data.milestones)
+    //             setJobStatus(response.data.data.jobStatus)
+    //             setFreelancerId(response.data.data.freelancerId)
+    //         } catch (err) {
+    //             setError('Failed to load milestones');
+    //             console.error(err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchSubmittedMilestones();
+    // }, [jobId]);
+
+    //     const handleApprove = async (milestoneId: string) => {
+    //     try {
+    //         await axiosClient.patch(`/proposal/milestones/${milestoneId}/approve`);
+    //         setMilestones(milestones.map(m =>
+    //             m._id === milestoneId ? { ...m, status: 'approved' } : m
+    //         ));
+    //         toast.success("milestone approved")
+    //     } catch (error) {
+    //         console.error('Approval failed:', error);
+    //     }
+    // };
+
+    // const handleRequestRevision = async (milestoneId: string) => {
+    //     try {
+    //         await axiosClient.patch(`/proposal/milestones/${milestoneId}/rejected`);
+    //         toast.success("milestone rejected")
+    //         setMilestones(milestones.map(m =>
+    //             m._id === milestoneId ? { ...m, status: 'rejected' } : m
+    //         ));
+    //     } catch (error) {
+    //         console.error('Revision request failed:', error);
+    //     }
+    // };
+
+    const {
+    milestones,
+    loading,
+    jobStatus,
+    // freelancerId,
+    error,
+    handleApprove,
+    handleRequestRevision,
+    handleSubmitFeedback,
+  } = useClientMilestones(jobId);
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -119,30 +156,6 @@ const MilestoneSubmissions = ({ jobId }: { jobId: string }) => {
             hour: '2-digit',
             minute: '2-digit'
         });
-    };
-
-    const handleApprove = async (milestoneId: string) => {
-        try {
-            await axiosClient.patch(`/proposal/milestones/${milestoneId}/approve`);
-            setMilestones(milestones.map(m =>
-                m._id === milestoneId ? { ...m, status: 'approved' } : m
-            ));
-            toast.success("milestone approved")
-        } catch (error) {
-            console.error('Approval failed:', error);
-        }
-    };
-
-    const handleRequestRevision = async (milestoneId: string) => {
-        try {
-            await axiosClient.patch(`/proposal/milestones/${milestoneId}/rejected`);
-            toast.success("milestone rejected")
-            setMilestones(milestones.map(m =>
-                m._id === milestoneId ? { ...m, status: 'rejected' } : m
-            ));
-        } catch (error) {
-            console.error('Revision request failed:', error);
-        }
     };
 
     const formatLink = (url: string) => {

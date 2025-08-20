@@ -5,9 +5,9 @@ import { IMarketPlaceUseCase } from "../../../useCase/Interface/IMarketPlaceUseC
 import { HttpStatus } from "../statusCode";
 import { Messages } from "../messages";
 export class MarketPlaceProjectController {
-  private marketPlace:IMarketPlaceUseCase;
-  constructor(usecase:IMarketPlaceUseCase){
-    this.marketPlace=usecase;
+  private marketPlace: IMarketPlaceUseCase;
+  constructor(usecase: IMarketPlaceUseCase) {
+    this.marketPlace = usecase;
   }
 
   getAllMarketProjects: RequestHandler = async (req, res): Promise<void> => {
@@ -23,18 +23,21 @@ export class MarketPlaceProjectController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const { result, pagination } = await this.marketPlace.getAllProjectDetails({
-        search,
-        minPrice,
-        maxPrice,
-        jobTypes,
-        skills,
-        experienceLevel,
-        page,
-        limit,
-      });
+      const { result, pagination } =
+        await this.marketPlace.getAllProjectDetails({
+          search,
+          minPrice,
+          maxPrice,
+          jobTypes,
+          skills,
+          experienceLevel,
+          page,
+          limit,
+        });
 
-      res.status(HttpStatus.OK).json({ success: true, data: result, pagination });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, data: result, pagination });
     } catch (error) {
       console.error(error);
       res
@@ -48,13 +51,19 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
-      const result = await this.marketPlace.getActiveProjectUseCase(userId);
+      const [active, pending, completed] = await Promise.all([
+        this.marketPlace.getActiveProjectUseCase(userId) || [],
+        this.marketPlace.getPendingProjectUseCase(userId) || [],
+        this.marketPlace.getCompletedProjectUseCase(userId) || [],
+      ]);
 
-      if (!result) {
+      if (!active || !pending || !completed) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: "Job not found",
@@ -62,7 +71,12 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      res.status(HttpStatus.OK).json({ success: true, data: result });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        active: active || [],
+        pending: pending || [],
+        completed: completed || [],
+      });
     } catch (error) {
       console.error("Job details fetch error:", error);
       const errorMessage =
@@ -80,7 +94,9 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -112,7 +128,9 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -236,7 +254,9 @@ export class MarketPlaceProjectController {
       const user = req.user as { userId: string; email: string };
       const userId = user.userId;
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
       const proposalData: BidRequest = req.body;
@@ -274,7 +294,9 @@ export class MarketPlaceProjectController {
         return;
       }
 
-      res.status(HttpStatus.OK).json({ success: true, message: "Proposal submitted" });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "Proposal submitted" });
     } catch (error) {
       console.error("Proposal submission error:", error);
       const statusCode =
@@ -299,7 +321,9 @@ export class MarketPlaceProjectController {
       const proposalId = req.params.proposalId;
 
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -341,7 +365,9 @@ export class MarketPlaceProjectController {
       const userId = user.userId;
 
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.INVALID_USER_AUTHENTICATED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_USER_AUTHENTICATED });
         return;
       }
 
@@ -546,15 +572,16 @@ export class MarketPlaceProjectController {
         jobId,
       };
 
-      const data = await this.marketPlace.submitFreelacerReportUseCase(reportData);
+      const data = await this.marketPlace.submitFreelacerReportUseCase(
+        reportData
+      );
 
       res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {
       console.error("Report submission error:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error:
-          error instanceof Error ? error.message : Messages.SERVER_ERROR,
+        error: error instanceof Error ? error.message : Messages.SERVER_ERROR,
       });
     }
   };

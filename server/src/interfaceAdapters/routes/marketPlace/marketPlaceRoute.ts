@@ -6,6 +6,7 @@ const project =createMrketPlaceDependencies()
 const marketPlaceRoute = express.Router();
 
 marketPlaceRoute.get("/get-jobs", project.getAllMarketProjects);
+marketPlaceRoute.get("/all",authenticate, project.activeClientProject);
 marketPlaceRoute.get("/active-jobs",authenticate, project.activeClientProject);
 marketPlaceRoute.get("/pending-jobs",authenticate, project.pendingClientProject);
 marketPlaceRoute.get("/completed-jobs",authenticate, project.completedClientProject);

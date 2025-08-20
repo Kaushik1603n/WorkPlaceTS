@@ -1,44 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ClientTicketsTable from '../../../components/client/ticket/ClientTicketsTable';
 import ClientTicketDetailsModal from '../../../components/client/ticket/ClientTicketDetailsModal';
 import type { Ticket } from '../../../components/client/ticket/types';
-import axiosClient from '../../../utils/axiosClient';
 import { toast } from 'react-toastify';
 import Pagination from '../../../components/Pagination';
+import { useClientTickets } from '../../../features/apis/client/useClientTickets';
 
 const ClientTicketDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [tickets, setTickets] = useState<Ticket[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-    useEffect(() => {
-        const fetchTickets = async () => {
-            try {
-                const res = await axiosClient.get("/client/project/tickets", {
-                    params: { page: currentPage, limit: 5 }
-                });
-                setTickets(res.data.data);
-                setTotalPage(res.data.totalPages);
-            } catch (error) {
-                console.error('Failed to fetch tickets:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchTickets();
-    }, [currentPage]);
 
+    // const [isLoading, setIsLoading] = useState(true);
+    // const [tickets, setTickets] = useState<Ticket[]>([]);
+    // const [totalPage, setTotalPage] = useState(1);
+    // useEffect(() => {
+    //     const fetchTickets = async () => {
+    //         try {
+    //             const res = await axiosClient.get("/client/project/tickets", {
+    //                 params: { page: currentPage, limit: 5 }
+    //             });
+    //             setTickets(res.data.data);
+    //             setTotalPage(res.data.totalPages);
+    //         } catch (error) {
+    //             console.error('Failed to fetch tickets:', error);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
+    //     fetchTickets();
+    // }, [currentPage]);
+   
+    const { tickets, isLoading, totalPages, addComment } = useClientTickets(
+        currentPage,
+        5
+    );
     const handleViewTicket = (ticket: Ticket) => {
         setSelectedTicket(ticket);
     };
 
     const handleAddComment = async (ticketId: string, comment: string) => {
         try {
-            const response = await axiosClient.post(`/client/project/tickets/${ticketId}/comments`, { text: comment });
-            const updatedTicket = response.data.data;
-            setTickets(tickets.map(t => t._id === ticketId ? updatedTicket : t));
-            setSelectedTicket(updatedTicket);
+            // const response = await axiosClient.post(`/client/project/tickets/${ticketId}/comments`, { text: comment });
+            // const updatedTicket = response.data.data;
+            // setTickets(tickets.map(t => t._id === ticketId ? updatedTicket : t));
+            // setSelectedTicket(updatedTicket);
+            const updatedTicket = await addComment(ticketId, comment);
+            if (updatedTicket) {
+                setSelectedTicket(updatedTicket);
+            }
         } catch (error) {
             toast.error("Failed to add comment")
             console.error('Failed to add comment:', error);
@@ -77,7 +86,7 @@ const ClientTicketDashboard = () => {
             <div className="flex justify-center mt-2">
                 <Pagination
                     currentPage={currentPage}
-                    totalPages={totalPage}
+                    totalPages={totalPages}
                     onPageChange={(page) => {
                         setCurrentPage(page);
                     }}
