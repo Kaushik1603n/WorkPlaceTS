@@ -1,38 +1,30 @@
-import { useEffect, useState } from 'react'
-import axiosClient from '../../../utils/axiosClient';
-import type { Ticket } from '../../../components/client/ticket/types';
 import FreelancerTicketsTable from './FreelancerTicketsTable';
 import Pagination from '../../../components/Pagination';
+import useFreelancerTickets from '../../../features/apis/freelancer/useFreelancerTickets';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 
 function FreelcancerTicket() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
-
-    useEffect(() => {
-        const fetchTickets = async () => {
-            try {
-                const res = await axiosClient.get("/freelancer/tickets", {
-                    params: { page: currentPage, limit: 5 }
-                });
-                setTickets(res.data.data);
-                setTotalPage(res.data.totalPages);
-            } catch (error) {
-                console.error('Failed to fetch tickets:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchTickets();
-    }, [currentPage]);
-
-
-
-
+    const {
+        tickets,
+        isLoading,
+        error,
+        currentPage,
+        totalPage,
+        setCurrentPage,
+        refetch
+    } = useFreelancerTickets();
+    
     if (isLoading) {
         return <div className="min-h-screen flex items-center justify-center">Loading tickets...</div>;
+    }
+
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={refetch} />
+            </main>
+        );
     }
 
     return (

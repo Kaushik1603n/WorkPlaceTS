@@ -2,67 +2,24 @@ import {
     DollarSign,
     TrendingUp,
     Clock,
-
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import MetricCard from './MetricCard';
-import { useEffect, useState } from 'react';
-import axiosClient from '../../../utils/axiosClient';
-import type { AxiosError } from 'axios';
 import LoadingSpinner from '../../ui/LoadingSpinner';
+import { useFreelancerEarnings } from '../../../features/apis/freelancer/useFreelancerEarnings';
+import ErrorMessage from '../../ui/ErrorMessage';
 
-
-interface WeeklyPayment {
-    earnings: number,
-    projects: number,
-    week: string
-}
-
-interface PaymentData {
-    totalPayments: number;
-    pendingPayments: number;
-    monthlyStats: number;
-}
 function FreelancerEarnings() {
-    // const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-    const [paymentData, setPaymentData] = useState<PaymentData>({
-        totalPayments: 0,
-        pendingPayments: 0,
-        monthlyStats: 0,
-    });
-    const [allPayments, setAllPayments] = useState<WeeklyPayment[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
+    const { paymentData, allPayments, loading, error } = useFreelancerEarnings();
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+            </main>
+        );
+    }
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                setLoading(true);
-                const res = await axiosClient.get("freelancer/totalearnings");
-                setPaymentData({
-                    totalPayments: res.data.result.totalPayments,
-                    pendingPayments: res.data.result.pendingPayments,
-                    monthlyStats: res.data.result.monthlyStats.totalMonthlyEarnings
-                });
-
-                setAllPayments(
-                    res.data.result.weeklyPayments
-                );
-
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-            } finally {
-                setLoading(false);
-
-            }
-        };
-
-        fetchProjects();
-    }, []);
-
-
-
- if (loading) {
+    if (loading) {
         return (
             <main className="flex-1 p-4 flex items-center justify-center">
                 <LoadingSpinner size="lg" />
@@ -70,24 +27,23 @@ function FreelancerEarnings() {
         );
     }
 
-
     return (
         <div className="space-y-8">
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <MetricCard
                     title="Total Earnings"
-                    value={(paymentData.totalPayments*80).toString()}
+                    value={(paymentData.totalPayments * 80).toString()}
                     icon={DollarSign}
                 />
                 <MetricCard
                     title="This Month"
-                    value={(paymentData.monthlyStats*80).toString()}
+                    value={(paymentData.monthlyStats * 80).toString()}
                     icon={TrendingUp}
                 />
                 <MetricCard
                     title="Pending Payments"
-                    value={(paymentData.pendingPayments*80).toString()}
+                    value={(paymentData.pendingPayments * 80).toString()}
                     icon={Clock}
 
                 />
@@ -96,15 +52,6 @@ function FreelancerEarnings() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900">weekly Earnings</h3>
-                    {/* <select
-                        value={selectedPeriod}
-                        onChange={(e) => setSelectedPeriod(e.target.value)}
-                        className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-                    >
-                        <option value="monthly">Monthly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="yearly">Yearly</option>
-                    </select> */}
                 </div>
                 <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -145,8 +92,6 @@ function FreelancerEarnings() {
                     </ResponsiveContainer>
                 </div>
             </div>
-
-            {/* Milestone Payments */}
 
         </div>
     )

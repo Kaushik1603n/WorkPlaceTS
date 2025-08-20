@@ -1,48 +1,18 @@
-import { useEffect, useState } from "react";
 import ProjectCard from "../../../components/project/ProjectCard";
-import axiosClient from "../../../utils/axiosClient";
-import { AxiosError } from "axios";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../../components/ui/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import { Plus, TrendingUp, CheckCircle, Clock } from "lucide-react";
-
-interface FreelancerProject {
-    _id: string;
-    contractId: string;
-    budget: number;
-    budgetType: string;
-    time: string;
-    status: string;
-    title: string;
-    description: string;
-}
+import { useFreelancerActiveProjects } from "../../../features/apis/freelancer/useFreelancerACtiveProjects";
 
 function ActiveProject() {
-    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    // const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [error, setError] = useState<string | null>(null);
+
+    const { allProjects, loading, error, refetch } = useFreelancerActiveProjects();
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const res = await axiosClient.get("jobs/get-all-freelancer-jobs");
-                setAllProjects(res.data.data);
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-                setError("Failed to load projects. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, []);
 
     const handleViewContract = async (projectId: string) => {
         try {
@@ -66,7 +36,7 @@ function ActiveProject() {
     if (error) {
         return (
             <main className="flex-1 p-4">
-                <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+                <ErrorMessage message={error}  onRetry={refetch} />
             </main>
         );
     }
@@ -80,7 +50,7 @@ function ActiveProject() {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Projects</h3>
                     <p className="text-gray-500 mb-6">Get started by creating your first project</p>
-                    <button 
+                    <button
                         onClick={() => navigate("/market-place")}
                         className="inline-flex items-center px-6 py-3 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-colors"
                     >
@@ -124,7 +94,7 @@ function ActiveProject() {
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Projects</h3>
                                 <p className="text-gray-500 mb-6">You don't have any projects in progress</p>
-                                <button 
+                                <button
                                     onClick={() => navigate("/market-place")}
                                     className="inline-flex items-center px-6 py-3 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-colors"
                                 >

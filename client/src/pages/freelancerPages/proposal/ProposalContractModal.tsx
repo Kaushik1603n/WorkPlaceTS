@@ -1,23 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Calendar, IndianRupee, FileText, User, Briefcase, CheckCircle } from "lucide-react";
-import { toast } from "react-toastify";
-import axiosClient from "../../../utils/axiosClient";
-import axios from "axios";
+import useContractDetails from "../../../features/apis/freelancer/useContractDetails";
+import ErrorMessage from "../../../components/ui/ErrorMessage";
 
-interface Contract {
-  _id?: string;
-  title?: string;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  startDate?: string;
-  totalAmount?: number;
-  freelancerId?: string;
-  jobId?: string;
-  job_Id?: string;
-  terms?: string;
-  clientId?: string;
-}
 
 interface ProposalContractModalProps {
   isOpen: boolean;
@@ -26,61 +11,63 @@ interface ProposalContractModalProps {
 }
 
 function ProposalContractModal({ isOpen, contractId, onClose }: ProposalContractModalProps) {
-  const [contract, setContract] = useState<Contract>({});
 
-  useEffect(() => {
-    if (!contractId) return;
-    let isMounted = true;
-    const source = axios.CancelToken.source();
-
-    const fetchContract = async () => {
-      try {
-        const response = await axiosClient.get(`/proposal/get-contract-details/${contractId}`, {
-          cancelToken: source.token,
-        });
-        if (isMounted) {
-          setContract(response.data.data);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && !axios.isCancel(error)) {
-          toast.error("Failed to load proposal details");
-        } else if (!axios.isCancel(error)) {
-          toast.error("Failed to load proposal details");
-        }
-      }
-    };
-
-    fetchContract();
-
-    return () => {
-      isMounted = false;
-      source.cancel("Request canceled due to component unmount");
-    };
-  }, [contractId]);
+  const {
+    contract,
+    loading,
+    error,
+    acceptContract,
+    rejectContract,
+    fetchContract
+  } = useContractDetails(contractId);
 
   const acceptHandler = async () => {
-
     try {
-      const response = await axiosClient.get(`/proposal/accept-contract/${contractId}`)
-      setContract(response.data.data);
-
+      await acceptContract();
     } catch (error) {
-      console.error(error);
-      toast.error("Cannot Accept the contract")
+      console.log(error);
     }
-
   }
+
   const rejectHandler = async () => {
     try {
-      const response = await axiosClient.get(`/proposal/reject-contract/${contractId}`)
-      setContract(response.data.data);
-
-
+      await rejectContract();
     } catch (error) {
-      toast.error("Cannot reject the contract")
-      console.error(error);
+      console.log(error);
     }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading job details...</p>
+        </div>
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <main className="flex-1 p-4">
+        <ErrorMessage message={error} onRetry={fetchContract} />
+      </main>
+    );
+  }
+
+
+  // const rejectHandler = async () => {
+  //   try {
+  //     const response = await axiosClient.get(`/proposal/reject-contract/${contractId}`)
+  //     setContract(response.data.data);
+
+
+  //   } catch (error) {
+  //     toast.error("Cannot reject the contract")
+  //     console.error(error);
+  //   }
+  // }
 
   if (!isOpen) return null;
 

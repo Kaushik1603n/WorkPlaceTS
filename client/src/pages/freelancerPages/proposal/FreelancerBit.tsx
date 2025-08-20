@@ -1,9 +1,8 @@
-import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
-import { toast } from "react-toastify";
+import { useState, useCallback } from "react";
 import ProposalContractModal from "./ProposalContractModal";
-import axiosClient from "../../../utils/axiosClient";
 import FreelancerBitSkeleton from "./FreelancerBitSkeleton";
+import useFreelancerProposals from "../../../features/apis/freelancer/useFreelancerBit";
+import ErrorMessage from "../../../components/ui/ErrorMessage";
 
 interface Proposal {
     _id: string;
@@ -26,30 +25,15 @@ interface Proposal {
 }
 
 function FreelancerBit() {
-    const [proposals, setProposals] = useState<Proposal[]>([]);
     const [openModal, setOpenModal] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [selectedProposal, setSelectedProposal] = useState<Proposal | undefined>();
 
-    useEffect(() => {
-        const fetchProposals = async () => {
-            try {
-                setIsLoading(true);
-
-                const response = await axiosClient.get("/proposal/get-freelacer-proposal");
-                setProposals(response.data.data);                
-            } catch (error) {
-                if (axios.isAxiosError(error)) {
-                    toast.error(error.response?.data?.message || "Failed to load proposal details");
-                } else {
-                    toast.error("Failed to load proposal details");
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProposals();
-    }, []);
+    const {
+        proposals,
+        isLoading,
+        error,
+        refetch
+    } = useFreelancerProposals();
 
     const handleViewContract = useCallback((proposal: Proposal) => {
         setSelectedProposal(proposal);
@@ -63,6 +47,15 @@ function FreelancerBit() {
     if (isLoading) {
         return <FreelancerBitSkeleton />;
     }
+
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={refetch} />
+            </main>
+        );
+    }
+    
     return (
         <div className="container mx-auto px-4 pb-8 ">
             <main className="flex-1">
@@ -126,7 +119,7 @@ function FreelancerBit() {
                                         </button>
                                     </div>
                                 )}
-                               
+
                             </div>
                         ))}
                 </div>

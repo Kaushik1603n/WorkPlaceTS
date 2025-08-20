@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import avt from "../../../assets/avt.jpg";
-import axiosClient from "../../../utils/axiosClient";
 import Pagination from "../../../components/Pagination";
 import { User, X, MapPin, Mail, Star, MessageSquare, Award, MessageCircle, Eye, Briefcase } from "lucide-react";
+import { useClientsProfile } from "../../../features/apis/freelancer/useClientsProfile";
 
 export interface ClientRatingStats {
     avgClarity: number;
@@ -205,7 +205,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
                     </div>
                 </div>
 
-                {/* Modal Footer */}
                 <div className="p-6 border-t bg-gray-50 flex justify-between items-center rounded-b-xl">
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
@@ -235,43 +234,44 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, profile })
 };
 
 function ClientList() {
-    const [client, setClient] = useState<ClientResult[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(1);
 
-    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<ClientResult | null>(null);
+    const {
+        clients,
+        totalPages,
+        loading,
+        error,
+        refetch
+    } = useClientsProfile(currentPage, 8);
+    // const fetchClient = async () => {
+    //     try {
+    //         setLoading(true);
+    //         setError(null);
+    //         const res = await axiosClient.get('/freelancer/client', {
+    //             params: {
+    //                 page: currentPage,
+    //                 limit: 8,
+    //             }
+    //         });
+    //         setClient(res.data.clients || []);
+    //         setTotalPages(res.data?.pagination.totalPages || 1);
 
-    const fetchClient = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const res = await axiosClient.get('/freelancer/client', {
-                params: {
-                    page: currentPage,
-                    limit: 8,
-                }
-            });
-            setClient(res.data.clients || []);
-            setTotalPages(res.data?.pagination.totalPages || 1);
+    //     } catch (error) {
+    //         console.error('Error fetching client:', error);
+    //         setError('Failed to load client. Please try again.');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
-        } catch (error) {
-            console.error('Error fetching client:', error);
-            setError('Failed to load client. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchClient();
-    }, [currentPage]);
+    // useEffect(() => {
+    //     fetchClient();
+    // }, [currentPage]);
 
     const handleProfileView = (clientId: string) => {
-        const profile = client.find(c => c._id === clientId);
+        const profile = clients.find(c => c._id === clientId);
         if (profile) {
             setSelectedProfile(profile);
             setIsModalOpen(true);
@@ -307,7 +307,7 @@ function ClientList() {
                         </div>
                         <p className="text-gray-600 mb-4">{error}</p>
                         <button
-                            onClick={fetchClient}
+                            onClick={refetch}
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                         >
                             Try Again
@@ -318,7 +318,7 @@ function ClientList() {
         );
     }
 
-    if (client.length === 0) {
+    if (clients.length === 0) {
         return (
             <div className="py-5 px-4 md:px-8 lg:px-16">
                 <div className="max-w-6xl mx-auto">
@@ -352,7 +352,7 @@ function ClientList() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {client.map((profile) => (
+                    {clients.map((profile) => (
                         <div
                             key={profile._id}
                             className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full group hover:border-blue-300 relative overflow-hidden"

@@ -1,27 +1,28 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { Clock, IndianRupee, CreditCard, User, TrendingUp, TrendingDown, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
-import axiosClient from '../../../utils/axiosClient';
 import FreelancerPaymentDetailsModal from './FreelancerPaymentDetails';
 import Pagination from '../../../components/Pagination';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
+import { useWalletTransactions } from '../../../features/apis/freelancer/useWalletTransactions';
 
-interface IWalletTransaction {
-    type: "credit" | "debit";
-    amount: number;
-    description: string;
-    paymentId?: string;
-    _id?: string;
-    createdAt: Date | string;
-}
+// interface IWalletTransaction {
+//     type: "credit" | "debit";
+//     amount: number;
+//     description: string;
+//     paymentId?: string;
+//     _id?: string;
+//     createdAt: Date | string;
+// }
 
-interface IWallet {
-    _id: string;
-    userId: string | "admin";
-    balance: number;
-    currency: string;
-    transactions: IWalletTransaction[];
-    createdAt: Date | string;
-    updatedAt: Date | string;
-}
+// interface IWallet {
+//     _id: string;
+//     userId: string | "admin";
+//     balance: number;
+//     currency: string;
+//     transactions: IWalletTransaction[];
+//     createdAt: Date | string;
+//     updatedAt: Date | string;
+// }
 
 interface IPayment {
     _id: string;
@@ -41,44 +42,48 @@ interface IPayment {
 }
 
 function WalletTransactions() {
-    const [wallet, setWallet] = useState<IWallet | null>(null);
-    const [payments, setPayments] = useState<IPayment[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPage, setTotalPage] = useState<number>(1);
-    const [totalCount, setTotalCount] = useState<number>(0);
-    const [totalAmount, setTotalAmount] = useState<number>(0);
-    const [netAmount, setNetAmount] = useState<number>(0);
-    const [platformFee, setPlatformFee] = useState<number>(0);
-    const [pendingAmount, setPendingAmount] = useState<number>(0);
+    // const [totalPage, setTotalPage] = useState<number>(1);
 
+    const {
+        wallet,
+        payments,
+        totalPages,
+        totalAmount,
+        netAmount,
+        platformFee,
+        pendingAmount,
+        totalCount,
+        loading,
+        error,
+    } = useWalletTransactions(currentPage);
 
-    useEffect(() => {
-        const fetchPaymentsDetails = async () => {
-            setLoading(true)
-            try {
-                const res = await axiosClient.get("/payments/get-payment", {
-                    params: { page: currentPage, limit: 5 }
-                });
-                setWallet(res.data?.data || 0)
-                setPayments(res.data?.payment || [])
-                setTotalPage(res.data?.totalPages || 1)
-                setTotalAmount(res.data?.totalAmount || 0)
-                setNetAmount(res.data?.netAmount || 0)
-                setPlatformFee(res.data?.platformFee || 0)
-                setPendingAmount(res.data?.pendingAmount || 0)
-                setTotalCount(res.data?.totalCount || 0)
+    // useEffect(() => {
+    //     const fetchPaymentsDetails = async () => {
+    //         setLoading(true)
+    //         try {
+    //             const res = await axiosClient.get("/payments/get-payment", {
+    //                 params: { page: currentPage, limit: 5 }
+    //             });
+    //             setWallet(res.data?.data || 0)
+    //             setPayments(res.data?.payment || [])
+    //             setTotalPage(res.data?.totalPages || 1)
+    //             setTotalAmount(res.data?.totalAmount || 0)
+    //             setNetAmount(res.data?.netAmount || 0)
+    //             setPlatformFee(res.data?.platformFee || 0)
+    //             setPendingAmount(res.data?.pendingAmount || 0)
+    //             setTotalCount(res.data?.totalCount || 0)
 
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchPaymentsDetails()
-    }, [currentPage])
+    //         } catch (error) {
+    //             console.error(error);
+    //         } finally {
+    //             setLoading(false)
+    //         }
+    //     }
+    //     fetchPaymentsDetails()
+    // }, [currentPage])
 
 
     const formatDate = (dateString: string | Date) => {
@@ -148,6 +153,14 @@ function WalletTransactions() {
             </div>
         );
     }
+
+     if (error) {
+            return (
+                <main className="flex-1 p-4">
+                    <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+                </main>
+            );
+        }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-6">
@@ -346,7 +359,7 @@ function WalletTransactions() {
             <div className="flex justify-center mt-6">
                 <Pagination
                     currentPage={currentPage}
-                    totalPages={totalPage}
+                    totalPages={totalPages}
                     onPageChange={(page) => {
                         setCurrentPage(page);
                     }}

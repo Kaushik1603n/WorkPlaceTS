@@ -10,27 +10,14 @@ import { PasswordChangeModal } from "../../../components/changePass/PasswordChan
 import { changeEmail, changeEmailOtp, changePass, getUserDetails } from "../../../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { EmailVerificationModal } from "../../../components/emailVerify/EmailVerificationModal";
-import axiosClient from "../../../utils/axiosClient";
-import type { AxiosError } from "axios";
+import { useFreelancerProfileProjects } from "../../../features/apis/freelancer/useFreelncerProfileProjects";
 
-interface FreelancerProject {
-    _id: string;
-    contractId: string;
-    budget: number;
-    budgetType: string;
-    time: string;
-    status: string;
-    title: string;
-    description: string;
-}
 export default function FreelancerProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const { freelancer } = useSelector((state: RootState) => state.freelancerProfile);
     const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
-    const [allProjects, setAllProjects] = useState<FreelancerProject[]>([]);
-    const [completePrg, setCompletePrg] = useState<number>();
-    const [pendingPrg, setPendingPrg] = useState<number>();
     const { user } = useSelector((state: RootState) => state.auth);
+    const { allProjects, completePrg, pendingPrg } = useFreelancerProfileProjects(); 
 
     useEffect(() => {
         dispatch(getFreelancerProfile())
@@ -49,32 +36,6 @@ export default function FreelancerProfile() {
             });
     }, [dispatch]);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const res = await axiosClient.get("jobs/get-all-freelancer-jobs");
-                setAllProjects(res.data.data);
-            } catch (err) {
-                const error = err as AxiosError;
-                toast.error("Failed to fetch projects")
-                console.error("Failed to fetch projects:", error);
-            }
-        };
-        fetchProjects();
-    }, []);
-
-    useEffect(() => {
-        setPendingPrg(
-            allProjects.reduce((acc, prg) => {
-                return prg.status === "in-progress" ? acc + 1 : acc;
-            }, 0)
-        );
-        setCompletePrg(
-            allProjects.reduce((acc, prg) => {
-                return prg.status === "completed" ? acc + 1 : acc;
-            }, 0)
-        );
-    }, [allProjects])
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 

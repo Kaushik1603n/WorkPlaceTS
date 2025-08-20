@@ -1,66 +1,18 @@
-import { useEffect, useState } from "react";
 import MetricCard from "./MetricCard"
 import {
     CheckCircle,
     Clock,
-    // Star,
     Users,
     BarChart3,
     Calendar,
 } from 'lucide-react';
-import axiosClient from "../../../utils/axiosClient";
-import type { AxiosError } from "axios";
 import LoadingSpinner from "../../ui/LoadingSpinner";
+import { useFetchFreelancerProjects } from "../../../features/apis/freelancer/useFreelancerProjects";
+import ErrorMessage from "../../ui/ErrorMessage";
 
-interface AllProjectDetails {
-    _id: string,
-    title: string,
-    clientId: string,
-    budget: number
-    status: string
-    createdAt: string
-}
-
-interface ProjectData {
-    totalProject: number;
-    completedProject: number;
-    activeProject: number;
-}
 
 function FreelancerProjects() {
-    const [projectData, setProjectData] = useState<ProjectData>({
-        totalProject: 0,
-        completedProject: 0,
-        activeProject: 0,
-    });
-    const [allProject, setAllProject] = useState<AllProjectDetails[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
-
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                setLoading(true);
-                const res = await axiosClient.get("freelancer/dashboardproject");
-
-                if (res.data && res.data.result) {
-                    setProjectData({
-                        totalProject: res.data.result.totalProject || 0,
-                        completedProject: res.data.result.completedProject || 0,
-                        activeProject: res.data.result.activeProject || 0,
-                    });
-
-                    setAllProject(res.data.result.allProject || []);
-                }
-            } catch (err) {
-                const error = err as AxiosError;
-                console.error("Failed to fetch projects:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, []);
+    const { projectData, allProject, loading, error } = useFetchFreelancerProjects();
 
     const formatDate = (dateString: string) => {
         try {
@@ -92,10 +44,16 @@ function FreelancerProjects() {
         );
     }
 
+    if (error) {
+        return (
+            <main className="flex-1 p-4">
+                <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+            </main>
+        );
+    }
+
     return (
         <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
                     title="Total Projects"
